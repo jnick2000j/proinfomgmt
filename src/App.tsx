@@ -15,6 +15,7 @@ import Products from "./pages/Products";
 import ProductRoadmap from "./pages/ProductRoadmap";
 import FeatureBacklog from "./pages/FeatureBacklog";
 import SprintPlanning from "./pages/SprintPlanning";
+import FeatureDependencies from "./pages/FeatureDependencies";
 import RiskRegister from "./pages/RiskRegister";
 import IssueRegister from "./pages/IssueRegister";
 import BenefitsRegister from "./pages/BenefitsRegister";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/products/roadmap" element={<ProtectedRoute><ProductRoadmap /></ProtectedRoute>} />
             <Route path="/products/features" element={<ProtectedRoute><FeatureBacklog /></ProtectedRoute>} />
             <Route path="/products/sprints" element={<ProtectedRoute><SprintPlanning /></ProtectedRoute>} />
+            <Route path="/products/dependencies" element={<ProtectedRoute><FeatureDependencies /></ProtectedRoute>} />
             <Route path="/registers/risks" element={<ProtectedRoute><RiskRegister /></ProtectedRoute>} />
             <Route path="/registers/issues" element={<ProtectedRoute><IssueRegister /></ProtectedRoute>} />
             <Route path="/registers/benefits" element={<ProtectedRoute><BenefitsRegister /></ProtectedRoute>} />

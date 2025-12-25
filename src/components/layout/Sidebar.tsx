@@ -55,6 +55,7 @@ const navigation: NavItem[] = [
       { label: "Roadmap", href: "/products/roadmap" },
       { label: "Features", href: "/products/features" },
       { label: "Sprint Planning", href: "/products/sprints" },
+      { label: "Dependencies", href: "/products/dependencies" },
     ],
   },
   {
