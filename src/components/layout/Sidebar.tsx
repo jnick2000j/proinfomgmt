@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -17,6 +18,7 @@ import {
   TrendingUp,
   Calendar,
   Package,
+  Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +80,7 @@ const navigation: NavItem[] = [
 export function Sidebar() {
   const location = useLocation();
   const { user, signOut, userRole } = useAuth();
+  const { currentOrganization } = useOrganization();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Programmes", "Projects", "Products", "Registers"]);
 
   const toggleExpand = (label: string) => {
@@ -93,14 +96,33 @@ export function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar border-r border-sidebar-border">
       <div className="flex h-full flex-col">
-        {/* Logo */}
+        {/* Logo - Organization Branded */}
         <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-            <Target className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-sm font-semibold text-sidebar-foreground">PIMP</h1>
-            <p className="text-xs text-sidebar-foreground/60">Programme Management</p>
+          {currentOrganization?.logo_url ? (
+            <img 
+              src={currentOrganization.logo_url} 
+              alt={currentOrganization.name} 
+              className="h-9 w-9 object-contain rounded-lg"
+            />
+          ) : (
+            <div 
+              className="flex h-9 w-9 items-center justify-center rounded-lg"
+              style={{ backgroundColor: currentOrganization?.primary_color || 'hsl(var(--sidebar-primary))' }}
+            >
+              {currentOrganization ? (
+                <Building2 className="h-5 w-5 text-white" />
+              ) : (
+                <Target className="h-5 w-5 text-sidebar-primary-foreground" />
+              )}
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-sm font-semibold text-sidebar-foreground truncate">
+              {currentOrganization?.name || "PIMP"}
+            </h1>
+            <p className="text-xs text-sidebar-foreground/60 truncate">
+              {currentOrganization ? "Programme Management" : "Select Organization"}
+            </p>
           </div>
         </div>
 

@@ -1,9 +1,10 @@
-import { Bell, Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette } from "lucide-react";
+import { Bell, Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OrganizationSelector } from "@/components/OrganizationSelector";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HeaderProps {
   title: string;
@@ -20,11 +21,20 @@ interface HeaderProps {
 
 export function Header({ title, subtitle }: HeaderProps) {
   const { user, signOut, userRole } = useAuth();
+  const { currentOrganization } = useOrganization();
   const isAdmin = userRole === "admin";
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
       <div className="flex items-center gap-4">
+        {/* Organization Logo in Header */}
+        {currentOrganization?.logo_url && (
+          <img 
+            src={currentOrganization.logo_url} 
+            alt={currentOrganization.name}
+            className="h-8 w-8 object-contain rounded-lg hidden lg:block"
+          />
+        )}
         <div>
           <h1 className="text-xl font-semibold text-foreground">{title}</h1>
           {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}

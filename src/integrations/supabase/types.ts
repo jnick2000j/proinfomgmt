@@ -317,6 +317,106 @@ export type Database = {
           },
         ]
       }
+      lessons_learned: {
+        Row: {
+          action_taken: string | null
+          applicable_to: string[] | null
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          identified_by: string | null
+          lesson_type: string
+          organization_id: string | null
+          outcome: string | null
+          owner_id: string | null
+          priority: string
+          programme_id: string | null
+          project_id: string | null
+          project_stage: string | null
+          recommendation: string | null
+          root_cause: string | null
+          status: string
+          title: string
+          updated_at: string
+          what_happened: string | null
+        }
+        Insert: {
+          action_taken?: string | null
+          applicable_to?: string[] | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          identified_by?: string | null
+          lesson_type?: string
+          organization_id?: string | null
+          outcome?: string | null
+          owner_id?: string | null
+          priority?: string
+          programme_id?: string | null
+          project_id?: string | null
+          project_stage?: string | null
+          recommendation?: string | null
+          root_cause?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          what_happened?: string | null
+        }
+        Update: {
+          action_taken?: string | null
+          applicable_to?: string[] | null
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          identified_by?: string | null
+          lesson_type?: string
+          organization_id?: string | null
+          outcome?: string | null
+          owner_id?: string | null
+          priority?: string
+          programme_id?: string | null
+          project_id?: string | null
+          project_stage?: string | null
+          recommendation?: string | null
+          root_cause?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          what_happened?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lessons_learned_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_learned_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lessons_learned_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
