@@ -3,7 +3,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { TaskMasterChat } from "@/components/TaskMasterChat";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Programmes from "./pages/Programmes";
 import Projects from "./pages/Projects";
 import RiskRegister from "./pages/RiskRegister";
@@ -25,26 +29,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/programmes" element={<Programmes />} />
-          <Route path="/programmes/blueprint" element={<Programmes />} />
-          <Route path="/programmes/tranches" element={<Programmes />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/briefs" element={<Projects />} />
-          <Route path="/projects/work-packages" element={<Projects />} />
-          <Route path="/registers/risks" element={<RiskRegister />} />
-          <Route path="/registers/issues" element={<IssueRegister />} />
-          <Route path="/registers/benefits" element={<BenefitsRegister />} />
-          <Route path="/registers/stakeholders" element={<StakeholderRegister />} />
-          <Route path="/registers/lessons" element={<RiskRegister />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/weekly-updates" element={<WeeklyUpdates />} />
-          <Route path="/documentation" element={<Documentation />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/programmes" element={<ProtectedRoute><Programmes /></ProtectedRoute>} />
+            <Route path="/programmes/blueprint" element={<ProtectedRoute><Programmes /></ProtectedRoute>} />
+            <Route path="/programmes/tranches" element={<ProtectedRoute><Programmes /></ProtectedRoute>} />
+            <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/projects/briefs" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/projects/work-packages" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+            <Route path="/registers/risks" element={<ProtectedRoute><RiskRegister /></ProtectedRoute>} />
+            <Route path="/registers/issues" element={<ProtectedRoute><IssueRegister /></ProtectedRoute>} />
+            <Route path="/registers/benefits" element={<ProtectedRoute><BenefitsRegister /></ProtectedRoute>} />
+            <Route path="/registers/stakeholders" element={<ProtectedRoute><StakeholderRegister /></ProtectedRoute>} />
+            <Route path="/registers/lessons" element={<ProtectedRoute><RiskRegister /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/weekly-updates" element={<ProtectedRoute><WeeklyUpdates /></ProtectedRoute>} />
+            <Route path="/documentation" element={<ProtectedRoute><Documentation /></ProtectedRoute>} />
+            <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <TaskMasterChat />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

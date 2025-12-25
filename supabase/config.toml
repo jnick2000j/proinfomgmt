@@ -1,0 +1,7 @@
+project_id = "lpsbudbighowwdmgdfyc"
+
+[functions.task-master-chat]
+verify_jwt = false
+
+[functions.send-weekly-report]
+verify_jwt = true
