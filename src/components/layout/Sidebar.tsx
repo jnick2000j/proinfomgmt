@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -8,6 +9,7 @@ import {
   Users,
   Target,
   BarChart3,
+  LogOut,
   BookOpen,
   Settings,
   ChevronDown,
@@ -66,6 +68,7 @@ const navigation: NavItem[] = [
 
 export function Sidebar() {
   const location = useLocation();
+  const { user, signOut, userRole } = useAuth();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Programmes", "Projects", "Registers"]);
 
   const toggleExpand = (label: string) => {
@@ -152,12 +155,15 @@ export function Sidebar() {
         <div className="border-t border-sidebar-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent text-sm font-medium text-sidebar-foreground">
-              AD
+              {user?.email?.substring(0, 2).toUpperCase() || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">Admin User</p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">Programme Owner</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.email?.split("@")[0] || "User"}</p>
+              <p className="text-xs text-sidebar-foreground/60 truncate capitalize">{userRole?.replace("_", " ") || "User"}</p>
             </div>
+            <button onClick={signOut} className="p-2 rounded-lg hover:bg-sidebar-accent transition-colors" title="Sign out">
+              <LogOut className="h-4 w-4 text-sidebar-foreground/60" />
+            </button>
           </div>
         </div>
       </div>
