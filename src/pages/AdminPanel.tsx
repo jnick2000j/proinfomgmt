@@ -43,8 +43,8 @@ import { Database } from "@/integrations/supabase/types";
 import { CreateOrganizationDialog } from "@/components/dialogs/CreateOrganizationDialog";
 import { EditOrganizationDialog } from "@/components/dialogs/EditOrganizationDialog";
 import { AssignUserAccessDialog } from "@/components/dialogs/AssignUserAccessDialog";
-import { AssignRoleDialog } from "@/components/dialogs/AssignRoleDialog";
 import { UserAccessList } from "@/components/admin/UserAccessList";
+import { RoleTypesManager } from "@/components/admin/RoleTypesManager";
 import { EditUserDialog } from "@/components/dialogs/EditUserDialog";
 import { CreateUserDialog } from "@/components/dialogs/CreateUserDialog";
 
@@ -55,6 +55,8 @@ interface UserWithRole {
   user_id: string;
   email: string;
   full_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
   phone_number: string | null;
   address: string | null;
   mailing_address: string | null;
@@ -125,6 +127,8 @@ export default function AdminPanel() {
           user_id: profile.user_id,
           email: profile.email,
           full_name: profile.full_name,
+          first_name: (profile as any).first_name,
+          last_name: (profile as any).last_name,
           phone_number: profile.phone_number,
           address: profile.address,
           mailing_address: profile.mailing_address,
@@ -226,9 +230,12 @@ export default function AdminPanel() {
   };
 
   const filteredUsers = users.filter((u) => {
+    const displayName = u.first_name && u.last_name 
+      ? `${u.first_name} ${u.last_name}` 
+      : u.full_name || "";
     const matchesSearch =
       u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (u.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+      displayName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesArchived = showArchived ? u.archived : !u.archived;
     return matchesSearch && matchesArchived;
   });
@@ -242,12 +249,26 @@ export default function AdminPanel() {
 
   const archivedCount = users.filter((u) => u.archived).length;
 
+  const getUserDisplayName = (user: UserWithRole) => {
+    if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return user.full_name || "No name";
+  };
+
+  const getUserInitials = (user: UserWithRole) => {
+    if (user.first_name && user.last_name) {
+      return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    }
+    return (user.full_name || user.email)[0].toUpperCase();
+  };
+
   return (
     <AppLayout title="Admin Panel" subtitle="Manage users, organizations, and permissions">
       <Tabs defaultValue="users" className="space-y-6">
         <TabsList className="bg-secondary">
           <TabsTrigger value="users">User Management</TabsTrigger>
-          <TabsTrigger value="roles">Roles</TabsTrigger>
+          <TabsTrigger value="role-types">Role Types</TabsTrigger>
           <TabsTrigger value="organizations">Organizations</TabsTrigger>
           <TabsTrigger value="access">Access Control</TabsTrigger>
         </TabsList>
@@ -375,12 +396,12 @@ export default function AdminPanel() {
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                               <span className="text-sm font-medium text-primary">
-                                {(user.full_name || user.email)[0].toUpperCase()}
+                                {getUserInitials(user)}
                               </span>
                             </div>
                             <div>
                               <span className="font-medium block">
-                                {user.full_name || "No name"}
+                                {getUserDisplayName(user)}
                               </span>
                               <span className="text-xs text-muted-foreground">
                                 {user.email}
@@ -442,122 +463,8 @@ export default function AdminPanel() {
           </div>
         </TabsContent>
 
-        <TabsContent value="roles">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="text-lg font-semibold">Role Management</h3>
-              <p className="text-sm text-muted-foreground">Assign system-wide roles to users</p>
-            </div>
-            <AssignRoleDialog onSuccess={fetchUsers} />
-          </div>
-          
-          {/* Role Summary Cards */}
-          <div className="grid gap-4 md:grid-cols-4 mb-6">
-            <div className="metric-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Crown className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{roleCounts.admin}</p>
-                  <p className="text-sm text-muted-foreground">Admins</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Full system access</p>
-            </div>
-            <div className="metric-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-                  <Briefcase className="h-5 w-5 text-success" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{roleCounts.programme_owner}</p>
-                  <p className="text-sm text-muted-foreground">Programme Owners</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Manage programmes & projects</p>
-            </div>
-            <div className="metric-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-warning/10">
-                  <UserCog className="h-5 w-5 text-warning" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{roleCounts.project_manager}</p>
-                  <p className="text-sm text-muted-foreground">Project Managers</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">Manage assigned projects</p>
-            </div>
-            <div className="metric-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-2xl font-semibold">{roleCounts.stakeholder}</p>
-                  <p className="text-sm text-muted-foreground">Stakeholders</p>
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">View access to assigned items</p>
-            </div>
-          </div>
-
-          {/* Users by Role Table */}
-          <div className="metric-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Current Role</TableHead>
-                  <TableHead>Change Role</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.filter(u => !u.archived).map((user) => {
-                  const RoleIcon = roleConfig[user.role].icon;
-                  return (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-sm font-medium text-primary">
-                              {(user.full_name || user.email)[0].toUpperCase()}
-                            </span>
-                          </div>
-                          <span className="font-medium">{user.full_name || "No name"}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                      <TableCell>
-                        <Badge className={cn("gap-1", roleConfig[user.role].className)}>
-                          <RoleIcon className="h-3 w-3" />
-                          {roleConfig[user.role].label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Select
-                          value={user.role}
-                          onValueChange={(value: AppRole) => handleRoleChange(user.user_id, value)}
-                        >
-                          <SelectTrigger className="w-[160px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="programme_owner">Programme Owner</SelectItem>
-                            <SelectItem value="project_manager">Project Manager</SelectItem>
-                            <SelectItem value="stakeholder">Stakeholder</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+        <TabsContent value="role-types">
+          <RoleTypesManager />
         </TabsContent>
 
         <TabsContent value="organizations">
