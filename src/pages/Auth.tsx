@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 const emailSchema = z.string().email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
-const nameSchema = z.string().min(2, "Name must be at least 2 characters");
+const nameSchema = z.string().min(1, "Name is required");
 
 type AuthMode = "login" | "signup" | "forgot-password";
 
@@ -19,9 +19,10 @@ export default function Auth() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string }>({});
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function Auth() {
   }, [user, navigate]);
 
   const validateForm = () => {
-    const newErrors: { email?: string; password?: string; name?: string } = {};
+    const newErrors: { email?: string; password?: string; firstName?: string; lastName?: string } = {};
     
     try {
       emailSchema.parse(email);
@@ -55,10 +56,17 @@ export default function Auth() {
     
     if (mode === "signup") {
       try {
-        nameSchema.parse(fullName);
+        nameSchema.parse(firstName);
       } catch (e) {
         if (e instanceof z.ZodError) {
-          newErrors.name = e.errors[0].message;
+          newErrors.firstName = e.errors[0].message;
+        }
+      }
+      try {
+        nameSchema.parse(lastName);
+      } catch (e) {
+        if (e instanceof z.ZodError) {
+          newErrors.lastName = e.errors[0].message;
         }
       }
     }
@@ -80,7 +88,8 @@ export default function Auth() {
         navigate("/");
       }
     } else if (mode === "signup") {
-      const { error } = await signUp(email, password, fullName);
+      const fullName = `${firstName} ${lastName}`.trim();
+      const { error } = await signUp(email, password, fullName, firstName, lastName);
       if (!error) {
         setMode("login");
         setPassword("");
@@ -145,20 +154,33 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Smith"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="pl-9"
-                  />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="John"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  {errors.firstName && <p className="text-sm text-destructive">{errors.firstName}</p>}
                 </div>
-                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Smith"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                  {errors.lastName && <p className="text-sm text-destructive">{errors.lastName}</p>}
+                </div>
               </div>
             )}
 

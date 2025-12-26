@@ -157,6 +157,57 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_roles: {
+        Row: {
+          can_manage_products: boolean | null
+          can_manage_programmes: boolean | null
+          can_manage_projects: boolean | null
+          can_manage_users: boolean | null
+          can_view_reports: boolean | null
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          permissions: Json | null
+          updated_at: string
+        }
+        Insert: {
+          can_manage_products?: boolean | null
+          can_manage_programmes?: boolean | null
+          can_manage_projects?: boolean | null
+          can_manage_users?: boolean | null
+          can_view_reports?: boolean | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          permissions?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          can_manage_products?: boolean | null
+          can_manage_programmes?: boolean | null
+          can_manage_projects?: boolean | null
+          can_manage_users?: boolean | null
+          can_view_reports?: boolean | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          permissions?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
@@ -417,6 +468,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizations: {
         Row: {
           created_at: string
@@ -641,8 +728,10 @@ export type Database = {
           default_organization_id: string | null
           department: string | null
           email: string
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
           location: string | null
           mailing_address: string | null
           phone_number: string | null
@@ -662,8 +751,10 @@ export type Database = {
           default_organization_id?: string | null
           department?: string | null
           email: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
           location?: string | null
           mailing_address?: string | null
           phone_number?: string | null
@@ -683,8 +774,10 @@ export type Database = {
           default_organization_id?: string | null
           department?: string | null
           email?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
           location?: string | null
           mailing_address?: string | null
           phone_number?: string | null

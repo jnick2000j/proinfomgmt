@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { User, Lock, MapPin, Save } from "lucide-react";
 
 interface ProfileData {
-  full_name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone_number: string;
   address: string;
@@ -28,7 +28,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({
-    full_name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     phone_number: "",
     address: "",
@@ -66,7 +67,8 @@ export default function Profile() {
       if (error) throw error;
       if (data) {
         setProfile({
-          full_name: data.full_name || "",
+          first_name: (data as any).first_name || "",
+          last_name: (data as any).last_name || "",
           email: data.email || user.email || "",
           phone_number: data.phone_number || "",
           address: data.address || "",
@@ -93,7 +95,9 @@ export default function Profile() {
       const { error } = await supabase
         .from("profiles")
         .update({
-          full_name: profile.full_name,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          full_name: `${profile.first_name} ${profile.last_name}`.trim(),
           phone_number: profile.phone_number,
           address: profile.address,
           city: profile.city,
@@ -169,12 +173,21 @@ export default function Profile() {
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="full_name">Full Name</Label>
+                <Label htmlFor="first_name">First Name</Label>
                 <Input
-                  id="full_name"
-                  value={profile.full_name}
-                  onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                  placeholder="Enter your full name"
+                  id="first_name"
+                  value={profile.first_name}
+                  onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input
+                  id="last_name"
+                  value={profile.last_name}
+                  onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  placeholder="Enter your last name"
                 />
               </div>
               <div className="space-y-2">

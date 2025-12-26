@@ -1,8 +1,9 @@
-import { Bell, Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, Building2, User } from "lucide-react";
+import { Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OrganizationSelector } from "@/components/OrganizationSelector";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
 import {
@@ -52,12 +53,7 @@ export function Header({ title, subtitle }: HeaderProps) {
           />
         </div>
 
-        <Button variant="outline" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
-            3
-          </span>
-        </Button>
+        <NotificationBell />
 
         <Button variant="outline" size="icon">
           <HelpCircle className="h-4 w-4" />
