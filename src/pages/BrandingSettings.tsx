@@ -172,6 +172,9 @@ export default function BrandingSettings() {
 
       toast.success("Branding settings saved successfully");
       
+      // Re-fetch to ensure state is in sync
+      await fetchBranding(selectedOrg);
+      
       // Apply colors to CSS variables if not global
       if (selectedOrg !== "global") {
         document.documentElement.style.setProperty("--primary", hexToHsl(branding.primary_color));
@@ -406,34 +409,69 @@ export default function BrandingSettings() {
         {/* Preview */}
         <div className="metric-card">
           <h3 className="text-lg font-semibold mb-4">Preview</h3>
-          <div
-            className="rounded-lg p-6 space-y-4"
-            style={{
-              backgroundColor: branding.secondary_color,
-              fontFamily: branding.font_family,
-            }}
-          >
-            <div className="flex items-center gap-3">
-              {branding.logo_url && (
-                <img src={branding.logo_url} alt="Logo" className="h-8 w-auto" />
+          {selectedOrg === "global" ? (
+            // Login page preview for global branding
+            <div
+              className="rounded-lg p-6 space-y-4 bg-background border border-border"
+              style={{ fontFamily: branding.font_family }}
+            >
+              <div className="flex items-center justify-center gap-3 mb-4">
+                {branding.logo_url ? (
+                  <img src={branding.logo_url} alt="Logo" className="h-12 w-auto object-contain" />
+                ) : (
+                  <div 
+                    className="flex h-12 w-12 items-center justify-center rounded-xl"
+                    style={{ backgroundColor: branding.primary_color }}
+                  >
+                    <span className="text-white text-xl">📊</span>
+                  </div>
+                )}
+              </div>
+              <h2 className="text-xl font-bold text-center text-foreground">{branding.app_name || "PIMP"}</h2>
+              <p className="text-sm text-muted-foreground text-center">{branding.app_tagline || "Programme Information Management Platform"}</p>
+              {branding.welcome_message && (
+                <p className="text-sm text-muted-foreground text-center">{branding.welcome_message}</p>
               )}
-              <span className="text-white font-semibold">Your Organization</span>
+              <div className="flex gap-2 justify-center mt-4">
+                <button
+                  className="px-4 py-2 rounded-md text-white text-sm font-medium"
+                  style={{ backgroundColor: branding.primary_color }}
+                >
+                  Sign In
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                className="px-4 py-2 rounded-md text-white text-sm font-medium"
-                style={{ backgroundColor: branding.primary_color }}
-              >
-                Primary Button
-              </button>
-              <button
-                className="px-4 py-2 rounded-md text-white text-sm font-medium"
-                style={{ backgroundColor: branding.accent_color }}
-              >
-                Accent Button
-              </button>
+          ) : (
+            // Organization preview
+            <div
+              className="rounded-lg p-6 space-y-4"
+              style={{
+                backgroundColor: branding.secondary_color,
+                fontFamily: branding.font_family,
+              }}
+            >
+              <div className="flex items-center gap-3">
+                {branding.logo_url && (
+                  <img src={branding.logo_url} alt="Logo" className="h-8 w-auto" />
+                )}
+                <span className="text-white font-semibold">Your Organization</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="px-4 py-2 rounded-md text-white text-sm font-medium"
+                  style={{ backgroundColor: branding.primary_color }}
+                >
+                  Primary Button
+                </button>
+                <button
+                  className="px-4 py-2 rounded-md text-white text-sm font-medium"
+                  style={{ backgroundColor: branding.accent_color }}
+                >
+                  Accent Button
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Save Button */}
