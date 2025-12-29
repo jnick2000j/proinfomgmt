@@ -1,6 +1,8 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
+import { applyBrandingCssVars, DEFAULT_BRANDING } from "@/lib/branding";
+
 
 interface Organization {
   id: string;
@@ -82,11 +84,15 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
           if (!allOrgsError && allOrgs) {
             setOrganizations(allOrgs);
-            if (allOrgs.length > 0) {
-              const savedOrgId = localStorage.getItem("currentOrganizationId");
-              const savedOrg = allOrgs.find((o) => o.id === savedOrgId);
-              setCurrentOrganization(savedOrg || allOrgs[0]);
-              localStorage.setItem("currentOrganizationId", (savedOrg || allOrgs[0]).id);
+
+            // If an admin has no explicit org access, default to "Global" (no org selected)
+            // but still allow selecting an organization from the list.
+            const savedOrgId = localStorage.getItem("currentOrganizationId");
+            const savedOrg = allOrgs.find((o) => o.id === savedOrgId);
+            setCurrentOrganization(savedOrg || null);
+
+            if (!savedOrgId) {
+              localStorage.removeItem("currentOrganizationId");
             }
           }
         }
@@ -101,6 +107,32 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchOrganizations();
   }, [user]);
+
+  useEffect(() => {
+    // Apply branding even on unauthenticated routes (e.g. /auth)
+    const applyBranding = async () => {
+      try {
+        const orgId = currentOrganization?.id ?? null;
+        let query = supabase
+          .from("branding_settings")
+          .select("primary_color, secondary_color, accent_color");
+
+        query = orgId ? query.eq("organization_id", orgId) : query.is("organization_id", null);
+
+        const { data } = await query.maybeSingle();
+
+        applyBrandingCssVars({
+          primaryHex: data?.primary_color ?? DEFAULT_BRANDING.primaryHex,
+          secondaryHex: data?.secondary_color ?? DEFAULT_BRANDING.secondaryHex,
+          accentHex: data?.accent_color ?? DEFAULT_BRANDING.accentHex,
+        });
+      } catch {
+        applyBrandingCssVars(DEFAULT_BRANDING);
+      }
+    };
+
+    applyBranding();
+  }, [currentOrganization?.id]);
 
   const handleSetCurrentOrganization = (org: Organization | null) => {
     setCurrentOrganization(org);
