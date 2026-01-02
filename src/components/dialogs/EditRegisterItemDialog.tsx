@@ -14,8 +14,11 @@ import { toast } from "sonner";
 
 type RegisterType = "risks" | "issues" | "benefits" | "stakeholders";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RegisterItem = any;
+
 interface EditRegisterItemDialogProps {
-  item: Record<string, unknown>;
+  item: RegisterItem;
   type: RegisterType;
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -8,11 +8,12 @@ import {
   Search, 
   Filter,
   Target,
-  ArrowUpRight,
+  Pencil,
   Download,
   TrendingUp
 } from "lucide-react";
 import { CreateBenefitDialog } from "@/components/dialogs/CreateBenefitDialog";
+import { EditRegisterItemDialog } from "@/components/dialogs/EditRegisterItemDialog";
 import { cn } from "@/lib/utils";
 import {
   Table,
@@ -31,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 
 interface Benefit {
@@ -71,12 +73,17 @@ const typeOptions = [
 
 export default function BenefitsRegister() {
   const { currentOrganization } = useOrganization();
+  const { canManage } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
   const [benefits, setBenefits] = useState<Benefit[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilters, setCategoryFilters] = useState<string[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedBenefit, setSelectedBenefit] = useState<Benefit | null>(null);
 
   useEffect(() => {
     fetchBenefits();
@@ -131,6 +138,11 @@ export default function BenefitsRegister() {
   const avgRealization = benefits.length > 0 
     ? Math.round(benefits.reduce((acc, b) => acc + b.realization, 0) / benefits.length) 
     : 0;
+
+  const handleEditClick = (benefit: Benefit) => {
+    setSelectedBenefit(benefit);
+    setEditDialogOpen(true);
+  };
 
   return (
     <AppLayout title="Benefits Register" subtitle="PRINCE2 MSP benefits management">
@@ -268,7 +280,7 @@ export default function BenefitsRegister() {
               </div>
             </PopoverContent>
           </Popover>
-          <CreateBenefitDialog onSuccess={fetchBenefits} />
+          {canManage("benefits") && <CreateBenefitDialog onSuccess={fetchBenefits} />}
         </div>
       </div>
 
@@ -283,7 +295,7 @@ export default function BenefitsRegister() {
               <TableHead>Current</TableHead>
               <TableHead className="w-[150px]">Realization</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -305,6 +317,7 @@ export default function BenefitsRegister() {
                   key={benefit.id} 
                   className="animate-fade-in cursor-pointer hover:bg-muted/50"
                   style={{ animationDelay: `${index * 0.03}s` }}
+                  onClick={() => handleEditClick(benefit)}
                 >
                   <TableCell>
                     <div>
@@ -331,8 +344,16 @@ export default function BenefitsRegister() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <ArrowUpRight className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(benefit);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -341,6 +362,17 @@ export default function BenefitsRegister() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Edit Benefit Dialog */}
+      {selectedBenefit && (
+        <EditRegisterItemDialog
+          item={selectedBenefit}
+          type="benefits"
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={fetchBenefits}
+        />
+      )}
     </AppLayout>
   );
 }

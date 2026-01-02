@@ -10,7 +10,7 @@ import {
   Filter,
   Users,
   Download,
-  Mail
+  Pencil
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -43,9 +43,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EditRegisterItemDialog } from "@/components/dialogs/EditRegisterItemDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useAuth } from "@/hooks/useAuth";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 
 interface Stakeholder {
@@ -78,6 +80,7 @@ const engagementConfig: Record<string, { label: string; className: string }> = {
 export default function StakeholderRegister() {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
+  const { canManage } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +91,11 @@ export default function StakeholderRegister() {
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [adding, setAdding] = useState(false);
+  
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedStakeholder, setSelectedStakeholder] = useState<Stakeholder | null>(null);
+  
   const [formData, setFormData] = useState({
     name: "",
     role: "",
@@ -176,6 +184,11 @@ export default function StakeholderRegister() {
     setInfluenceFilters([]);
     setEngagementFilters([]);
     setInterestFilters([]);
+  };
+
+  const handleEditClick = (stakeholder: Stakeholder) => {
+    setSelectedStakeholder(stakeholder);
+    setEditDialogOpen(true);
   };
 
   const filteredStakeholders = stakeholders.filter((s) => {
@@ -325,11 +338,12 @@ export default function StakeholderRegister() {
               </div>
             </PopoverContent>
           </Popover>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add Stakeholder
+          {canManage("stakeholders") && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Stakeholder
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
@@ -431,6 +445,7 @@ export default function StakeholderRegister() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          )}
         </div>
       </div>
 
@@ -446,7 +461,7 @@ export default function StakeholderRegister() {
               <TableHead>Interest</TableHead>
               <TableHead>Engagement</TableHead>
               <TableHead>Comm. Freq.</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -468,6 +483,7 @@ export default function StakeholderRegister() {
                   key={stakeholder.id} 
                   className="animate-fade-in cursor-pointer hover:bg-muted/50"
                   style={{ animationDelay: `${index * 0.03}s` }}
+                  onClick={() => handleEditClick(stakeholder)}
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -501,13 +517,17 @@ export default function StakeholderRegister() {
                     {stakeholder.communication_frequency?.replace('-', ' ') || "N/A"}
                   </TableCell>
                   <TableCell>
-                    {stakeholder.email && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                        <a href={`mailto:${stakeholder.email}`}>
-                          <Mail className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(stakeholder);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -515,6 +535,17 @@ export default function StakeholderRegister() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Edit Stakeholder Dialog */}
+      {selectedStakeholder && (
+        <EditRegisterItemDialog
+          item={selectedStakeholder}
+          type="stakeholders"
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={fetchStakeholders}
+        />
+      )}
     </AppLayout>
   );
 }
