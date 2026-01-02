@@ -986,6 +986,45 @@ export default function Documentation() {
                 </div>
               </div>
             </div>
+
+            {/* Register Management */}
+            <div className="metric-card">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10">
+                  <FileEdit className="h-5 w-5 text-destructive" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Register Management</h3>
+                  <p className="text-sm text-muted-foreground">Edit & delete register items</p>
+                </div>
+              </div>
+              <div className="space-y-4 text-sm">
+                <div>
+                  <h4 className="font-medium mb-2">Editing Register Items</h4>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>• Click on any row in Risks, Issues, Benefits, or Stakeholders</li>
+                    <li>• Update fields and click "Save Changes"</li>
+                    <li>• Edit permissions controlled by RBAC roles</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Deleting Items (Admin Only)</h4>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>• Only administrators see the Delete button</li>
+                    <li>• Confirm deletion in the alert dialog</li>
+                    <li>• Deleted items cannot be recovered</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Project Management</h4>
+                  <ul className="space-y-1 text-muted-foreground">
+                    <li>• Click on projects to edit details and team members</li>
+                    <li>• Multi-select assignees from authorized users</li>
+                    <li>• Admin-only deletion with confirmation</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </TabsContent>
 
