@@ -18,7 +18,7 @@ export function useStatusChange() {
   const { user } = useAuth();
 
   const changeStatus = async (
-    entityType: "project" | "programme" | "product",
+    entityType: "project" | "programme" | "product" | "work_package",
     entityId: string,
     currentStatus: string,
     action: StatusAction,
@@ -52,6 +52,19 @@ export function useStatusChange() {
           .from("projects")
           .update({ 
             stage: newStatus === "active" ? "execution" : newStatus === "closed" ? "closure" : "initiation",
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", entityId);
+        updateError = error;
+      } else if (entityType === "work_package") {
+        // Map status to work package status enum
+        const wpStatus = newStatus === "active" ? "authorized" : 
+                         newStatus === "closed" ? "closed" : 
+                         newStatus === "on-hold" ? "pending" : "pending";
+        const { error } = await supabase
+          .from("work_packages")
+          .update({ 
+            status: wpStatus,
             updated_at: new Date().toISOString()
           })
           .eq("id", entityId);
@@ -98,7 +111,7 @@ export function useStatusChange() {
   };
 
   const recordInitialStatus = async (
-    entityType: "project" | "programme" | "product",
+    entityType: "project" | "programme" | "product" | "work_package",
     entityId: string,
     status: string
   ) => {
@@ -106,7 +119,7 @@ export function useStatusChange() {
 
     try {
       await supabase.from("status_history").insert({
-        entity_type: entityType,
+        entity_type: entityType === "work_package" ? "project" : entityType,
         entity_id: entityId,
         old_status: null,
         new_status: status,

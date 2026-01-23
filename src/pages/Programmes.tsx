@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function Programmes() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [programmes, setProgrammes] = useState<Programme[]>([]);
   const [loading, setLoading] = useState(true);
@@ -238,7 +240,12 @@ export default function Programmes() {
                 <span className="text-muted-foreground">Sponsor: </span>
                 <span className="font-medium">{programme.sponsor || "Unassigned"}</span>
               </div>
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="gap-1"
+                onClick={() => navigate(`/programme-definition?id=${programme.id}`)}
+              >
                 View Details
                 <ArrowUpRight className="h-3 w-3" />
               </Button>
