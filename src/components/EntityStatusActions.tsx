@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import { StatusHistoryDialog } from "@/components/dialogs/StatusHistoryDialog";
 import { useStatusChange } from "@/hooks/useStatusChange";
 
 interface EntityStatusActionsProps {
-  entityType: "project" | "programme" | "product";
+  entityType: "project" | "programme" | "product" | "work_package";
   entityId: string;
   entityName: string;
   currentStatus: string;
@@ -21,14 +21,15 @@ interface EntityStatusActionsProps {
   compact?: boolean;
 }
 
-export function EntityStatusActions({
-  entityType,
-  entityId,
-  entityName,
-  currentStatus,
-  onStatusChange,
-  compact = false,
-}: EntityStatusActionsProps) {
+export const EntityStatusActions = forwardRef<HTMLDivElement, EntityStatusActionsProps>(
+  function EntityStatusActions({
+    entityType,
+    entityId,
+    entityName,
+    currentStatus,
+    onStatusChange,
+    compact = false,
+  }, ref) {
   const [action, setAction] = useState<StatusAction | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const { changeStatus } = useStatusChange();
@@ -151,29 +152,30 @@ export function EntityStatusActions({
             View History
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenu>
 
-      {/* Status Change Dialog */}
-      {action && (
-        <StatusChangeDialog
-          open={!!action}
-          onOpenChange={(open) => !open && setAction(null)}
-          entityType={entityType}
+        {/* Status Change Dialog */}
+        {action && (
+          <StatusChangeDialog
+            open={!!action}
+            onOpenChange={(open) => !open && setAction(null)}
+            entityType={entityType === "work_package" ? "project" : entityType}
+            entityName={entityName}
+            currentStatus={currentStatus}
+            action={action}
+            onConfirm={handleConfirm}
+          />
+        )}
+
+        {/* Status History Dialog */}
+        <StatusHistoryDialog
+          open={showHistory}
+          onOpenChange={setShowHistory}
+          entityType={entityType === "work_package" ? "project" : entityType}
+          entityId={entityId}
           entityName={entityName}
-          currentStatus={currentStatus}
-          action={action}
-          onConfirm={handleConfirm}
         />
-      )}
-
-      {/* Status History Dialog */}
-      <StatusHistoryDialog
-        open={showHistory}
-        onOpenChange={setShowHistory}
-        entityType={entityType}
-        entityId={entityId}
-        entityName={entityName}
-      />
-    </>
-  );
-}
+      </>
+    );
+  }
+);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, File, Trash2, Download, X } from "lucide-react";
@@ -39,7 +39,8 @@ interface DocumentUploadProps {
   variant?: "button" | "icon";
 }
 
-export function DocumentUpload({ entityType, entityId, entityName, variant = "button" }: DocumentUploadProps) {
+export const DocumentUpload = forwardRef<HTMLDivElement, DocumentUploadProps>(
+  function DocumentUpload({ entityType, entityId, entityName, variant = "button" }, ref) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploading, setUploading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -132,79 +133,80 @@ export function DocumentUpload({ entityType, entityId, entityName, variant = "bu
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {variant === "icon" ? (
-          <Button variant="ghost" size="icon" className="h-8 w-8" title="Attachments">
-            <File className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" className="gap-2">
-            <File className="h-4 w-4" />
-            Documents ({documents.length})
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Documents {entityName && `- ${entityName}`}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Input
-              type="file"
-              onChange={handleUpload}
-              disabled={uploading}
-              className="flex-1"
-            />
-            {uploading && <span className="text-sm text-muted-foreground">Uploading...</span>}
-          </div>
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          {variant === "icon" ? (
+            <Button variant="ghost" size="icon" className="h-8 w-8" title="Attachments">
+              <File className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" className="gap-2">
+              <File className="h-4 w-4" />
+              Documents ({documents.length})
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Documents {entityName && `- ${entityName}`}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Input
+                type="file"
+                onChange={handleUpload}
+                disabled={uploading}
+                className="flex-1"
+              />
+              {uploading && <span className="text-sm text-muted-foreground">Uploading...</span>}
+            </div>
 
-          <div className="space-y-2 max-h-[300px] overflow-y-auto">
-            {documents.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No documents uploaded yet
-              </p>
-            ) : (
-              documents.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <File className="h-5 w-5 text-primary shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{doc.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(doc.file_size)}
-                      </p>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {documents.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No documents uploaded yet
+                </p>
+              ) : (
+                documents.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <File className="h-5 w-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{doc.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(doc.file_size)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleDownload(doc)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(doc)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => handleDownload(doc)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleDelete(doc)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+);

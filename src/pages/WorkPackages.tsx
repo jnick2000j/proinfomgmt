@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { WorkPackageDetails } from "@/components/workpackages/WorkPackageDetails";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { EntityStatusActions } from "@/components/EntityStatusActions";
 import {
   Dialog,
   DialogContent,
@@ -668,6 +669,14 @@ export default function WorkPackages() {
                               entityId={wp.id}
                               entityName={wp.name}
                               variant="icon"
+                            />
+                            <EntityStatusActions
+                              entityType="work_package"
+                              entityId={wp.id}
+                              entityName={wp.name}
+                              currentStatus={wp.status}
+                              onStatusChange={fetchData}
+                              compact
                             />
                             <Button variant="ghost" size="icon" onClick={() => openEditDialog(wp)}>
                               <Edit className="h-4 w-4" />
