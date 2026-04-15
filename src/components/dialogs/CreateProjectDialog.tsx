@@ -42,7 +42,7 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
   useEffect(() => {
     const fetchData = async () => {
       const [progsRes, orgsRes] = await Promise.all([
-        supabase.from("programmes").select("id, name"),
+        supabase.from("programmes").select("id, name, organization_id"),
         supabase.from("organizations").select("id, name").order("name"),
       ]);
       if (progsRes.data) setProgrammes(progsRes.data);
@@ -124,11 +124,12 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
             </div>
             <div>
               <Label htmlFor="organization">Organization</Label>
-              <Select value={formData.organization_id} onValueChange={(v) => setFormData({ ...formData, organization_id: v })}>
+              <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData({ ...formData, organization_id: v === "none" ? "" : v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select organization" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
                   {organizations.map((org) => (
                     <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
@@ -137,12 +138,15 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
             </div>
             <div>
               <Label htmlFor="program">Program</Label>
-              <Select value={formData.programme_id} onValueChange={(v) => setFormData({ ...formData, programme_id: v })}>
+              <Select value={formData.programme_id || "none"} onValueChange={(v) => setFormData({ ...formData, programme_id: v === "none" ? "" : v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
-                  {programmes.map((p) => (
+                  <SelectItem value="none">None</SelectItem>
+                  {programmes
+                    .filter((p: any) => !formData.organization_id || p.organization_id === formData.organization_id || !p.organization_id)
+                    .map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                   ))}
                 </SelectContent>
