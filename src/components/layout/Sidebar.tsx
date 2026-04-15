@@ -88,7 +88,7 @@ const navigation: NavItem[] = [
 export function Sidebar() {
   const location = useLocation();
   const { user, signOut, userRole, userProfile } = useAuth();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Projects", "Products", "Tasks", "Milestones", "PRINCE2", "Registers"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Tasks", "Milestones", "PRINCE2", "Registers"]);
 
   const getDisplayName = () => {
     if (userProfile?.first_name && userProfile?.last_name) {
