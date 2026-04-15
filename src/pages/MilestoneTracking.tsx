@@ -80,7 +80,7 @@ const statusConfig: Record<MilestoneStatus, { label: string; icon: React.Element
   deferred: { label: "Deferred", icon: Clock, color: "bg-warning/20 text-warning" },
 };
 
-export default function MilestoneTracking() {
+export default function MilestoneTracking({ embedded }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const queryClient = useQueryClient();

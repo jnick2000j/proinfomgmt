@@ -76,7 +76,7 @@ const decisionConfig: Record<GateDecision, { label: string; icon: React.ElementT
   deferred: { label: "Deferred", icon: Clock, color: "bg-muted text-muted-foreground" },
 };
 
-export default function StageGates() {
+export default function StageGates({ embedded }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const queryClient = useQueryClient();
