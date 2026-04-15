@@ -43,6 +43,7 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
     description: "",
     organization_id: "",
     programme_id: "",
+    project_id: "",
     stage: "discovery",
     product_type: "digital",
     status: "concept",
@@ -56,12 +57,14 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [orgsRes, progsRes] = await Promise.all([
+      const [orgsRes, progsRes, projsRes] = await Promise.all([
         supabase.from("organizations").select("id, name").order("name"),
         supabase.from("programmes").select("id, name").order("name"),
+        supabase.from("projects").select("id, name, programme_id").order("name"),
       ]);
       if (orgsRes.data) setOrganizations(orgsRes.data);
       if (progsRes.data) setProgrammes(progsRes.data);
+      if (projsRes.data) setProjects(projsRes.data);
     };
     if (open) fetchData();
   }, [open]);
@@ -76,6 +79,7 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
         ...formData,
         organization_id: formData.organization_id || null,
         programme_id: formData.programme_id || null,
+        project_id: (formData as any).project_id || null,
         launch_date: formData.launch_date || null,
         created_by: user.id,
         product_owner_id: user.id,
@@ -90,6 +94,7 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
         description: "",
         organization_id: "",
         programme_id: "",
+        project_id: "",
         stage: "discovery",
         product_type: "digital",
         status: "concept",
