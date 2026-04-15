@@ -24,11 +24,18 @@ interface Program {
   name: string;
 }
 
+interface ProjectItem {
+  id: string;
+  name: string;
+  programme_id: string | null;
+}
+
 export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [programmes, setProgrammes] = useState<Program[]>([]);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
