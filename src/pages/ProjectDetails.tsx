@@ -587,6 +587,115 @@ export default function ProjectDetails() {
             </Card>
           </TabsContent>
 
+          {/* Tasks Tab */}
+          <TabsContent value="tasks">
+            <Card>
+              <CardHeader>
+                <CardTitle>Linked Tasks</CardTitle>
+                <CardDescription>Tasks associated with this project</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {tasks.length === 0 ? (
+                  <div className="text-center py-8">
+                    <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">No tasks linked to this project yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {tasks.map((task) => {
+                      const taskPriority = priorityConfig[task.priority] || { label: task.priority, className: "bg-muted text-muted-foreground" };
+                      const taskStatusMap: Record<string, { label: string; className: string }> = {
+                        not_started: { label: "Not Started", className: "bg-muted text-muted-foreground" },
+                        in_progress: { label: "In Progress", className: "bg-warning/10 text-warning" },
+                        completed: { label: "Completed", className: "bg-success/10 text-success" },
+                        on_hold: { label: "On Hold", className: "bg-info/10 text-info" },
+                        cancelled: { label: "Cancelled", className: "bg-destructive/10 text-destructive" },
+                      };
+                      const taskStatus = taskStatusMap[task.status] || { label: task.status, className: "bg-muted text-muted-foreground" };
+                      return (
+                        <div key={task.id} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                          <div className="space-y-1">
+                            <p className="font-medium">{task.name}</p>
+                            {task.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-1">{task.description}</p>
+                            )}
+                            <div className="flex items-center gap-2">
+                              {task.planned_start && task.planned_end && (
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(task.planned_start), "MMM d")} - {format(new Date(task.planned_end), "MMM d, yyyy")}
+                                </span>
+                              )}
+                              {task.story_points && (
+                                <Badge variant="outline" className="text-xs">{task.story_points} pts</Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={cn("text-xs", taskPriority.className)}>
+                              {taskPriority.label}
+                            </Badge>
+                            <Badge variant="secondary" className={cn("text-xs", taskStatus.className)}>
+                              {taskStatus.label}
+                            </Badge>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Products Tab */}
+          <TabsContent value="products">
+            <Card>
+              <CardHeader>
+                <CardTitle>Linked Products</CardTitle>
+                <CardDescription>Products associated with this project's program</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {products.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Layers className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground">No products linked yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {products.map((product) => {
+                      const stage = productStageConfig[product.stage] || { label: product.stage, className: "bg-muted text-muted-foreground" };
+                      return (
+                        <div
+                          key={product.id}
+                          className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/products/details?id=${product.id}`)}
+                        >
+                          <div className="space-y-1">
+                            <p className="font-medium">{product.name}</p>
+                            {product.description && (
+                              <p className="text-sm text-muted-foreground line-clamp-1">{product.description}</p>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs capitalize">{product.product_type}</Badge>
+                              {product.launch_date && (
+                                <span className="text-xs text-muted-foreground">
+                                  Launch: {format(new Date(product.launch_date), "MMM d, yyyy")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className={cn("text-xs", stage.className)}>
+                            {stage.label}
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Risks Tab */}
           <TabsContent value="risks">
             <Card>
