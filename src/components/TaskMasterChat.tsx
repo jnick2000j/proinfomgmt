@@ -2,29 +2,40 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetTrigger 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Bot, Send, X, Loader2, Sparkles, User } from "lucide-react";
+import { Bot, Send, Loader2, Sparkles, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
+const QUICK_ACTIONS = [
+  "How do I create a new programme?",
+  "Walk me through setting up a project",
+  "How do I manage risks?",
+  "Explain PRINCE2 stage gates",
+  "How do I track benefits?",
+  "Help me plan a sprint",
+];
+
 export function TaskMasterChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello! I'm the Task Master, your expert guide for PRINCE2 MSP, Project Management, and Agile methodologies. I can help you with:\n\n• Creating and managing programmes and projects\n• Setting up risk and issue registers\n• Benefits realization planning\n• Stakeholder engagement strategies\n• PRINCE2 processes and documentation\n• Agile ceremonies and best practices\n\nHow can I assist you today?"
-    }
+      content:
+        "👋 Hello! I'm **the Task Master**, your expert guide for this platform.\n\nI can help you with:\n\n- 🏗️ **Creating & managing** programmes, projects, and products\n- 📋 **Setting up registers** — risks, issues, benefits, stakeholders\n- 🎯 **PRINCE2 & MSP** processes and documentation\n- 🚀 **Agile & Sprint** planning and backlog management\n- 📊 **Reports & dashboards** — weekly updates, AI summaries\n- ⚙️ **Platform navigation** — finding features and settings\n\nWhat would you like help with?",
+    },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -37,11 +48,13 @@ export function TaskMasterChat() {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (text?: string) => {
+    const messageText = text || input.trim();
+    if (!messageText || isLoading) return;
 
-    const userMessage: Message = { role: "user", content: input.trim() };
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage: Message = { role: "user", content: messageText };
+    const allMessages = [...messages, userMessage];
+    setMessages(allMessages);
     setInput("");
     setIsLoading(true);
 
@@ -56,7 +69,7 @@ export function TaskMasterChat() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: [...messages, userMessage] }),
+          body: JSON.stringify({ messages: allMessages }),
         }
       );
 
@@ -68,12 +81,9 @@ export function TaskMasterChat() {
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
-      if (!reader) {
-        throw new Error("No response stream");
-      }
+      if (!reader) throw new Error("No response stream");
 
-      // Add empty assistant message
-      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
       let textBuffer = "";
 
@@ -100,9 +110,12 @@ export function TaskMasterChat() {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              setMessages(prev => {
+              setMessages((prev) => {
                 const updated = [...prev];
-                updated[updated.length - 1] = { role: "assistant", content: assistantContent };
+                updated[updated.length - 1] = {
+                  role: "assistant",
+                  content: assistantContent,
+                };
                 return updated;
               });
             }
@@ -112,14 +125,44 @@ export function TaskMasterChat() {
           }
         }
       }
+
+      // Final flush
+      if (textBuffer.trim()) {
+        for (let raw of textBuffer.split("\n")) {
+          if (!raw) continue;
+          if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+          if (raw.startsWith(":") || raw.trim() === "") continue;
+          if (!raw.startsWith("data: ")) continue;
+          const jsonStr = raw.slice(6).trim();
+          if (jsonStr === "[DONE]") continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantContent += content;
+              setMessages((prev) => {
+                const updated = [...prev];
+                updated[updated.length - 1] = {
+                  role: "assistant",
+                  content: assistantContent,
+                };
+                return updated;
+              });
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+      }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages(prev => [
-        ...prev.slice(0, -1),
+      setMessages((prev) => [
+        ...prev.filter((m) => m.content !== ""),
         {
           role: "assistant",
-          content: "I apologize, but I encountered an error. Please try again in a moment."
-        }
+          content:
+            "I apologize, but I encountered an error. Please try again in a moment.",
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -134,6 +177,8 @@ export function TaskMasterChat() {
   };
 
   if (!user) return null;
+
+  const showQuickActions = messages.length <= 1 && !isLoading;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -154,7 +199,7 @@ export function TaskMasterChat() {
             <div>
               <p className="font-semibold">Ask the Task Master</p>
               <p className="text-sm font-normal text-muted-foreground">
-                PRINCE2 MSP & Agile Expert
+                Platform Guide · PRINCE2 · MSP · Agile
               </p>
             </div>
           </SheetTitle>
@@ -183,7 +228,13 @@ export function TaskMasterChat() {
                       : "bg-secondary text-secondary-foreground"
                   )}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  {message.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap">{message.content}</div>
+                  )}
                 </div>
                 {message.role === "user" && (
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
@@ -203,18 +254,38 @@ export function TaskMasterChat() {
               </div>
             )}
           </div>
+
+          {/* Quick action suggestions */}
+          {showQuickActions && (
+            <div className="mt-4 space-y-2">
+              <p className="text-xs text-muted-foreground font-medium">Try asking:</p>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_ACTIONS.map((action) => (
+                  <Button
+                    key={action}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-auto py-1.5 px-3"
+                    onClick={() => sendMessage(action)}
+                  >
+                    {action}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </ScrollArea>
 
         <div className="border-t border-border p-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Ask about programmes, risks, PRINCE2..."
+              placeholder="Ask about the platform, PRINCE2, Agile..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               disabled={isLoading}
             />
-            <Button onClick={sendMessage} disabled={isLoading || !input.trim()}>
+            <Button onClick={() => sendMessage()} disabled={isLoading || !input.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </div>
