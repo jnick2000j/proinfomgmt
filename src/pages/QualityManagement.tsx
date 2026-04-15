@@ -91,7 +91,7 @@ const statusConfig: Record<QualityStatus, { label: string; icon: React.ElementTy
   conditional: { label: "Conditional", icon: AlertTriangle, color: "bg-warning/20 text-warning" },
 };
 
-export default function QualityManagement() {
+export default function QualityManagement({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -300,11 +300,8 @@ export default function QualityManagement() {
     totalDefects: qualityRecords.reduce((sum, qr) => sum + (qr.defects_found || 0), 0),
   };
 
-  return (
-    <AppLayout
-      title="Quality Management"
-      subtitle="PRINCE2 quality reviews, acceptance criteria, and sign-off tracking"
-    >
+  const content = (
+    <>
       {/* PRINCE2 Info */}
       <Card className="mb-6 bg-primary/5 border-primary/20">
         <CardContent className="pt-4">
@@ -790,6 +787,14 @@ export default function QualityManagement() {
           )}
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <AppLayout title="Quality Management" subtitle="PRINCE2 quality reviews, acceptance criteria, and sign-off tracking">
+      {content}
     </AppLayout>
   );
 }
