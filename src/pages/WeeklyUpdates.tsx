@@ -7,14 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CreateWeeklyReportDialog } from "@/components/dialogs/CreateWeeklyReportDialog";
-import { 
-  Plus, 
-  Search, 
-  Calendar,
+import {
+  Plus,
+  Search,
   Send,
   FileText,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -42,6 +44,7 @@ const healthConfig = {
 export default function WeeklyUpdates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [expandedReport, setExpandedReport] = useState<string | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -50,10 +53,7 @@ export default function WeeklyUpdates() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("weekly_reports")
-        .select(`
-          *,
-          programmes (name)
-        `)
+        .select(`*, programmes (name)`)
         .order("week_ending", { ascending: false });
       if (error) throw error;
       return data;
@@ -74,24 +74,45 @@ export default function WeeklyUpdates() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["weekly-reports"] });
-      toast({ title: "Report submitted", description: "Weekly report has been submitted for approval." });
+      toast({ title: "Report submitted" });
     },
     onError: (error) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     },
   });
 
-  const filteredReports = reports.filter((r) =>
+  const generateSummary = useMutation({
+    mutationFn: async (report: any) => {
+      const { data, error } = await supabase.functions.invoke("summarize-weekly-report", {
+        body: {
+          report_id: report.id,
+          week_ending: report.week_ending,
+          programme_id: report.programme_id,
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["weekly-reports"] });
+      toast({ title: "AI Summary generated", description: "The report has been updated with AI-generated summaries." });
+    },
+    onError: (error) => {
+      toast({ title: "Error generating summary", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const filteredReports = reports.filter((r: any) =>
     r.programmes?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const draftCount = reports.filter(r => r.status === "draft").length;
-  const submittedCount = reports.filter(r => r.status === "submitted").length;
-  const approvedCount = reports.filter(r => r.status === "approved").length;
+  const draftCount = reports.filter((r: any) => r.status === "draft").length;
+  const submittedCount = reports.filter((r: any) => r.status === "submitted").length;
+  const approvedCount = reports.filter((r: any) => r.status === "approved").length;
 
   return (
     <AppLayout title="Weekly Updates" subtitle="Program status reports and communications">
-      {/* Summary */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
           <div className="flex items-center gap-3">
@@ -139,7 +160,6 @@ export default function WeeklyUpdates() {
         </div>
       </div>
 
-      {/* Actions Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -150,15 +170,12 @@ export default function WeeklyUpdates() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
-          <Button className="gap-2" onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4" />
-            New Report
-          </Button>
-        </div>
+        <Button className="gap-2" onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          New Report
+        </Button>
       </div>
 
-      {/* Reports Grid */}
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">Loading reports...</div>
       ) : filteredReports.length === 0 ? (
@@ -173,15 +190,12 @@ export default function WeeklyUpdates() {
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
-          {filteredReports.map((report, index) => {
+          {filteredReports.map((report: any, index: number) => {
             const health = report.overall_health as keyof typeof healthConfig;
             const status = report.status as keyof typeof statusConfig;
+            const isExpanded = expandedReport === report.id;
             return (
-              <Card 
-                key={report.id} 
-                className="animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
+              <Card key={report.id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -199,6 +213,60 @@ export default function WeeklyUpdates() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* AI Summary */}
+                  {report.ai_summary && (
+                    <div className="bg-primary/5 border border-primary/10 rounded-lg p-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                        <h4 className="text-sm font-medium text-primary">AI Summary</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{report.ai_summary}</p>
+                    </div>
+                  )}
+
+                  {/* Section summaries - collapsed by default */}
+                  {(report.task_summary || report.project_summary || report.programme_summary || report.product_summary) && (
+                    <div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1 text-xs w-full justify-start"
+                        onClick={() => setExpandedReport(isExpanded ? null : report.id)}
+                      >
+                        {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        {isExpanded ? "Hide" : "Show"} detailed summaries
+                      </Button>
+                      {isExpanded && (
+                        <div className="space-y-3 mt-2">
+                          {report.task_summary && (
+                            <div>
+                              <h5 className="text-xs font-medium text-muted-foreground uppercase mb-1">Tasks</h5>
+                              <p className="text-sm">{report.task_summary}</p>
+                            </div>
+                          )}
+                          {report.project_summary && (
+                            <div>
+                              <h5 className="text-xs font-medium text-muted-foreground uppercase mb-1">Projects</h5>
+                              <p className="text-sm">{report.project_summary}</p>
+                            </div>
+                          )}
+                          {report.programme_summary && (
+                            <div>
+                              <h5 className="text-xs font-medium text-muted-foreground uppercase mb-1">Programme</h5>
+                              <p className="text-sm">{report.programme_summary}</p>
+                            </div>
+                          )}
+                          {report.product_summary && (
+                            <div>
+                              <h5 className="text-xs font-medium text-muted-foreground uppercase mb-1">Products</h5>
+                              <p className="text-sm">{report.product_summary}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {report.highlights && report.highlights.length > 0 && (
                     <div>
                       <h4 className="text-sm font-medium text-foreground mb-2">Highlights</h4>
@@ -250,9 +318,19 @@ export default function WeeklyUpdates() {
                       )}
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        onClick={() => generateSummary.mutate(report)}
+                        disabled={generateSummary.isPending}
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        {generateSummary.isPending ? "Generating..." : "AI Summary"}
+                      </Button>
                       {report.status === "draft" && (
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="gap-1"
                           onClick={() => submitReport.mutate(report.id)}
                           disabled={submitReport.isPending}
