@@ -220,7 +220,7 @@ export default function Products() {
                     const StageIcon = stageConf.icon;
                     const riceScore = calculateRICEScore(product);
                     return (
-                      <TableRow key={product.id} className="cursor-pointer hover:bg-muted/50">
+                      <TableRow key={product.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/products/details?id=${product.id}`)}>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
