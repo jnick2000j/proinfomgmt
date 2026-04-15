@@ -75,7 +75,7 @@ const getScoreColor = (score: number) => {
   return "bg-success text-success-foreground";
 };
 
-export default function RiskRegister() {
+export default function RiskRegister({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { canManage } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,8 +147,8 @@ export default function RiskRegister() {
     setEditDialogOpen(true);
   };
 
-  return (
-    <AppLayout title="Risk Register" subtitle="PRINCE2 MSP risk management">
+  const content = (
+    <>
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
@@ -389,6 +389,12 @@ export default function RiskRegister() {
           onSuccess={fetchRisks}
         />
       )}
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Risk Register" subtitle="PRINCE2 MSP risk management">
+      {content}
     </AppLayout>
   );
 }

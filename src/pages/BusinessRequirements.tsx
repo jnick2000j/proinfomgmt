@@ -89,7 +89,7 @@ const defaultFormState = {
   product_id: "",
 };
 
-export default function BusinessRequirements() {
+export default function BusinessRequirements({ embedded = false }: { embedded?: boolean }) {
   const [requirements, setRequirements] = useState<BusinessRequirement[]>([]);
   const [programmes, setProgrammes] = useState<Program[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -377,8 +377,8 @@ export default function BusinessRequirements() {
     </div>
   );
 
-  return (
-    <AppLayout title="Business Requirements" subtitle="MSP Business Requirements Register">
+  const content = (
+    <>
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-4">
@@ -515,6 +515,12 @@ export default function BusinessRequirements() {
           </Table>
         </div>
       </div>
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Business Requirements" subtitle="MSP Business Requirements Register">
+      {content}
     </AppLayout>
   );
 }

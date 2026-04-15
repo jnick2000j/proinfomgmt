@@ -78,7 +78,7 @@ const engagementConfig: Record<string, { label: string; className: string }> = {
   blocker: { label: "Blocker", className: "bg-destructive/10 text-destructive" },
 };
 
-export default function StakeholderRegister() {
+export default function StakeholderRegister({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const { canManage } = usePermissions();
@@ -203,8 +203,8 @@ export default function StakeholderRegister() {
 
   const activeFilterCount = influenceFilters.length + engagementFilters.length + interestFilters.length;
 
-  return (
-    <AppLayout title="Stakeholder Register" subtitle="PRINCE2 MSP stakeholder engagement">
+  const content = (
+    <>
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
@@ -557,6 +557,12 @@ export default function StakeholderRegister() {
           onSuccess={fetchStakeholders}
         />
       )}
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Stakeholder Register" subtitle="PRINCE2 MSP stakeholder engagement">
+      {content}
     </AppLayout>
   );
 }
