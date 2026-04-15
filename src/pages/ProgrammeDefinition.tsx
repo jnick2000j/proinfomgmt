@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,6 +62,8 @@ export default function ProgrammeDefinition() {
     dependencies: "",
   });
   const { currentOrganization } = useOrganization();
+  const [searchParams] = useSearchParams();
+  const urlProgramId = searchParams.get("id");
 
   const fetchProgrammes = async () => {
     let query = supabase.from("programmes").select("id, name, status").order("name");
@@ -70,7 +73,10 @@ export default function ProgrammeDefinition() {
     const { data } = await query;
     setProgrammes(data || []);
     if (data && data.length > 0 && !selectedProgramme) {
-      setSelectedProgramme(data[0].id);
+      const idToSelect = urlProgramId && data.some(p => p.id === urlProgramId)
+        ? urlProgramId
+        : data[0].id;
+      setSelectedProgramme(idToSelect);
     }
     setLoading(false);
   };

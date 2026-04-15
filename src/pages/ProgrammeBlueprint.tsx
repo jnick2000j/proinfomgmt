@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +103,8 @@ export default function ProgrammeBlueprint() {
   const [editForm, setEditForm] = useState<Partial<ProgrammeDefinition & Program>>({});
   const { currentOrganization } = useOrganization();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const urlProgramId = searchParams.get("id");
 
   const fetchData = async () => {
     setLoading(true);
@@ -124,7 +127,10 @@ export default function ProgrammeBlueprint() {
     setRisks(risksRes.data || []);
 
     if (programmesRes.data && programmesRes.data.length > 0 && !selectedProgramme) {
-      setSelectedProgramme(programmesRes.data[0].id);
+      const idToSelect = urlProgramId && programmesRes.data.some(p => p.id === urlProgramId)
+        ? urlProgramId
+        : programmesRes.data[0].id;
+      setSelectedProgramme(idToSelect);
     }
 
     setLoading(false);
