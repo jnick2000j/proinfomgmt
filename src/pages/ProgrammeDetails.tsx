@@ -443,6 +443,10 @@ export default function ProgrammeDetails() {
               <Package className="h-4 w-4" />
               Products ({products.length})
             </TabsTrigger>
+            <TabsTrigger value="tasks" className="gap-2">
+              <ListTodo className="h-4 w-4" />
+              Tasks ({tasks.length})
+            </TabsTrigger>
             <TabsTrigger value="benefits" className="gap-2">
               <TrendingUp className="h-4 w-4" />
               Benefits ({benefits.length})
