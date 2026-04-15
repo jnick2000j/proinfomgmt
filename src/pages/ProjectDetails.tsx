@@ -194,6 +194,8 @@ export default function ProjectDetails() {
   const [risks, setRisks] = useState<Risk[]>([]);
   const [issues, setIssues] = useState<Issue[]>([]);
   const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchProject = async () => {
