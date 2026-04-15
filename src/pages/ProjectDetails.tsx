@@ -844,6 +844,102 @@ export default function ProjectDetails() {
             </Card>
           </TabsContent>
 
+          {/* Project Brief Tab */}
+          <TabsContent value="brief">
+            <Card>
+              <CardHeader>
+                <CardTitle>PRINCE2 Project Brief</CardTitle>
+                <CardDescription>Project Initiation Document — background, objectives, scope, and business case</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2 space-y-2">
+                      <Label>Project Background</Label>
+                      <Textarea
+                        value={brief.background}
+                        onChange={(e) => setBrief({ ...brief, background: e.target.value })}
+                        placeholder="Why is this project needed? What is the business context?"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <Label>Project Objectives</Label>
+                      <Textarea
+                        value={brief.objectives}
+                        onChange={(e) => setBrief({ ...brief, objectives: e.target.value })}
+                        placeholder="What will the project achieve? (SMART objectives)"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <Label>Scope</Label>
+                      <Textarea
+                        value={brief.scope}
+                        onChange={(e) => setBrief({ ...brief, scope: e.target.value })}
+                        placeholder="What is in scope? What is explicitly out of scope?"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Constraints</Label>
+                      <Textarea
+                        value={brief.constraints}
+                        onChange={(e) => setBrief({ ...brief, constraints: e.target.value })}
+                        placeholder="Budget, time, resource constraints..."
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Assumptions</Label>
+                      <Textarea
+                        value={brief.assumptions}
+                        onChange={(e) => setBrief({ ...brief, assumptions: e.target.value })}
+                        placeholder="Key assumptions made..."
+                        rows={2}
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <Label>Business Case Summary</Label>
+                      <Textarea
+                        value={brief.business_case_summary}
+                        onChange={(e) => setBrief({ ...brief, business_case_summary: e.target.value })}
+                        placeholder="Summarize the business justification and expected benefits"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Cost Estimate</Label>
+                      <Input
+                        value={brief.cost_estimate}
+                        onChange={(e) => setBrief({ ...brief, cost_estimate: e.target.value })}
+                        placeholder="e.g., £500,000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Timeline Estimate</Label>
+                      <Input
+                        value={brief.timeline_estimate}
+                        onChange={(e) => setBrief({ ...brief, timeline_estimate: e.target.value })}
+                        placeholder="e.g., 6 months"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <Label>Risk Summary</Label>
+                      <Textarea
+                        value={brief.risk_summary}
+                        onChange={(e) => setBrief({ ...brief, risk_summary: e.target.value })}
+                        placeholder="Summary of key risks identified"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Brief data is stored locally in this session. A future update will persist this to the database.</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Status Timeline Tab */}
           <TabsContent value="history">
             <Card>
