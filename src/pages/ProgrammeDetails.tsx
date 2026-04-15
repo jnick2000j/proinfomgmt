@@ -275,7 +275,7 @@ export default function ProgrammeDetails() {
           <p className="text-muted-foreground">No programme selected</p>
           <Button variant="outline" className="mt-4" onClick={() => navigate("/programmes")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Programmes
+            Back to Programs
           </Button>
         </div>
       </AppLayout>
@@ -300,7 +300,7 @@ export default function ProgrammeDetails() {
           <p className="text-muted-foreground">Program not found</p>
           <Button variant="outline" className="mt-4" onClick={() => navigate("/programmes")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Programmes
+            Back to Programs
           </Button>
         </div>
       </AppLayout>
@@ -323,7 +323,7 @@ export default function ProgrammeDetails() {
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/programmes")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Programmes
+            Back to Programs
           </Button>
           <div className="flex items-center gap-2">
             <DocumentUpload
