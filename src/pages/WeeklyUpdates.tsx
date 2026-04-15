@@ -214,7 +214,8 @@ export default function WeeklyUpdates() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <div className={cn("h-3 w-3 rounded-full", healthConfig[health] || "bg-muted")} />
-                        <CardTitle className="text-lg">{report.programmes?.name || "Unknown Program"}</CardTitle>
+                        <CardTitle className="text-lg">{getReportEntityName(report)}</CardTitle>
+                        <Badge variant="outline" className="text-xs">{getReportTypeLabel(report)}</Badge>
                       </div>
                       <CardDescription>
                         Week ending {format(new Date(report.week_ending), "MMM d, yyyy")}
