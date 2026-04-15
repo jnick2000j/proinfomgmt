@@ -503,10 +503,18 @@ export default function ProjectDetails() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="workpackages" className="space-y-4">
-          <TabsList>
+          <TabsList className="flex-wrap h-auto gap-1">
             <TabsTrigger value="workpackages" className="gap-2">
               <Package className="h-4 w-4" />
               Work Packages ({workPackages.length})
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="gap-2">
+              <ListTodo className="h-4 w-4" />
+              Tasks ({tasks.length})
+            </TabsTrigger>
+            <TabsTrigger value="products" className="gap-2">
+              <Layers className="h-4 w-4" />
+              Products ({products.length})
             </TabsTrigger>
             <TabsTrigger value="risks" className="gap-2">
               <AlertTriangle className="h-4 w-4" />
