@@ -101,11 +101,12 @@ export function CreateProgrammeDialog({ onSuccess }: CreateProgrammeDialogProps)
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="organization">Organization</Label>
-              <Select value={formData.organization_id} onValueChange={(v) => setFormData({ ...formData, organization_id: v })}>
+              <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData({ ...formData, organization_id: v === "none" ? "" : v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select organization (optional)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
                   {organizations.map((org) => (
                     <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
