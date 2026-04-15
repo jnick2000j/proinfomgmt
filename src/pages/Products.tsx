@@ -37,6 +37,7 @@ import { CreateProductDialog } from "@/components/dialogs/CreateProductDialog";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Product {
   id: string;

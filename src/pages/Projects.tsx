@@ -27,6 +27,7 @@ import { DocumentUpload } from "@/components/DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Popover,
   PopoverContent,
