@@ -456,13 +456,14 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                 <div>
                   <label className="text-sm font-medium">Select {formData.entity_type}</label>
                   <Select
-                    value={formData.entity_id}
-                    onValueChange={(v) => setFormData({ ...formData, entity_id: v })}
+                    value={formData.entity_id || "none"}
+                    onValueChange={(v) => setFormData({ ...formData, entity_id: v === "none" ? "" : v })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`Select ${formData.entity_type}`} />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
                       {getEntityOptions().map((entity) => (
                         <SelectItem key={entity.id} value={entity.id}>
                           {entity.name}
