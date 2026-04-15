@@ -295,9 +295,39 @@ export default function ProjectDetails() {
     }
   };
 
+  const fetchTasks = async () => {
+    if (!projectId) return;
+
+    const { data } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false });
+
+    setTasks(data || []);
+  };
+
+  const fetchProducts = async () => {
+    if (!projectId) return;
+
+    // Fetch products linked to the same programme as this project
+    if (!project?.programme_id) {
+      setProducts([]);
+      return;
+    }
+
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("programme_id", project.programme_id)
+      .order("name");
+
+    setProducts(data || []);
+  };
+
   const fetchAllData = async () => {
     setLoading(true);
-    await Promise.all([fetchProject(), fetchWorkPackages(), fetchRisks(), fetchIssues(), fetchStatusHistory()]);
+    await Promise.all([fetchProject(), fetchWorkPackages(), fetchRisks(), fetchIssues(), fetchTasks(), fetchStatusHistory()]);
     setLoading(false);
   };
 
