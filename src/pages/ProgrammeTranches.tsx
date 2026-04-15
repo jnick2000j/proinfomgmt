@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +91,15 @@ export default function ProgrammeTranches() {
   const [selectedTranche, setSelectedTranche] = useState<Tranche | null>(null);
   const [formData, setFormData] = useState(defaultFormState);
   const { currentOrganization } = useOrganization();
+  const [searchParams] = useSearchParams();
+  const urlProgramId = searchParams.get("id");
+
+  const filteredTranches = useMemo(() => {
+    if (urlProgramId) {
+      return tranches.filter(t => t.programme_id === urlProgramId);
+    }
+    return tranches;
+  }, [tranches, urlProgramId]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -397,15 +407,15 @@ export default function ProgrammeTranches() {
         {/* Timeline View */}
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading tranches...</div>
-        ) : tranches.length === 0 ? (
+        ) : filteredTranches.length === 0 ? (
           <div className="metric-card text-center py-12">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No tranches found</p>
-            <p className="text-sm text-muted-foreground">Create a tranche to start planning your programme</p>
+            <p className="text-sm text-muted-foreground">Create a tranche to start planning your program</p>
           </div>
         ) : (
           <div className="relative">
-            {tranches.map((tranche, index) => {
+            {filteredTranches.map((tranche, index) => {
               const statusConf = trancheStatuses.find(s => s.value === tranche.status) || trancheStatuses[0];
               const StatusIcon = statusConf.icon;
               const progress = tranche.progress || 0;
@@ -413,7 +423,7 @@ export default function ProgrammeTranches() {
               return (
                 <div key={tranche.id} className="relative pb-8">
                   {/* Timeline connector */}
-                  {index < tranches.length - 1 && (
+                  {index < filteredTranches.length - 1 && (
                     <div className="absolute left-6 top-12 w-0.5 h-full bg-border" />
                   )}
 
