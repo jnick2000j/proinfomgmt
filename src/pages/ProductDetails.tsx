@@ -454,6 +454,10 @@ export default function ProductDetails() {
               <BarChart3 className="h-4 w-4" />
               Metrics
             </TabsTrigger>
+            <TabsTrigger value="dependencies" className="gap-2">
+              <Link2 className="h-4 w-4" />
+              Dependencies ({dependencies.length})
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
               Status Timeline
