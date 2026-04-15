@@ -14,13 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface CreateUserDialogProps {
   onSuccess: () => void;
@@ -57,26 +50,22 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
     try {
       const fullName = `${formData.first_name} ${formData.last_name}`.trim();
       
-      // Create the user via admin API (this would normally be done server-side)
-      // For now, we'll use signUp which creates a user
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: fullName,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-          },
-          emailRedirectTo: `${window.location.origin}/auth`,
+      // Create user via the manage-user edge function (uses admin API)
+      const { data, error } = await supabase.functions.invoke("manage-user", {
+        body: {
+          action: "invite",
+          email: formData.email,
+          password: formData.password,
+          full_name: fullName || formData.email.split('@')[0],
+          redirect_to: `${window.location.origin}/auth`,
         },
       });
 
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
-      if (data.user) {
-        // Update the profile with additional info
-        // Note: The profile should be created by the trigger
+      // Update the profile with additional info after a short delay
+      if (data?.user_id) {
         setTimeout(async () => {
           await supabase
             .from("profiles")
@@ -88,11 +77,11 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
               department: formData.department || null,
               location: formData.location || null,
             })
-            .eq("user_id", data.user!.id);
+            .eq("user_id", data.user_id);
         }, 1000);
       }
 
-      toast.success("User created successfully. They will receive an email to confirm their account.");
+      toast.success("User created! A confirmation email has been sent to verify their account.");
       setOpen(false);
       setFormData({
         email: "",
@@ -122,9 +111,9 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>Create & Invite User</DialogTitle>
           <DialogDescription>
-            Add a new user to the system. They will receive an email to confirm their account.
+            Add a new user to the system. They will receive a confirmation email to verify their account before they can sign in.
           </DialogDescription>
         </DialogHeader>
 
@@ -151,7 +140,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
               minLength={6}
             />
             <p className="text-xs text-muted-foreground">
-              The user can reset this after confirming their email.
+              The user must confirm their email before signing in. They can reset this password after.
             </p>
           </div>
 
@@ -207,7 +196,7 @@ export function CreateUserDialog({ onSuccess }: CreateUserDialogProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create User"}
+              {loading ? "Creating..." : "Create & Send Invite"}
             </Button>
           </DialogFooter>
         </form>
