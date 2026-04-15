@@ -72,7 +72,7 @@ const typeOptions = [
   { value: "qualitative", label: "Qualitative" },
 ];
 
-export default function BenefitsRegister() {
+export default function BenefitsRegister({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { canManage } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
@@ -145,8 +145,8 @@ export default function BenefitsRegister() {
     setEditDialogOpen(true);
   };
 
-  return (
-    <AppLayout title="Benefits Register" subtitle="PRINCE2 MSP benefits management">
+  const content = (
+    <>
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
@@ -384,6 +384,12 @@ export default function BenefitsRegister() {
           onSuccess={fetchBenefits}
         />
       )}
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Benefits Register" subtitle="PRINCE2 MSP benefits management">
+      {content}
     </AppLayout>
   );
 }

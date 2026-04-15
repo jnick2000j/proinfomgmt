@@ -109,7 +109,7 @@ const statuses = [
   { value: "closed", label: "Closed", color: "bg-muted text-muted-foreground" },
 ];
 
-export default function LessonsLearned() {
+export default function LessonsLearned({ embedded = false }: { embedded?: boolean }) {
   const { user } = useAuth();
   const { currentOrganization } = useOrganization();
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -281,8 +281,8 @@ export default function LessonsLearned() {
     success: lessons.filter((l) => l.lesson_type === "success").length,
   };
 
-  return (
-    <AppLayout title="Lessons Learned Register" subtitle="PRINCE2 compliant lessons capture and knowledge management">
+  const content = (
+    <>
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
@@ -619,6 +619,12 @@ export default function LessonsLearned() {
           </TableBody>
         </Table>
       </div>
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Lessons Learned Register" subtitle="PRINCE2 compliant lessons capture and knowledge management">
+      {content}
     </AppLayout>
   );
 }

@@ -71,7 +71,7 @@ const statusConfig: Record<string, { label: string; className: string }> = {
   closed: { label: "Closed", className: "bg-muted text-muted-foreground" },
 };
 
-export default function IssueRegister() {
+export default function IssueRegister({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { canManage } = usePermissions();
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,8 +141,8 @@ export default function IssueRegister() {
     setEditDialogOpen(true);
   };
 
-  return (
-    <AppLayout title="Issue Register" subtitle="PRINCE2 MSP issue management">
+  const content = (
+    <>
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <div className="metric-card">
@@ -377,6 +377,12 @@ export default function IssueRegister() {
           onSuccess={fetchIssues}
         />
       )}
+    </>
+  );
+  if (embedded) return content;
+  return (
+    <AppLayout title="Issue Register" subtitle="PRINCE2 MSP issue management">
+      {content}
     </AppLayout>
   );
 }
