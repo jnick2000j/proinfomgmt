@@ -48,10 +48,13 @@ import {
   XCircle,
   Pause,
   ChevronRight,
+  ChevronDown,
   CalendarDays,
   User,
   ListTree,
+  MessageSquarePlus,
 } from "lucide-react";
+import { EntityUpdates } from "@/components/EntityUpdates";
 import { format } from "date-fns";
 
 type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "cancelled";
