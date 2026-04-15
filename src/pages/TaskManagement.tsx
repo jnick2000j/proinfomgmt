@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -679,7 +679,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           />
                         </TableCell>
                       </TableRow>
-                    )}
+                    </React.Fragment>
                   );
                 })
               )}
