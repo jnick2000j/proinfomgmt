@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -80,6 +81,7 @@ interface Task {
   organization_id: string | null;
   created_by: string | null;
   created_at: string;
+  completion_percentage: number;
 }
 
 interface WorkPackage {
@@ -245,6 +247,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
       }
       if (status === "completed") {
         updateData.actual_end = new Date().toISOString().split("T")[0];
+        updateData.completion_percentage = 100;
       }
       const { error } = await supabase.from("tasks").update(updateData).eq("id", id);
       if (error) throw error;
@@ -252,6 +255,23 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task status updated");
+    },
+  });
+
+  // Update task completion percentage
+  const updateCompletion = useMutation({
+    mutationFn: async ({ id, completion_percentage }: { id: string; completion_percentage: number }) => {
+      const updateData: Record<string, unknown> = { completion_percentage };
+      if (completion_percentage === 100) {
+        updateData.status = "completed";
+        updateData.actual_end = new Date().toISOString().split("T")[0];
+      }
+      const { error } = await supabase.from("tasks").update(updateData).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Completion updated");
     },
   });
 
@@ -436,13 +456,14 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                 <div>
                   <label className="text-sm font-medium">Select {formData.entity_type}</label>
                   <Select
-                    value={formData.entity_id}
-                    onValueChange={(v) => setFormData({ ...formData, entity_id: v })}
+                    value={formData.entity_id || "none"}
+                    onValueChange={(v) => setFormData({ ...formData, entity_id: v === "none" ? "" : v })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`Select ${formData.entity_type}`} />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
                       {getEntityOptions().map((entity) => (
                         <SelectItem key={entity.id} value={entity.id}>
                           {entity.name}
@@ -547,6 +568,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                 <TableHead>Entity</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Completion</TableHead>
                 <TableHead>Timeline</TableHead>
                 <TableHead>Hours</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -555,13 +577,13 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     Loading tasks...
                   </TableCell>
                 </TableRow>
               ) : filteredTasks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No tasks found. Create your first task to get started.
                   </TableCell>
                 </TableRow>
@@ -611,6 +633,20 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           <StatusIcon className="h-3 w-3 mr-1" />
                           {config.label}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 min-w-[120px]">
+                          <Slider
+                            value={[task.completion_percentage || 0]}
+                            max={100}
+                            step={5}
+                            className="w-20"
+                            onValueCommit={(val) =>
+                              updateCompletion.mutate({ id: task.id, completion_percentage: val[0] })
+                            }
+                          />
+                          <span className="text-xs font-medium w-8">{task.completion_percentage || 0}%</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         {task.planned_start && task.planned_end ? (
@@ -671,7 +707,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                     </TableRow>
                     {expandedTaskId === task.id && (
                       <TableRow>
-                        <TableCell colSpan={7} className="bg-muted/30 p-4">
+                        <TableCell colSpan={8} className="bg-muted/30 p-4">
                           <EntityUpdates
                             entityType="task"
                             entityId={task.id}
