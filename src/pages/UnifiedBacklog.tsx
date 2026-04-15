@@ -68,7 +68,7 @@ const priorityConfig: Record<string, { label: string; color: string }> = {
 };
 
 const entityTypeConfig = {
-  programme: { icon: Layers, color: "bg-primary/10 text-primary" },
+  program: { icon: Layers, color: "bg-primary/10 text-primary" },
   project: { icon: FolderKanban, color: "bg-success/10 text-success" },
   product: { icon: Package, color: "bg-warning/10 text-warning" },
 };

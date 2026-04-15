@@ -101,7 +101,7 @@ const priorityColors: Record<string, string> = {
 };
 
 const entityTypeConfig: Record<EntityType, { icon: React.ElementType; color: string; label: string }> = {
-  programme: { icon: Layers, color: "bg-primary/10 text-primary", label: "Programs" },
+  program: { icon: Layers, color: "bg-primary/10 text-primary", label: "Programs" },
   project: { icon: FolderKanban, color: "bg-success/10 text-success", label: "Projects" },
   product: { icon: Package, color: "bg-warning/10 text-warning", label: "Products" },
 };
