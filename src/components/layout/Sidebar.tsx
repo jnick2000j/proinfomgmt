@@ -24,6 +24,8 @@ import {
   FileEdit,
   ClipboardCheck,
   Shield,
+  Settings,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +48,8 @@ const navigation: NavItem[] = [
   { label: "Weekly Updates", icon: Calendar, href: "/weekly-updates" },
   { label: "Documentation", icon: BookOpen, href: "/documentation" },
   { label: "Project Teams", icon: Users, href: "/team" },
+  { label: "Admin", icon: Settings, href: "/admin" },
+  { label: "Platform Admin", icon: Globe, href: "/platform-admin" },
 ];
 
 export function Sidebar() {
