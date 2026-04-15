@@ -9,7 +9,9 @@ import {
   Search, 
   Filter,
   Mail,
-  MoreVertical
+  MoreVertical,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -33,6 +35,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -54,6 +62,9 @@ const roleConfig: Record<string, { label: string; className: string }> = {
   admin: { label: "Administrator", className: "bg-destructive/10 text-destructive" },
   programme_owner: { label: "Program Owner", className: "bg-primary/10 text-primary" },
   project_manager: { label: "Project Manager", className: "bg-success/10 text-success" },
+  product_manager: { label: "Product Manager", className: "bg-warning/10 text-warning" },
+  product_team_member: { label: "Product Team Member", className: "bg-accent/10 text-accent-foreground" },
+  project_team_member: { label: "Project Team Member", className: "bg-info/10 text-info" },
   stakeholder: { label: "Stakeholder", className: "bg-info/10 text-info" },
 };
 
@@ -65,6 +76,7 @@ export default function Team() {
   const [roleFilters, setRoleFilters] = useState<string[]>([]);
   const [departmentFilters, setDepartmentFilters] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
+  const [resendingFor, setResendingFor] = useState<string | null>(null);
   
   // Add member dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -86,7 +98,6 @@ export default function Team() {
     
     setLoading(true);
     try {
-      // Get users with organization access
       const { data: accessData, error: accessError } = await supabase
         .from("user_organization_access")
         .select("user_id, access_level")
@@ -102,7 +113,6 @@ export default function Team() {
 
       const userIds = accessData.map(a => a.user_id);
 
-      // Get profiles for those users
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -125,7 +135,6 @@ export default function Team() {
 
       setTeamMembers(members);
       
-      // Extract unique departments
       const depts = [...new Set(members.map(m => m.department).filter(Boolean))] as string[];
       setDepartments(depts);
     } catch (error) {
@@ -140,7 +149,6 @@ export default function Team() {
     if (!currentOrganization) return;
     
     try {
-      // Get all non-archived profiles
       const { data: allProfiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -148,7 +156,6 @@ export default function Team() {
 
       if (profilesError) throw profilesError;
 
-      // Get existing organization members
       const { data: existingAccess, error: accessError } = await supabase
         .from("user_organization_access")
         .select("user_id")
@@ -158,7 +165,6 @@ export default function Team() {
 
       const existingUserIds = new Set(existingAccess?.map(a => a.user_id) || []);
 
-      // Filter out users already in the organization
       const available = (allProfiles || [])
         .filter(p => !existingUserIds.has(p.user_id))
         .map(p => ({
@@ -184,7 +190,6 @@ export default function Team() {
     
     setAdding(true);
     try {
-      // Add organization access
       const { error: accessError } = await supabase
         .from("user_organization_access")
         .insert({
@@ -195,7 +200,6 @@ export default function Team() {
 
       if (accessError) throw accessError;
 
-      // Add organization role
       const { error: roleError } = await supabase
         .from("user_organization_roles")
         .insert({
@@ -216,6 +220,29 @@ export default function Team() {
       toast.error(error.message || "Failed to add team member");
     } finally {
       setAdding(false);
+    }
+  };
+
+  const handleResendInvite = async (member: TeamMember) => {
+    setResendingFor(member.user_id);
+    try {
+      const { data, error } = await supabase.functions.invoke("manage-user", {
+        body: {
+          action: "resend_invite",
+          user_id: member.user_id,
+          redirect_to: `${window.location.origin}/auth`,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success(`Invite email resent to ${member.email}`);
+    } catch (error: any) {
+      console.error("Error resending invite:", error);
+      toast.error(error.message || "Failed to resend invite");
+    } finally {
+      setResendingFor(null);
     }
   };
 
@@ -404,9 +431,26 @@ export default function Team() {
                     <p className="text-sm text-muted-foreground">{member.department || "No department"}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => handleResendInvite(member)}
+                      disabled={resendingFor === member.user_id}
+                    >
+                      {resendingFor === member.user_id ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4 mr-2" />
+                      )}
+                      Resend Invite
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <div className="space-y-3">

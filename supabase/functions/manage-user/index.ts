@@ -48,7 +48,79 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { action, user_id } = await req.json();
+    const { action, user_id, email, password, full_name, redirect_to } = await req.json();
+
+    if (action === "invite") {
+      // Create user via admin API with email confirmation required
+      if (!email || !password) {
+        return new Response(
+          JSON.stringify({ error: "email and password are required for invite" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: false, // User must confirm via email
+        user_metadata: { full_name: full_name || email.split('@')[0] },
+      });
+
+      if (createError) throw createError;
+
+      // Send the confirmation email by generating a signup link
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: "signup",
+        email,
+        options: {
+          redirectTo: redirect_to || `${supabaseUrl.replace('.supabase.co', '.lovable.app')}/auth`,
+        },
+      });
+
+      if (linkError) {
+        console.error("Error generating invite link:", linkError);
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, user_id: newUser.user?.id, message: "User created and invite email sent" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "resend_invite") {
+      if (!user_id) {
+        return new Response(
+          JSON.stringify({ error: "user_id is required" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Get the user's email
+      const { data: { user: targetUser }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(user_id);
+      
+      if (getUserError || !targetUser) {
+        return new Response(
+          JSON.stringify({ error: "User not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Resend confirmation by generating a new signup link
+      const { error: resendError } = await supabaseAdmin.auth.admin.generateLink({
+        type: "signup",
+        email: targetUser.email!,
+        options: {
+          redirectTo: redirect_to || `${req.headers.get("origin") || ""}/auth`,
+        },
+      });
+
+      if (resendError) throw resendError;
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Invite email resent" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!user_id) {
       return new Response(
@@ -58,7 +130,6 @@ Deno.serve(async (req) => {
     }
 
     if (action === "archive") {
-      // Update profile to archived
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({ 
@@ -67,18 +138,13 @@ Deno.serve(async (req) => {
         })
         .eq("user_id", user_id);
 
-      if (profileError) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
-      // Ban the user in auth (prevents login)
       const { error: banError } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
-        ban_duration: "876000h", // ~100 years
+        ban_duration: "876000h",
       });
 
-      if (banError) {
-        throw banError;
-      }
+      if (banError) throw banError;
 
       return new Response(
         JSON.stringify({ success: true, message: "User archived and disabled" }),
@@ -87,7 +153,6 @@ Deno.serve(async (req) => {
     } 
     
     if (action === "unarchive") {
-      // Update profile to unarchived
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
         .update({ 
@@ -96,18 +161,13 @@ Deno.serve(async (req) => {
         })
         .eq("user_id", user_id);
 
-      if (profileError) {
-        throw profileError;
-      }
+      if (profileError) throw profileError;
 
-      // Unban the user
       const { error: unbanError } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
         ban_duration: "0h",
       });
 
-      if (unbanError) {
-        throw unbanError;
-      }
+      if (unbanError) throw unbanError;
 
       return new Response(
         JSON.stringify({ success: true, message: "User unarchived and enabled" }),
@@ -116,12 +176,9 @@ Deno.serve(async (req) => {
     }
     
     if (action === "delete") {
-      // Delete from auth (cascades to profiles via FK)
       const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user_id);
 
-      if (deleteError) {
-        throw deleteError;
-      }
+      if (deleteError) throw deleteError;
 
       return new Response(
         JSON.stringify({ success: true, message: "User permanently deleted" }),
@@ -130,7 +187,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use 'archive', 'unarchive', or 'delete'" }),
+      JSON.stringify({ error: "Invalid action. Use 'invite', 'resend_invite', 'archive', 'unarchive', or 'delete'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: unknown) {
