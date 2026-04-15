@@ -649,13 +649,22 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
 
                         {/* Sprint Features */}
                         <div className="space-y-2 min-h-[100px]">
-                          {type === "product" ? (
-                            sprintFeatures.length === 0 ? (
+                        {(() => {
+                          const sprintFeatures = getSprintFeatures(sprint.id);
+                          const sprintTasks = getSprintTasks(sprint.id);
+                          const hasItems = sprintFeatures.length > 0 || sprintTasks.length > 0;
+
+                          if (!hasItems) {
+                            return (
                               <p className="text-sm text-muted-foreground text-center py-4">
-                                Drag features here to add them to this sprint
+                                Drag items here to add them to this sprint
                               </p>
-                            ) : (
-                              sprintFeatures.map(feature => (
+                            );
+                          }
+
+                          return (
+                            <>
+                              {sprintFeatures.map(feature => (
                                 <div
                                   key={feature.id}
                                   draggable
@@ -665,6 +674,7 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
                                 >
                                   <div className="flex items-center gap-2">
                                     <GripVertical className="h-4 w-4 opacity-50" />
+                                    <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-600 border-purple-500/30">Feature</Badge>
                                     <span className="font-medium text-sm flex-1 truncate">{feature.name}</span>
                                     <div className="flex gap-1">
                                       <Badge variant="outline" className="text-xs capitalize">
@@ -679,13 +689,34 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
                                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                   </div>
                                 </div>
-                              ))
-                            )
-                          ) : (
-                            <p className="text-sm text-muted-foreground text-center py-4">
-                              Sprint task assignment coming soon
-                            </p>
-                          )}
+                              ))}
+                              {sprintTasks.map(task => (
+                                <div
+                                  key={task.id}
+                                  draggable
+                                  onDragStart={() => handleDragStart(task.id, "task")}
+                                  className={`p-3 rounded-lg bg-secondary/50 border-l-4 cursor-move hover:bg-secondary transition-colors ${priorityColors[task.priority]}`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <GripVertical className="h-4 w-4 opacity-50" />
+                                    <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">Task</Badge>
+                                    <span className="font-medium text-sm flex-1 truncate">{task.name}</span>
+                                    <div className="flex gap-1">
+                                      <Badge variant="outline" className="text-xs capitalize">
+                                        {task.status.replace("_", " ")}
+                                      </Badge>
+                                      {task.story_points && (
+                                        <Badge variant="secondary" className="text-xs">
+                                          {task.story_points} pts
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </>
+                          );
+                        })()}
                         </div>
                       </div>
                     );
