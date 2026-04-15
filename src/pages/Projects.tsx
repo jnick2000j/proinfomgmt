@@ -28,6 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrgAccessLevel } from "@/hooks/useOrgAccessLevel";
 import {
   Popover,
   PopoverContent,
