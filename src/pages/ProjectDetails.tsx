@@ -337,6 +337,12 @@ export default function ProjectDetails() {
     }
   }, [projectId]);
 
+  useEffect(() => {
+    if (project?.programme_id) {
+      fetchProducts();
+    }
+  }, [project?.programme_id]);
+
   if (!projectId) {
     return (
       <AppLayout title="Project Details" subtitle="View project information">
