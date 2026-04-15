@@ -79,6 +79,7 @@ interface Task {
   programme_id: string | null;
   project_id: string | null;
   product_id: string | null;
+  sprint_id: string | null;
 }
 
 interface Entity {
