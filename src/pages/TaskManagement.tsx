@@ -246,6 +246,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
       }
       if (status === "completed") {
         updateData.actual_end = new Date().toISOString().split("T")[0];
+        updateData.completion_percentage = 100;
       }
       const { error } = await supabase.from("tasks").update(updateData).eq("id", id);
       if (error) throw error;
@@ -253,6 +254,23 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task status updated");
+    },
+  });
+
+  // Update task completion percentage
+  const updateCompletion = useMutation({
+    mutationFn: async ({ id, completion_percentage }: { id: string; completion_percentage: number }) => {
+      const updateData: Record<string, unknown> = { completion_percentage };
+      if (completion_percentage === 100) {
+        updateData.status = "completed";
+        updateData.actual_end = new Date().toISOString().split("T")[0];
+      }
+      const { error } = await supabase.from("tasks").update(updateData).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Completion updated");
     },
   });
 
