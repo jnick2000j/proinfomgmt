@@ -202,6 +202,18 @@ export default function ProjectDetails() {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [brief, setBrief] = useState({
+    background: "",
+    objectives: "",
+    scope: "",
+    constraints: "",
+    assumptions: "",
+    business_case_summary: "",
+    cost_estimate: "",
+    timeline_estimate: "",
+    risk_summary: "",
+  });
+  const [briefSaving, setBriefSaving] = useState(false);
 
   const fetchProject = async () => {
     if (!projectId) return;
