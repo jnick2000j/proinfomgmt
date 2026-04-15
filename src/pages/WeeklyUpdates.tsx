@@ -53,7 +53,7 @@ export default function WeeklyUpdates() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("weekly_reports")
-        .select(`*, programmes (name)`)
+        .select(`*, programmes (name), projects (name), products (name)`)
         .order("week_ending", { ascending: false });
       if (error) throw error;
       return data;
@@ -103,9 +103,22 @@ export default function WeeklyUpdates() {
     },
   });
 
-  const filteredReports = reports.filter((r: any) =>
-    r.programmes?.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const getReportEntityName = (report: any) => {
+    if (report.report_type === "project" && report.projects?.name) return report.projects.name;
+    if (report.report_type === "product" && report.products?.name) return report.products.name;
+    return report.programmes?.name || "Unknown";
+  };
+
+  const getReportTypeLabel = (report: any) => {
+    if (report.report_type === "project") return "Project";
+    if (report.report_type === "product") return "Product";
+    return "Program";
+  };
+
+  const filteredReports = reports.filter((r: any) => {
+    const name = getReportEntityName(r);
+    return name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const draftCount = reports.filter((r: any) => r.status === "draft").length;
   const submittedCount = reports.filter((r: any) => r.status === "submitted").length;
@@ -201,7 +214,8 @@ export default function WeeklyUpdates() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <div className={cn("h-3 w-3 rounded-full", healthConfig[health] || "bg-muted")} />
-                        <CardTitle className="text-lg">{report.programmes?.name || "Unknown Program"}</CardTitle>
+                        <CardTitle className="text-lg">{getReportEntityName(report)}</CardTitle>
+                        <Badge variant="outline" className="text-xs">{getReportTypeLabel(report)}</Badge>
                       </div>
                       <CardDescription>
                         Week ending {format(new Date(report.week_ending), "MMM d, yyyy")}
