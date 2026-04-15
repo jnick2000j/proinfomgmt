@@ -617,6 +617,14 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
           )}
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <AppLayout title="Stage Gates" subtitle="PRINCE2 stage boundary reviews and go/no-go decision points">
+      {content}
     </AppLayout>
   );
 }

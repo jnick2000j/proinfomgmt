@@ -650,6 +650,14 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
           ))}
         </div>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <AppLayout title="Milestone Tracking" subtitle="Track key deliverables, stage gates, and programme tranches">
+      {content}
     </AppLayout>
   );
 }
