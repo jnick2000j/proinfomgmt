@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,10 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BlueprintTabContent } from "@/components/programme-tabs/BlueprintTabContent";
+import { DefinitionTabContent } from "@/components/programme-tabs/DefinitionTabContent";
+import { SuccessPlanTabContent } from "@/components/programme-tabs/SuccessPlanTabContent";
+import { TranchesTabContent } from "@/components/programme-tabs/TranchesTabContent";
 import {
   ArrowLeft,
   Building2,
