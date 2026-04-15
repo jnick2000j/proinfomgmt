@@ -80,6 +80,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 };
 
 export default function Products() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
