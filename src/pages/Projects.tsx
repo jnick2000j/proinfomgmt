@@ -71,6 +71,7 @@ const priorityConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function Projects() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [projects, setProjects] = useState<Project[]>([]);
