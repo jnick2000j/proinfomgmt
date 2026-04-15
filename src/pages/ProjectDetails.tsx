@@ -24,10 +24,12 @@ import {
   Layers,
   ListTodo,
   FileText,
+  MessageSquarePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
+import { EntityUpdates } from "@/components/EntityUpdates";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -543,6 +545,10 @@ export default function ProjectDetails() {
               <FileText className="h-4 w-4" />
               Project Brief
             </TabsTrigger>
+            <TabsTrigger value="updates" className="gap-2">
+              <MessageSquarePlus className="h-4 w-4" />
+              Updates
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
               Status Timeline
@@ -1005,6 +1011,24 @@ export default function ProjectDetails() {
                       })}
                     </div>
                   </ScrollArea>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="updates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Progress Updates</CardTitle>
+                <CardDescription>Timestamped updates for this project — these feed into weekly reports</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {project && (
+                  <EntityUpdates
+                    entityType="project"
+                    entityId={project.id}
+                    organizationId={project.organization_id}
+                  />
                 )}
               </CardContent>
             </Card>

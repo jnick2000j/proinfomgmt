@@ -28,10 +28,12 @@ import {
   Sunset,
   Link2,
   ArrowRight,
+  MessageSquarePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
+import { EntityUpdates } from "@/components/EntityUpdates";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { format } from "date-fns";
 
@@ -458,6 +460,10 @@ export default function ProductDetails() {
               <Link2 className="h-4 w-4" />
               Dependencies ({dependencies.length})
             </TabsTrigger>
+            <TabsTrigger value="updates" className="gap-2">
+              <MessageSquarePlus className="h-4 w-4" />
+              Updates
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
               Status Timeline
@@ -836,6 +842,24 @@ export default function ProductDetails() {
                       );
                     })}
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="updates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Progress Updates</CardTitle>
+                <CardDescription>Timestamped updates for this product — these feed into weekly reports</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {product && (
+                  <EntityUpdates
+                    entityType="product"
+                    entityId={product.id}
+                    organizationId={product.organization_id}
+                  />
                 )}
               </CardContent>
             </Card>

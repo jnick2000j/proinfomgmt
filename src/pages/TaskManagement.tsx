@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -48,10 +48,13 @@ import {
   XCircle,
   Pause,
   ChevronRight,
+  ChevronDown,
   CalendarDays,
   User,
   ListTree,
+  MessageSquarePlus,
 } from "lucide-react";
+import { EntityUpdates } from "@/components/EntityUpdates";
 import { format } from "date-fns";
 
 type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "cancelled";
@@ -100,6 +103,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -566,7 +570,8 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                   const config = statusConfig[task.status];
                   const StatusIcon = config.icon;
                   return (
-                    <TableRow key={task.id}>
+                    <React.Fragment key={task.id}>
+                    <TableRow>
                       <TableCell>
                         <div>
                           <p className="font-medium">{task.name}</p>
@@ -630,25 +635,52 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Select
-                          value={task.status}
-                          onValueChange={(v) =>
-                            updateTaskStatus.mutate({ id: task.id, status: v as TaskStatus })
-                          }
-                        >
-                          <SelectTrigger className="w-32 h-8">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="not_started">Not Started</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
-                            <SelectItem value="on_hold">On Hold</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => setExpandedTaskId(expandedTaskId === task.id ? null : task.id)}
+                            title="Toggle updates"
+                          >
+                            {expandedTaskId === task.id ? (
+                              <ChevronDown className="h-4 w-4" />
+                            ) : (
+                              <MessageSquarePlus className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Select
+                            value={task.status}
+                            onValueChange={(v) =>
+                              updateTaskStatus.mutate({ id: task.id, status: v as TaskStatus })
+                            }
+                          >
+                            <SelectTrigger className="w-32 h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not_started">Not Started</SelectItem>
+                              <SelectItem value="in_progress">In Progress</SelectItem>
+                              <SelectItem value="on_hold">On Hold</SelectItem>
+                              <SelectItem value="completed">Completed</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </TableCell>
                     </TableRow>
+                    {expandedTaskId === task.id && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="bg-muted/30 p-4">
+                          <EntityUpdates
+                            entityType="task"
+                            entityId={task.id}
+                            organizationId={task.organization_id}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    </React.Fragment>
                   );
                 })
               )}

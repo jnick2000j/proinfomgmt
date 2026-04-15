@@ -30,10 +30,12 @@ import {
   Archive,
   Package,
   ListTodo,
+  MessageSquarePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
+import { EntityUpdates } from "@/components/EntityUpdates";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { format } from "date-fns";
 
@@ -473,6 +475,10 @@ export default function ProgrammeDetails() {
               <Calendar className="h-4 w-4" />
               Tranches
             </TabsTrigger>
+            <TabsTrigger value="updates" className="gap-2">
+              <MessageSquarePlus className="h-4 w-4" />
+              Updates
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
               Timeline
@@ -815,6 +821,24 @@ export default function ProgrammeDetails() {
                       })}
                     </div>
                   </ScrollArea>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="updates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Progress Updates</CardTitle>
+                <CardDescription>Timestamped updates for this programme — these feed into weekly reports</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {programme && (
+                  <EntityUpdates
+                    entityType="programme"
+                    entityId={programme.id}
+                    organizationId={programme.organization_id}
+                  />
                 )}
               </CardContent>
             </Card>
