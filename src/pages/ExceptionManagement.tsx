@@ -213,6 +213,7 @@ export default function ExceptionManagement() {
         owner_id: user?.id,
         project_id: data.entity_type === "project" && data.entity_id ? data.entity_id : null,
         programme_id: data.entity_type === "program" && data.entity_id ? data.entity_id : null,
+        product_id: data.entity_type === "product" && data.entity_id ? data.entity_id : null,
       });
       if (error) throw error;
     },
@@ -270,12 +271,16 @@ export default function ExceptionManagement() {
     if (ex.programme_id) {
       return programmes.find((p) => p.id === ex.programme_id)?.name || "Program";
     }
+    if (ex.product_id) {
+      return products.find((p) => p.id === ex.product_id)?.name || "Product";
+    }
     return "—";
   };
 
   const getEntityOptions = () => {
     if (formData.entity_type === "project") return projects;
     if (formData.entity_type === "program") return programmes;
+    if (formData.entity_type === "product") return products;
     return [];
   };
 
@@ -465,6 +470,7 @@ export default function ExceptionManagement() {
                     <SelectContent>
                       <SelectItem value="project">Project</SelectItem>
                       <SelectItem value="program">Program</SelectItem>
+                      <SelectItem value="product">Product</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
