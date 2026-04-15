@@ -57,19 +57,7 @@ const navigation: NavItem[] = [
     ],
   },
   { label: "PRINCE2", icon: Shield, href: "/prince2" },
-  {
-    label: "Registers",
-    icon: ClipboardList,
-    children: [
-      { label: "Risk Register", href: "/registers/risks" },
-      { label: "Issue Register", href: "/registers/issues" },
-      { label: "Benefits Register", href: "/registers/benefits" },
-      { label: "Stakeholder Register", href: "/registers/stakeholders" },
-      { label: "Business Requirements", href: "/registers/business-requirements" },
-      { label: "Technical Requirements", href: "/registers/technical-requirements" },
-      { label: "Lessons Learned", href: "/registers/lessons" },
-    ],
-  },
+  { label: "Registers", icon: ClipboardList, href: "/registers" },
   { label: "Reports", icon: BarChart3, href: "/reports" },
   { label: "Weekly Updates", icon: Calendar, href: "/weekly-updates" },
   { label: "Documentation", icon: BookOpen, href: "/documentation" },
@@ -79,7 +67,7 @@ const navigation: NavItem[] = [
 export function Sidebar() {
   const location = useLocation();
   const { user, signOut, userRole, userProfile } = useAuth();
-  const [expandedItems, setExpandedItems] = useState<string[]>(["Tasks", "Milestones", "Registers"]);
+  const [expandedItems, setExpandedItems] = useState<string[]>(["Tasks", "Milestones"]);
 
   const getDisplayName = () => {
     if (userProfile?.first_name && userProfile?.last_name) {
