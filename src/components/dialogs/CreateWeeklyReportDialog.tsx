@@ -99,7 +99,7 @@ export function CreateWeeklyReportDialog({ open, onOpenChange }: CreateWeeklyRep
       const risksIssues = data.risks_issues?.split("\n").filter(Boolean) || [];
       const nextWeek = data.next_week?.split("\n").filter(Boolean) || [];
 
-      const insertData: Record<string, unknown> = {
+      const insertData = {
         report_type: data.report_type,
         week_ending: data.week_ending,
         overall_health: data.overall_health,
@@ -107,13 +107,12 @@ export function CreateWeeklyReportDialog({ open, onOpenChange }: CreateWeeklyRep
         risks_issues: risksIssues,
         next_week: nextWeek,
         submitted_by: user?.id,
-        status: "draft",
+        status: "draft" as const,
         organization_id: currentOrganization?.id || null,
+        programme_id: data.report_type === "programme" ? data.entity_id : null,
+        project_id: data.report_type === "project" ? data.entity_id : null,
+        product_id: data.report_type === "product" ? data.entity_id : null,
       };
-
-      if (data.report_type === "programme") insertData.programme_id = data.entity_id;
-      if (data.report_type === "project") insertData.project_id = data.entity_id;
-      if (data.report_type === "product") insertData.product_id = data.entity_id;
 
       const { error } = await supabase.from("weekly_reports").insert(insertData);
       if (error) throw error;
