@@ -632,6 +632,26 @@ export default function ProgrammeDetails() {
             </Card>
           </TabsContent>
 
+          {/* Blueprint Tab */}
+          <TabsContent value="blueprint">
+            <BlueprintTabContent programmeId={programmeId!} />
+          </TabsContent>
+
+          {/* Definition Tab */}
+          <TabsContent value="definition">
+            <DefinitionTabContent programmeId={programmeId!} />
+          </TabsContent>
+
+          {/* Success Plan Tab */}
+          <TabsContent value="success-plan">
+            <SuccessPlanTabContent programmeId={programmeId!} />
+          </TabsContent>
+
+          {/* Tranches Tab */}
+          <TabsContent value="tranches">
+            <TranchesTabContent programmeId={programmeId!} />
+          </TabsContent>
+
           {/* Status Timeline Tab */}
           <TabsContent value="history">
             <Card>
