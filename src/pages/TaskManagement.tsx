@@ -634,6 +634,20 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        <div className="flex items-center gap-2 min-w-[120px]">
+                          <Slider
+                            value={[task.completion_percentage || 0]}
+                            max={100}
+                            step={5}
+                            className="w-20"
+                            onValueCommit={(val) =>
+                              updateCompletion.mutate({ id: task.id, completion_percentage: val[0] })
+                            }
+                          />
+                          <span className="text-xs font-medium w-8">{task.completion_percentage || 0}%</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         {task.planned_start && task.planned_end ? (
                           <div className="text-xs">
                             <div className="flex items-center gap-1">
