@@ -278,16 +278,22 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
     return features.filter(f => f.sprint_id === sprintId);
   };
 
-  const getSprintPoints = (sprintId: string) => {
-    return getSprintFeatures(sprintId).reduce((sum, f) => sum + (f.story_points || 0), 0);
+  const getSprintTasks = (sprintId: string) => {
+    return tasks.filter(t => t.sprint_id === sprintId);
   };
 
-  const getBacklogItems = (type: EntityType) => {
+  const getSprintPoints = (sprintId: string) => {
+    const featurePoints = getSprintFeatures(sprintId).reduce((sum, f) => sum + (f.story_points || 0), 0);
+    const taskPoints = getSprintTasks(sprintId).reduce((sum, t) => sum + (t.story_points || 0), 0);
+    return featurePoints + taskPoints;
+  };
+
+  const getBacklogItems = (type: EntityType): (Feature | Task)[] => {
     if (type === "product") {
       return features.filter(f => !f.sprint_id);
     }
-    // For programmes and projects, return tasks without sprint
     return tasks.filter(t => {
+      if (t.sprint_id) return false;
       if (type === "program") return t.programme_id != null && !t.project_id;
       return t.project_id != null;
     });
