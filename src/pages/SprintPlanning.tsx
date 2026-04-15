@@ -579,7 +579,6 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
                   </div>
                 ) : (
                   filteredSprints.map(sprint => {
-                    const sprintFeatures = getSprintFeatures(sprint.id);
                     const usedPoints = getSprintPoints(sprint.id);
                     const capacityPercent = sprint.capacity_points > 0
                       ? Math.min((usedPoints / sprint.capacity_points) * 100, 100)
