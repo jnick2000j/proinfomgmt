@@ -570,7 +570,8 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                   const config = statusConfig[task.status];
                   const StatusIcon = config.icon;
                   return (
-                    <TableRow key={task.id}>
+                    <React.Fragment key={task.id}>
+                    <TableRow>
                       <TableCell>
                         <div>
                           <p className="font-medium">{task.name}</p>
