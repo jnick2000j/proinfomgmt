@@ -80,28 +80,31 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   const getDefaultPermissions = (role: string): CustomRole => {
     const isAdmin = role === "admin";
     const isManager = role === "manager" || role === "programme_manager" || role === "project_manager";
+    const isProductManager = role === "product_manager";
+    const isProductTeam = role === "product_team_member";
+    const isProjectTeam = role === "project_team_member";
     
     return {
       id: "",
       name: role,
       can_manage_programmes: isAdmin || isManager,
-      can_manage_projects: isAdmin || isManager,
-      can_manage_products: isAdmin || isManager,
+      can_manage_projects: isAdmin || isManager || isProjectTeam,
+      can_manage_products: isAdmin || isManager || isProductManager || isProductTeam,
       can_manage_users: isAdmin,
       can_view_reports: true,
-      can_manage_risks: isAdmin || isManager,
-      can_manage_issues: isAdmin || isManager,
-      can_manage_benefits: isAdmin || isManager,
-      can_manage_stakeholders: isAdmin || isManager,
-      can_manage_requirements: isAdmin || isManager,
-      can_manage_milestones: isAdmin || isManager,
+      can_manage_risks: isAdmin || isManager || isProductManager,
+      can_manage_issues: isAdmin || isManager || isProductManager,
+      can_manage_benefits: isAdmin || isManager || isProductManager,
+      can_manage_stakeholders: isAdmin || isManager || isProductManager,
+      can_manage_requirements: isAdmin || isManager || isProductManager,
+      can_manage_milestones: isAdmin || isManager || isProductManager,
       can_manage_stage_gates: isAdmin || isManager,
-      can_manage_change_requests: isAdmin || isManager,
+      can_manage_change_requests: isAdmin || isManager || isProductManager,
       can_manage_exceptions: isAdmin || isManager,
-      can_manage_quality: isAdmin || isManager,
+      can_manage_quality: isAdmin || isManager || isProductManager,
       can_manage_work_packages: isAdmin || isManager,
       can_manage_tranches: isAdmin || isManager,
-      can_manage_lessons: isAdmin || isManager,
+      can_manage_lessons: isAdmin || isManager || isProductManager,
     };
   };
 
