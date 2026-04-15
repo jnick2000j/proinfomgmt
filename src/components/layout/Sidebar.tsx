@@ -34,6 +34,7 @@ interface NavItem {
   icon: React.ElementType;
   href?: string;
   children?: { label: string; href: string }[];
+  adminOnly?: boolean;
 }
 
 const navigation: NavItem[] = [
@@ -48,8 +49,8 @@ const navigation: NavItem[] = [
   { label: "Weekly Updates", icon: Calendar, href: "/weekly-updates" },
   { label: "Documentation", icon: BookOpen, href: "/documentation" },
   { label: "Project Teams", icon: Users, href: "/team" },
-  { label: "Admin", icon: Settings, href: "/admin" },
-  { label: "Platform Admin", icon: Globe, href: "/platform-admin" },
+  { label: "Admin", icon: Settings, href: "/admin", adminOnly: true },
+  { label: "Platform Admin", icon: Globe, href: "/platform-admin", adminOnly: true },
 ];
 
 export function Sidebar() {
