@@ -154,6 +154,9 @@ export function AssignRoleDialog({ onSuccess }: AssignRoleDialogProps) {
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="programme_owner">Program Owner</SelectItem>
                 <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="product_manager">Product Manager</SelectItem>
+                <SelectItem value="product_team_member">Product Team Member</SelectItem>
+                <SelectItem value="project_team_member">Project Team Member</SelectItem>
                 <SelectItem value="stakeholder">Stakeholder</SelectItem>
               </SelectContent>
             </Select>
@@ -161,6 +164,9 @@ export function AssignRoleDialog({ onSuccess }: AssignRoleDialogProps) {
               {selectedRole === "admin" && "Full system access including user management"}
               {selectedRole === "programme_owner" && "Can manage programmes and their projects"}
               {selectedRole === "project_manager" && "Can manage assigned projects"}
+              {selectedRole === "product_manager" && "Manages products, features, roadmaps and related registers"}
+              {selectedRole === "product_team_member" && "Works on products and assigned tasks only"}
+              {selectedRole === "project_team_member" && "Works on projects and assigned tasks only"}
               {selectedRole === "stakeholder" && "View access to assigned items"}
             </p>
           </div>
