@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,7 @@ const priorityConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function Projects() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [projects, setProjects] = useState<Project[]>([]);
@@ -277,7 +279,7 @@ export default function Projects() {
                   key={project.id} 
                   className="animate-fade-in cursor-pointer hover:bg-muted/50"
                   style={{ animationDelay: `${index * 0.03}s` }}
-                  onClick={() => handleEditClick(project)}
+                  onClick={() => navigate(`/projects/details?id=${project.id}`)}
                 >
                   <TableCell className="font-medium">{project.name}</TableCell>
                   <TableCell>
