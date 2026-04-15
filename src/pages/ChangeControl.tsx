@@ -93,7 +93,7 @@ const statusConfig: Record<ChangeStatus, { label: string; icon: React.ElementTyp
   withdrawn: { label: "Withdrawn", icon: XCircle, color: "bg-muted text-muted-foreground" },
 };
 
-export default function ChangeControl() {
+export default function ChangeControl({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -288,11 +288,8 @@ export default function ChangeControl() {
     rejected: changeRequests.filter((cr) => cr.status === "rejected").length,
   };
 
-  return (
-    <AppLayout
-      title="Change Control"
-      subtitle="PRINCE2 change request management with impact assessment"
-    >
+  const content = (
+    <>
       {/* PRINCE2 Info */}
       <Card className="mb-6 bg-primary/5 border-primary/20">
         <CardContent className="pt-4">
@@ -820,6 +817,14 @@ export default function ChangeControl() {
           )}
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <AppLayout title="Change Control" subtitle="PRINCE2 change request management with impact assessment">
+      {content}
     </AppLayout>
   );
 }

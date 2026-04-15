@@ -91,7 +91,7 @@ const statusConfig: Record<ExceptionStatus, { label: string; icon: React.Element
   closed: { label: "Closed", icon: XCircle, color: "bg-muted text-muted-foreground" },
 };
 
-export default function ExceptionManagement() {
+export default function ExceptionManagement({ embedded = false }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -298,11 +298,8 @@ export default function ExceptionManagement() {
     resolved: exceptions.filter((ex) => ex.status === "resolved" || ex.status === "closed").length,
   };
 
-  return (
-    <AppLayout
-      title="Exception Management"
-      subtitle="PRINCE2 tolerance breaches and escalation management"
-    >
+  const content = (
+    <>
       {/* PRINCE2 Info */}
       <Card className="mb-6 bg-warning/5 border-warning/20">
         <CardContent className="pt-4">
@@ -796,6 +793,14 @@ export default function ExceptionManagement() {
           )}
         </DialogContent>
       </Dialog>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <AppLayout title="Exception Management" subtitle="PRINCE2 tolerance breaches and escalation management">
+      {content}
     </AppLayout>
   );
 }
