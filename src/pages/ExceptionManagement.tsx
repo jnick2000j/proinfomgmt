@@ -159,6 +159,20 @@ export default function ExceptionManagement() {
     enabled: !!currentOrganization?.id,
   });
 
+  const { data: products = [] } = useQuery({
+    queryKey: ["products-list", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return [];
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name")
+        .eq("organization_id", currentOrganization.id);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!currentOrganization?.id,
+  });
+
   // Generate reference number
   const generateRefNumber = () => {
     const year = new Date().getFullYear();
