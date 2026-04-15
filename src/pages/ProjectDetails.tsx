@@ -539,6 +539,10 @@ export default function ProjectDetails() {
               <AlertCircle className="h-4 w-4" />
               Issues ({issues.length})
             </TabsTrigger>
+            <TabsTrigger value="brief" className="gap-2">
+              <FileText className="h-4 w-4" />
+              Project Brief
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <History className="h-4 w-4" />
               Status Timeline
