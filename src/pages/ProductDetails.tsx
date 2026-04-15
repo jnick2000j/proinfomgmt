@@ -180,7 +180,29 @@ export default function ProductDetails() {
     setFeatures(data || []);
   };
 
-  const fetchStatusHistory = async () => {
+  const fetchDependencies = async () => {
+    if (!productId) return;
+    
+    // Get feature IDs for this product first
+    const { data: featureIds } = await supabase
+      .from("product_features")
+      .select("id")
+      .eq("product_id", productId);
+    
+    if (!featureIds || featureIds.length === 0) {
+      setDependencies([]);
+      return;
+    }
+
+    const ids = featureIds.map(f => f.id);
+    const { data } = await supabase
+      .from("feature_dependencies")
+      .select("*")
+      .or(`feature_id.in.(${ids.join(",")}),depends_on_id.in.(${ids.join(",")})`);
+
+    setDependencies(data || []);
+  };
+
     if (!productId) return;
 
     const { data } = await supabase
