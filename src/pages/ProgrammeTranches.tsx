@@ -407,15 +407,15 @@ export default function ProgrammeTranches() {
         {/* Timeline View */}
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading tranches...</div>
-        ) : tranches.length === 0 ? (
+        ) : filteredTranches.length === 0 ? (
           <div className="metric-card text-center py-12">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No tranches found</p>
-            <p className="text-sm text-muted-foreground">Create a tranche to start planning your programme</p>
+            <p className="text-sm text-muted-foreground">Create a tranche to start planning your program</p>
           </div>
         ) : (
           <div className="relative">
-            {tranches.map((tranche, index) => {
+            {filteredTranches.map((tranche, index) => {
               const statusConf = trancheStatuses.find(s => s.value === tranche.status) || trancheStatuses[0];
               const StatusIcon = statusConf.icon;
               const progress = tranche.progress || 0;
