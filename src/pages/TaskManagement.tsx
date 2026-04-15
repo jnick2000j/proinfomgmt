@@ -567,6 +567,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                 <TableHead>Entity</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Completion</TableHead>
                 <TableHead>Timeline</TableHead>
                 <TableHead>Hours</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
