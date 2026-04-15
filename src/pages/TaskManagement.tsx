@@ -679,6 +679,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           />
                         </TableCell>
                       </TableRow>
+                    )}
                     </React.Fragment>
                   );
                 })
