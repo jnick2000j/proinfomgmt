@@ -173,6 +173,22 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
               </Select>
             </div>
             <div>
+              <Label htmlFor="project">Related Project</Label>
+              <Select value={formData.project_id} onValueChange={(v) => setFormData({ ...formData, project_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {projects
+                    .filter((p) => !formData.programme_id || p.programme_id === formData.programme_id || !p.programme_id)
+                    .map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="stage">Lifecycle Stage</Label>
               <Select value={formData.stage} onValueChange={(v) => setFormData({ ...formData, stage: v })}>
                 <SelectTrigger>
