@@ -119,17 +119,28 @@ export type Database = {
           feature_1_text: string | null
           feature_2_label: string | null
           feature_2_text: string | null
+          feature_3_label: string | null
+          feature_3_text: string | null
+          feature_4_label: string | null
+          feature_4_text: string | null
           font_family: string | null
           header_font_size: string | null
           hero_description: string | null
           hero_title: string | null
           id: string
+          login_bg_image_url: string | null
+          login_bg_pattern: string | null
+          login_button_text: string | null
+          login_cta_text: string | null
           login_footer_text: string | null
+          login_layout: string | null
           logo_size: string | null
           logo_url: string | null
           organization_id: string | null
           primary_color: string | null
+          right_panel_bg_color: string | null
           secondary_color: string | null
+          show_features: boolean | null
           show_logo: boolean | null
           updated_at: string
           welcome_message: string | null
@@ -143,17 +154,28 @@ export type Database = {
           feature_1_text?: string | null
           feature_2_label?: string | null
           feature_2_text?: string | null
+          feature_3_label?: string | null
+          feature_3_text?: string | null
+          feature_4_label?: string | null
+          feature_4_text?: string | null
           font_family?: string | null
           header_font_size?: string | null
           hero_description?: string | null
           hero_title?: string | null
           id?: string
+          login_bg_image_url?: string | null
+          login_bg_pattern?: string | null
+          login_button_text?: string | null
+          login_cta_text?: string | null
           login_footer_text?: string | null
+          login_layout?: string | null
           logo_size?: string | null
           logo_url?: string | null
           organization_id?: string | null
           primary_color?: string | null
+          right_panel_bg_color?: string | null
           secondary_color?: string | null
+          show_features?: boolean | null
           show_logo?: boolean | null
           updated_at?: string
           welcome_message?: string | null
@@ -167,17 +189,28 @@ export type Database = {
           feature_1_text?: string | null
           feature_2_label?: string | null
           feature_2_text?: string | null
+          feature_3_label?: string | null
+          feature_3_text?: string | null
+          feature_4_label?: string | null
+          feature_4_text?: string | null
           font_family?: string | null
           header_font_size?: string | null
           hero_description?: string | null
           hero_title?: string | null
           id?: string
+          login_bg_image_url?: string | null
+          login_bg_pattern?: string | null
+          login_button_text?: string | null
+          login_cta_text?: string | null
           login_footer_text?: string | null
+          login_layout?: string | null
           logo_size?: string | null
           logo_url?: string | null
           organization_id?: string | null
           primary_color?: string | null
+          right_panel_bg_color?: string | null
           secondary_color?: string | null
+          show_features?: boolean | null
           show_logo?: boolean | null
           updated_at?: string
           welcome_message?: string | null
