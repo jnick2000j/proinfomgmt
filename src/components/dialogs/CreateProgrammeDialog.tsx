@@ -53,7 +53,15 @@ export function CreateProgrammeDialog({ onSuccess }: CreateProgrammeDialogProps)
     setLoading(true);
     try {
       const { error } = await supabase.from("programmes").insert({
-        ...formData,
+        name: formData.name,
+        description: formData.description || null,
+        status: formData.status,
+        sponsor: formData.sponsor || null,
+        budget: formData.budget || null,
+        benefits_target: formData.benefits_target || null,
+        tranche: formData.tranche || null,
+        start_date: formData.start_date || null,
+        end_date: formData.end_date || null,
         organization_id: formData.organization_id || null,
         created_by: user.id,
         manager_id: user.id,
