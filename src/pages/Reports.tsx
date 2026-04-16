@@ -28,6 +28,7 @@ import { ReportDownloader } from "@/components/reports/ReportDownloader";
 import { SavedReports } from "@/components/reports/SavedReports";
 import { ScheduleReportDialog } from "@/components/reports/ScheduleReportDialog";
 import { ScheduledReportsList } from "@/components/reports/ScheduledReportsList";
+import { StatusIndicators } from "@/components/dashboard/StatusIndicators";
 
 const resourceColors = [
   "hsl(217, 91%, 50%)",

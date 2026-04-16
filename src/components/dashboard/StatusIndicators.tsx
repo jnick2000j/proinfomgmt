@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layers, FolderKanban, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const healthColor: Record<string, string> = {
   green: "bg-success",
@@ -16,13 +17,22 @@ const statusToHealth = (status: string): string => {
   return "amber";
 };
 
+interface EntityItem {
+  id: string;
+  name: string;
+  health: string;
+}
+
 interface EntityGroup {
   label: string;
   icon: React.ReactNode;
-  items: { name: string; health: string }[];
+  items: EntityItem[];
+  basePath: string;
 }
 
 export function StatusIndicators() {
+  const navigate = useNavigate();
+
   const { data, isLoading } = useQuery({
     queryKey: ["status-indicators"],
     queryFn: async () => {
@@ -32,17 +42,17 @@ export function StatusIndicators() {
         supabase.from("products").select("id, name, status"),
       ]);
       return {
-        programmes: (progs.data || []).map((p) => ({ name: p.name, health: statusToHealth(p.status) })),
-        projects: (projs.data || []).map((p) => ({ name: p.name, health: p.health || "amber" })),
-        products: (prods.data || []).map((p) => ({ name: p.name, health: statusToHealth(p.status) })),
+        programmes: (progs.data || []).map((p) => ({ id: p.id, name: p.name, health: statusToHealth(p.status) })),
+        projects: (projs.data || []).map((p) => ({ id: p.id, name: p.name, health: p.health || "amber" })),
+        products: (prods.data || []).map((p) => ({ id: p.id, name: p.name, health: statusToHealth(p.status) })),
       };
     },
   });
 
   const groups: EntityGroup[] = [
-    { label: "Programmes", icon: <Layers className="h-4 w-4" />, items: data?.programmes || [] },
-    { label: "Projects", icon: <FolderKanban className="h-4 w-4" />, items: data?.projects || [] },
-    { label: "Products", icon: <Package className="h-4 w-4" />, items: data?.products || [] },
+    { label: "Programmes", icon: <Layers className="h-4 w-4" />, items: data?.programmes || [], basePath: "/programmes" },
+    { label: "Projects", icon: <FolderKanban className="h-4 w-4" />, items: data?.projects || [], basePath: "/projects" },
+    { label: "Products", icon: <Package className="h-4 w-4" />, items: data?.products || [], basePath: "/products" },
   ];
 
   if (isLoading) {
@@ -71,11 +81,15 @@ export function StatusIndicators() {
               </div>
               {group.items.length > 0 ? (
                 <div className="space-y-1.5">
-                  {group.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
+                  {group.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => navigate(`${group.basePath}/${item.id}`)}
+                      className="flex items-center gap-2 w-full text-left rounded-md px-2 py-1 hover:bg-accent/50 transition-colors group"
+                    >
                       <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", healthColor[item.health] || "bg-muted-foreground")} />
-                      <span className="text-sm text-foreground truncate">{item.name}</span>
-                    </div>
+                      <span className="text-sm text-foreground truncate group-hover:text-primary transition-colors">{item.name}</span>
+                    </button>
                   ))}
                 </div>
               ) : (
