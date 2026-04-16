@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, User, ArrowRight, Loader2, ArrowLeft, Shield, BarChart3, Users, Layers } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Loader2, ArrowLeft, Shield, BarChart3, Users, Layers, Building2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -57,8 +57,9 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string; orgName?: string }>({});
   const [branding, setBranding] = useState<GlobalBranding | null>(null);
 
   const { signIn, signUp, user } = useAuth();
@@ -66,7 +67,15 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // Check if user has org_name in metadata and no org yet — create one
+      const orgNameMeta = user.user_metadata?.org_name;
+      if (orgNameMeta) {
+        supabase.rpc('create_org_for_new_user', { _org_name: orgNameMeta }).then(() => {
+          navigate("/");
+        });
+      } else {
+        navigate("/");
+      }
     }
   }, [user, navigate]);
 
