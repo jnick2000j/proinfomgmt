@@ -1634,16 +1634,22 @@ export default function Documentation() {
             ))}
           </div>
 
-          {/* Interactive Wizard Templates */}
+          {/* All Wizard Templates */}
           <div>
             <h3 className="text-lg font-semibold mb-1">Interactive Wizards</h3>
-            <p className="text-sm text-muted-foreground mb-4">Fill in guided forms that create real entities in your portfolio.</p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <p className="text-sm text-muted-foreground mb-4">Fill in guided forms to create real entities in your portfolio or use structured planning guides.</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { type: "programme_mandate" as TemplateType, name: "Programme Mandate", category: "MSP", icon: "🏗️", description: "Define a new programme with strategic objectives, scope, timeline, and initial risk assessment.", creates: "Programme" },
-                { type: "project_brief" as TemplateType, name: "Project Brief", category: "PRINCE2", icon: "📋", description: "Set up a project with SMART objectives, methodology selection, and key parameters.", creates: "Project" },
                 { type: "business_case" as TemplateType, name: "Business Case", category: "PRINCE2", icon: "💼", description: "Build a compelling business case with options analysis, benefits quantification, and ROI.", creates: "Programme" },
+                { type: "project_brief" as TemplateType, name: "Project Brief", category: "PRINCE2", icon: "📋", description: "Set up a project with SMART objectives, methodology selection, and key parameters.", creates: "Project" },
                 { type: "product_vision" as TemplateType, name: "Product Vision Canvas", category: "Product", icon: "🎯", description: "Articulate product vision, value proposition, target market, and success metrics.", creates: "Product" },
+                { type: "risk_register" as TemplateType, name: "Risk Register Entry", category: "PRINCE2", icon: "⚠️", description: "Identify and assess a risk with probability, impact scoring, and response planning.", creates: "Risk" },
+                { type: "lessons_learned" as TemplateType, name: "Lessons Learned", category: "PRINCE2", icon: "📝", description: "Capture lessons with root cause analysis, outcomes, and actionable recommendations.", creates: "Lesson" },
+                { type: "user_story" as TemplateType, name: "User Story", category: "Agile", icon: "📖", description: "Write a user story with persona, acceptance criteria, story points, and MoSCoW priority.", creates: "Feature" },
+                { type: "rice_worksheet" as TemplateType, name: "RICE Prioritization", category: "Product", icon: "📊", description: "Score a feature using Reach, Impact, Confidence, and Effort to calculate priority.", creates: "Feature" },
+                { type: "sprint_planning" as TemplateType, name: "Sprint Planning Guide", category: "Agile", icon: "🏃", description: "Plan a sprint with goals, capacity, carry-over items, and risk identification.", creates: null },
+                { type: "definition_of_done" as TemplateType, name: "Definition of Done", category: "Agile", icon: "✅", description: "Define code quality, testing, deployment, and acceptance criteria for your team.", creates: null },
               ]
                 .filter(t => categoryFilter === "all" || t.category === categoryFilter)
                 .filter(t => !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -1655,7 +1661,11 @@ export default function Documentation() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <span className="text-2xl">{template.icon}</span>
-                    <Badge className="bg-primary/10 text-primary border-0 text-xs">Creates {template.creates}</Badge>
+                    {template.creates ? (
+                      <Badge className="bg-primary/10 text-primary border-0 text-xs">Creates {template.creates}</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">Guide</Badge>
+                    )}
                   </div>
                   <h4 className="font-semibold mb-1">{template.name}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed mb-3">{template.description}</p>
@@ -1668,32 +1678,19 @@ export default function Documentation() {
             </div>
           </div>
 
-          {/* Reference Templates */}
+          {/* Downloadable Reference Templates */}
           <div>
-            <h3 className="text-lg font-semibold mb-1">Reference Templates & Guides</h3>
-            <p className="text-sm text-muted-foreground mb-4">Downloadable templates and process guides for offline use.</p>
+            <h3 className="text-lg font-semibold mb-1">Downloadable Templates</h3>
+            <p className="text-sm text-muted-foreground mb-4">Copy or download raw templates for offline use.</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filteredTemplates
                 .filter(t => categoryFilter === "all" || t.category === categoryFilter)
-                .map((template, index) => {
-                const iconMap: Record<string, string> = {
-                  "Risk Register Template": "⚠️",
-                  "Lessons Learned Log": "📝",
-                  "Sprint Planning Guide": "🏃",
-                  "User Story Template": "📖",
-                  "RICE Prioritization Worksheet": "📊",
-                  "Definition of Done Checklist": "✅",
-                  "Program Mandate Template": "🏗️",
-                  "Project Brief Template": "📋",
-                  "Business Case Template": "💼",
-                  "Product Vision Canvas": "🎯",
-                };
-                return (
+                .map((template, index) => (
                   <div
                     key={index}
                     className="flex items-start gap-3 p-4 rounded-lg border border-border hover:bg-secondary/50 transition-colors"
                   >
-                    <span className="text-lg mt-0.5">{iconMap[template.name] || "📄"}</span>
+                    <span className="text-lg mt-0.5">📄</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{template.name}</p>
                       <div className="flex items-center gap-2 mt-1 mb-2">
@@ -1713,8 +1710,7 @@ export default function Documentation() {
                       </div>
                     </div>
                   </div>
-                );
-              })}
+              ))}
             </div>
           </div>
 
