@@ -445,7 +445,8 @@ export default function ProgrammeDetails() {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="projects" className="space-y-4">
-          <TabsList className="flex-wrap h-auto gap-1">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList className="inline-flex w-max gap-1">
             <TabsTrigger value="projects" className="gap-2">
               <FolderKanban className="h-4 w-4" />
               Projects ({projects.length})
@@ -494,7 +495,8 @@ export default function ProgrammeDetails() {
               <History className="h-4 w-4" />
               Timeline
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
+          </ScrollArea>
 
           {/* Linked Projects Tab */}
           <TabsContent value="projects">
