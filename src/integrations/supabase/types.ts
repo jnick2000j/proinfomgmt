@@ -113,6 +113,7 @@ export type Database = {
         Row: {
           accent_color: string | null
           app_name: string | null
+          app_name_color: string | null
           app_tagline: string | null
           created_at: string
           feature_1_label: string | null
@@ -124,8 +125,10 @@ export type Database = {
           feature_4_label: string | null
           feature_4_text: string | null
           font_family: string | null
+          form_text_color: string | null
           header_font_size: string | null
           hero_description: string | null
+          hero_text_color: string | null
           hero_title: string | null
           id: string
           login_bg_image_url: string | null
@@ -149,12 +152,14 @@ export type Database = {
           show_logo: boolean | null
           show_tagline: boolean
           show_welcome_message: boolean
+          tagline_color: string | null
           updated_at: string
           welcome_message: string | null
         }
         Insert: {
           accent_color?: string | null
           app_name?: string | null
+          app_name_color?: string | null
           app_tagline?: string | null
           created_at?: string
           feature_1_label?: string | null
@@ -166,8 +171,10 @@ export type Database = {
           feature_4_label?: string | null
           feature_4_text?: string | null
           font_family?: string | null
+          form_text_color?: string | null
           header_font_size?: string | null
           hero_description?: string | null
+          hero_text_color?: string | null
           hero_title?: string | null
           id?: string
           login_bg_image_url?: string | null
@@ -191,12 +198,14 @@ export type Database = {
           show_logo?: boolean | null
           show_tagline?: boolean
           show_welcome_message?: boolean
+          tagline_color?: string | null
           updated_at?: string
           welcome_message?: string | null
         }
         Update: {
           accent_color?: string | null
           app_name?: string | null
+          app_name_color?: string | null
           app_tagline?: string | null
           created_at?: string
           feature_1_label?: string | null
@@ -208,8 +217,10 @@ export type Database = {
           feature_4_label?: string | null
           feature_4_text?: string | null
           font_family?: string | null
+          form_text_color?: string | null
           header_font_size?: string | null
           hero_description?: string | null
+          hero_text_color?: string | null
           hero_title?: string | null
           id?: string
           login_bg_image_url?: string | null
@@ -233,6 +244,7 @@ export type Database = {
           show_logo?: boolean | null
           show_tagline?: boolean
           show_welcome_message?: boolean
+          tagline_color?: string | null
           updated_at?: string
           welcome_message?: string | null
         }

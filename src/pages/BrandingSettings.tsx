@@ -77,6 +77,10 @@ interface BrandingState {
   show_welcome_message: boolean;
   show_login_cta: boolean;
   show_footer: boolean;
+  hero_text_color: string;
+  form_text_color: string;
+  app_name_color: string;
+  tagline_color: string;
 }
 
 const defaultBranding: BrandingState = {
@@ -116,6 +120,10 @@ const defaultBranding: BrandingState = {
   show_welcome_message: true,
   show_login_cta: true,
   show_footer: true,
+  hero_text_color: "",
+  form_text_color: "",
+  app_name_color: "",
+  tagline_color: "",
 };
 
 export default function BrandingSettings() {
@@ -177,6 +185,10 @@ export default function BrandingSettings() {
         show_welcome_message: (data as any).show_welcome_message !== false,
         show_login_cta: (data as any).show_login_cta !== false,
         show_footer: (data as any).show_footer !== false,
+        hero_text_color: (data as any).hero_text_color || "",
+        form_text_color: (data as any).form_text_color || "",
+        app_name_color: (data as any).app_name_color || "",
+        tagline_color: (data as any).tagline_color || "",
       });
     } else {
       setBranding(defaultBranding);
@@ -580,6 +592,29 @@ export default function BrandingSettings() {
                       <input type="color" value={branding[key]} onChange={(e) => update(key, e.target.value)} className="h-10 w-14 rounded border border-border cursor-pointer" />
                       <Input value={branding[key]} onChange={(e) => update(key, e.target.value)} className="flex-1" />
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="metric-card">
+              <h3 className="text-lg font-semibold mb-4">Font Colors</h3>
+              <p className="text-xs text-muted-foreground mb-4">Customize text colors for the login page. Leave blank to use defaults.</p>
+              <div className="grid gap-4 md:grid-cols-2">
+                {([
+                  { key: "hero_text_color", label: "Hero Panel Text", help: "Title, description & features on left panel" },
+                  { key: "form_text_color", label: "Form Panel Text", help: "Welcome message & form labels on right panel" },
+                  { key: "app_name_color", label: "App Name Color", help: "Application name text" },
+                  { key: "tagline_color", label: "Tagline Color", help: "Tagline text" },
+                ] as const).map(({ key, label, help }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label}</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={branding[key] || "#ffffff"} onChange={(e) => update(key, e.target.value)} className="h-10 w-14 rounded border border-border cursor-pointer" />
+                      <Input value={branding[key]} onChange={(e) => update(key, e.target.value)} placeholder="Default" className="flex-1" />
+                      {branding[key] && <Button variant="ghost" size="sm" onClick={() => update(key, "")}>Reset</Button>}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{help}</p>
                   </div>
                 ))}
               </div>
