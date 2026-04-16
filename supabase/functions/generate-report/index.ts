@@ -1,0 +1,156 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { query } = await req.json();
+    if (!query || typeof query !== "string" || query.length > 2000) {
+      return new Response(JSON.stringify({ error: "Invalid query" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Fetch portfolio data for context
+    const [
+      { data: programmes },
+      { data: projects },
+      { data: products },
+      { data: risks },
+      { data: issues },
+      { data: benefits },
+      { data: milestones },
+      { data: tasks },
+      { data: changeRequests },
+      { data: exceptions },
+      { data: lessonsLearned },
+      { data: stakeholders },
+    ] = await Promise.all([
+      supabase.from("programmes").select("*"),
+      supabase.from("projects").select("*"),
+      supabase.from("products").select("*"),
+      supabase.from("risks").select("*"),
+      supabase.from("issues").select("*"),
+      supabase.from("benefits").select("*"),
+      supabase.from("milestones").select("*"),
+      supabase.from("tasks").select("*"),
+      supabase.from("change_requests").select("*"),
+      supabase.from("exceptions").select("*"),
+      supabase.from("lessons_learned").select("*"),
+      supabase.from("stakeholders").select("*"),
+    ]);
+
+    const portfolioContext = JSON.stringify({
+      programmes: programmes || [],
+      projects: projects || [],
+      products: products || [],
+      risks: risks || [],
+      issues: issues || [],
+      benefits: benefits || [],
+      milestones: milestones || [],
+      tasks: tasks || [],
+      changeRequests: changeRequests || [],
+      exceptions: exceptions || [],
+      lessonsLearned: lessonsLearned || [],
+      stakeholders: stakeholders || [],
+    });
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    const systemPrompt = `You are an expert portfolio and programme management report analyst. You have access to all data from a programme/project management platform. Generate detailed, professional reports based on the user's natural language query.
+
+The platform manages programmes, projects, products, risks, issues, benefits, milestones, tasks, change requests, exceptions, lessons learned, and stakeholders.
+
+Current portfolio data:
+${portfolioContext}
+
+Instructions:
+- Analyze the data and respond with a clear, well-structured report in markdown format.
+- Include relevant statistics, summaries, and insights.
+- Use tables where appropriate for data presentation.
+- Highlight key findings, trends, and recommendations.
+- If the data is empty for a requested area, mention that no data is currently available.
+- Be specific with numbers and percentages.
+- Include section headers for readability.
+- If asked for charts or visualizations, describe the data in a table format that could be charted.`;
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: query },
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again later." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const errorText = await aiResponse.text();
+      console.error("AI gateway error:", aiResponse.status, errorText);
+      throw new Error("AI gateway error");
+    }
+
+    return new Response(aiResponse.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
+  } catch (error) {
+    console.error("generate-report error:", error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
