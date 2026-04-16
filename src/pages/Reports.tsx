@@ -6,11 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
-  BarChart3, PieChart, TrendingUp, Download, FileText, Mail,
+  BarChart3, PieChart, Download, FileText,
   Sparkles, Send, Loader2, Copy, RotateCcw, Save, CalendarClock,
   BookOpen, Filter,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RechartsPie, Pie, Cell, Legend } from "recharts";
+import { Tooltip, ResponsiveContainer, PieChart as RechartsPie, Pie, Cell, Legend } from "recharts";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
