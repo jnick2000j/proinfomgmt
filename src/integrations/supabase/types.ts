@@ -3327,6 +3327,10 @@ export type Database = {
         Returns: boolean
       }
       create_org_for_new_user: { Args: { _org_name: string }; Returns: string }
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_org_access: {
         Args: { _min_level?: string; _org_id: string; _user_id: string }
         Returns: boolean
