@@ -41,6 +41,11 @@ interface LoginBranding {
   login_cta_text: string | null;
   right_panel_bg_color: string | null;
   show_app_name: boolean | null;
+  show_hero_title: boolean | null;
+  show_hero_description: boolean | null;
+  show_welcome_message: boolean | null;
+  show_login_cta: boolean | null;
+  show_footer: boolean | null;
 }
 
 const logoSizeClasses: Record<string, string> = {
@@ -169,6 +174,11 @@ export default function Auth() {
   const bgPattern = branding?.login_bg_pattern || "circles";
   const showFeatures = branding?.show_features !== false;
   const showAppName = branding?.show_app_name !== false;
+  const showHeroTitle = branding?.show_hero_title !== false;
+  const showHeroDescription = branding?.show_hero_description !== false;
+  const showWelcomeMessage = branding?.show_welcome_message !== false;
+  const showLoginCta = branding?.show_login_cta !== false;
+  const showFooter = branding?.show_footer !== false;
   const hasLogo = branding?.show_logo !== false && !!branding?.logo_url;
   const logoOnly = hasLogo && !showAppName;
 
