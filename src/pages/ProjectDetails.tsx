@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { EntitySprintsTab } from "@/components/EntitySprintsTab";
 import { format } from "date-fns";
 
 interface Project {
@@ -530,6 +531,10 @@ export default function ProjectDetails() {
             <TabsTrigger value="tasks" className="gap-2">
               <ListTodo className="h-4 w-4" />
               Tasks ({tasks.length})
+            </TabsTrigger>
+            <TabsTrigger value="sprints" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Sprints
             </TabsTrigger>
             <TabsTrigger value="products" className="gap-2">
               <Layers className="h-4 w-4" />
@@ -1047,6 +1052,14 @@ export default function ProjectDetails() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sprints">
+            <EntitySprintsTab
+              entityType="project"
+              entityId={project.id}
+              organizationId={project.organization_id}
+            />
           </TabsContent>
         </Tabs>
       </div>

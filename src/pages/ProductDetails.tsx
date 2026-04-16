@@ -38,6 +38,7 @@ import { EntityUpdates } from "@/components/EntityUpdates";
 import { EntityAssignments } from "@/components/EntityAssignments";
 import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { EntitySprintsTab } from "@/components/EntitySprintsTab";
 import { format } from "date-fns";
 
 interface Product {
@@ -463,6 +464,10 @@ export default function ProductDetails() {
               <Link2 className="h-4 w-4" />
               Dependencies ({dependencies.length})
             </TabsTrigger>
+            <TabsTrigger value="sprints" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Sprints
+            </TabsTrigger>
             <TabsTrigger value="team" className="gap-2">
               <Users className="h-4 w-4" />
               Team
@@ -879,6 +884,14 @@ export default function ProductDetails() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sprints">
+            <EntitySprintsTab
+              entityType="product"
+              entityId={product.id}
+              organizationId={product.organization_id}
+            />
           </TabsContent>
         </Tabs>
       </div>
