@@ -89,6 +89,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { currentOrganization } = useOrganization();
   const { user, userRole } = useAuth();
   const { hasFullOrgAccess } = useOrgAccessLevel();
@@ -328,6 +329,15 @@ export default function Products() {
                         </TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setEditingProduct(product)}
+                              title="Edit product"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                             <DocumentUpload
                               entityType="product"
                               entityId={product.id}
