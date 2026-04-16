@@ -1976,6 +1976,109 @@ export type Database = {
           },
         ]
       }
+      saved_reports: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          organization_id: string | null
+          query: string
+          template_key: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          organization_id?: string | null
+          query: string
+          template_key?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          organization_id?: string | null
+          query?: string
+          template_key?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_reports: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          format: string
+          frequency: string
+          id: string
+          last_run_at: string | null
+          next_run_at: string | null
+          organization_id: string | null
+          query: string
+          recipients: string[]
+          template_key: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          format?: string
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          next_run_at?: string | null
+          organization_id?: string | null
+          query: string
+          recipients?: string[]
+          template_key?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          format?: string
+          frequency?: string
+          id?: string
+          last_run_at?: string | null
+          next_run_at?: string | null
+          organization_id?: string | null
+          query?: string
+          recipients?: string[]
+          template_key?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sprints: {
         Row: {
           capacity_points: number | null
