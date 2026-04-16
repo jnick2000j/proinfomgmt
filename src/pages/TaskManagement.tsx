@@ -599,7 +599,10 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                     <React.Fragment key={task.id}>
                     <TableRow>
                       <TableCell>
-                        <div>
+                        <div
+                          className="cursor-pointer hover:text-primary"
+                          onClick={() => { setEditingTask(task); setEditDialogOpen(true); }}
+                        >
                           <p className="font-medium">{task.name}</p>
                           {task.description && (
                             <p className="text-xs text-muted-foreground line-clamp-1">
