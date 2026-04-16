@@ -6,6 +6,7 @@ import { RiskSummary } from "@/components/dashboard/RiskSummary";
 import { UpcomingMilestones } from "@/components/dashboard/UpcomingMilestones";
 import { BenefitsTracker } from "@/components/dashboard/BenefitsTracker";
 import { OrganizationStats } from "@/components/dashboard/OrganizationStats";
+import { StatusIndicators } from "@/components/dashboard/StatusIndicators";
 import { PlanUsageBar } from "@/components/PlanUsageBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Layers, FolderKanban, AlertTriangle, Target, Package } from "lucide-react";
