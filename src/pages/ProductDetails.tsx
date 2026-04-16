@@ -854,13 +854,16 @@ export default function ProductDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="updates">
+          <TabsContent value="team">
             {product && (
-              <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <EntityAssignments entityType="product" entityId={product.id} organizationId={product.organization_id} />
                 <UpdateFrequencySettings entityType="product" entityId={product.id} organizationId={product.organization_id} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="updates">
             <Card>
               <CardHeader>
                 <CardTitle>Progress Updates</CardTitle>

@@ -1022,13 +1022,16 @@ export default function ProjectDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="updates">
+          <TabsContent value="team">
             {project && (
-              <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <EntityAssignments entityType="project" entityId={project.id} organizationId={project.organization_id} />
                 <UpdateFrequencySettings entityType="project" entityId={project.id} organizationId={project.organization_id} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="updates">
             <Card>
               <CardHeader>
                 <CardTitle>Progress Updates</CardTitle>
