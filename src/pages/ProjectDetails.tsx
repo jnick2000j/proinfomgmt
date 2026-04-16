@@ -547,6 +547,10 @@ export default function ProjectDetails() {
               <FileText className="h-4 w-4" />
               Project Brief
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
             <TabsTrigger value="updates" className="gap-2">
               <MessageSquarePlus className="h-4 w-4" />
               Updates
@@ -1018,13 +1022,16 @@ export default function ProjectDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="updates">
+          <TabsContent value="team">
             {project && (
-              <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <EntityAssignments entityType="project" entityId={project.id} organizationId={project.organization_id} />
                 <UpdateFrequencySettings entityType="project" entityId={project.id} organizationId={project.organization_id} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="updates">
             <Card>
               <CardHeader>
                 <CardTitle>Progress Updates</CardTitle>

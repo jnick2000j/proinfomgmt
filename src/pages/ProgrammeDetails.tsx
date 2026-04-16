@@ -477,6 +477,10 @@ export default function ProgrammeDetails() {
               <Calendar className="h-4 w-4" />
               Tranches
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
             <TabsTrigger value="updates" className="gap-2">
               <MessageSquarePlus className="h-4 w-4" />
               Updates
@@ -828,13 +832,16 @@ export default function ProgrammeDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="updates">
+          <TabsContent value="team">
             {programme && (
-              <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <EntityAssignments entityType="programme" entityId={programme.id} organizationId={programme.organization_id} />
                 <UpdateFrequencySettings entityType="programme" entityId={programme.id} organizationId={programme.organization_id} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="updates">
             <Card>
               <CardHeader>
                 <CardTitle>Progress Updates</CardTitle>

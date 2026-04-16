@@ -29,6 +29,7 @@ import {
   Link2,
   ArrowRight,
   MessageSquarePlus,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -462,6 +463,10 @@ export default function ProductDetails() {
               <Link2 className="h-4 w-4" />
               Dependencies ({dependencies.length})
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
             <TabsTrigger value="updates" className="gap-2">
               <MessageSquarePlus className="h-4 w-4" />
               Updates
@@ -849,13 +854,16 @@ export default function ProductDetails() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="updates">
+          <TabsContent value="team">
             {product && (
-              <div className="grid gap-4 md:grid-cols-3 mb-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <EntityAssignments entityType="product" entityId={product.id} organizationId={product.organization_id} />
                 <UpdateFrequencySettings entityType="product" entityId={product.id} organizationId={product.organization_id} />
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="updates">
             <Card>
               <CardHeader>
                 <CardTitle>Progress Updates</CardTitle>
