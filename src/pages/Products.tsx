@@ -508,6 +508,14 @@ export default function Products() {
           </div>
         </TabsContent>
       </Tabs>
+      {editingProduct && (
+        <EditProductDialog
+          product={editingProduct}
+          open={!!editingProduct}
+          onOpenChange={(o) => !o && setEditingProduct(null)}
+          onSuccess={fetchProducts}
+        />
+      )}
     </AppLayout>
   );
 }
