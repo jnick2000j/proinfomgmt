@@ -61,7 +61,7 @@ export default function Programmes() {
   const [programmes, setProgrammes] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const { currentOrganization } = useOrganization();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { hasFullOrgAccess } = useOrgAccessLevel();
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
