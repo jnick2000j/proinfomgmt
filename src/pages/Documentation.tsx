@@ -804,6 +804,10 @@ export default function Documentation() {
   const [copied, setCopied] = useState(false);
   const [selectedProcess, setSelectedProcess] = useState<typeof prince2Processes[0] | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<typeof mspPhases[0] | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardType, setWizardType] = useState<TemplateType>("programme_mandate");
+  const [wizardName, setWizardName] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const filteredTemplates = templates.filter((t) =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
