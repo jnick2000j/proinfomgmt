@@ -168,8 +168,10 @@ export default function BrandingSettings() {
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const folderName = selectedOrg === "global" ? "global" : selectedOrg;
-      const filePath = `${folderName}/logo.${fileExt}`;
+      const timestamp = Date.now();
+      const filePath = selectedOrg === "global"
+        ? `branding/global-logo-${timestamp}.${fileExt}`
+        : `branding/${selectedOrg}/logo-${timestamp}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from("logos").upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from("logos").getPublicUrl(filePath);
