@@ -142,7 +142,12 @@ export type Database = {
           secondary_color: string | null
           show_app_name: boolean
           show_features: boolean | null
+          show_footer: boolean
+          show_hero_description: boolean
+          show_hero_title: boolean
+          show_login_cta: boolean
           show_logo: boolean | null
+          show_welcome_message: boolean
           updated_at: string
           welcome_message: string | null
         }
@@ -178,7 +183,12 @@ export type Database = {
           secondary_color?: string | null
           show_app_name?: boolean
           show_features?: boolean | null
+          show_footer?: boolean
+          show_hero_description?: boolean
+          show_hero_title?: boolean
+          show_login_cta?: boolean
           show_logo?: boolean | null
+          show_welcome_message?: boolean
           updated_at?: string
           welcome_message?: string | null
         }
@@ -214,7 +224,12 @@ export type Database = {
           secondary_color?: string | null
           show_app_name?: boolean
           show_features?: boolean | null
+          show_footer?: boolean
+          show_hero_description?: boolean
+          show_hero_title?: boolean
+          show_login_cta?: boolean
           show_logo?: boolean | null
+          show_welcome_message?: boolean
           updated_at?: string
           welcome_message?: string | null
         }

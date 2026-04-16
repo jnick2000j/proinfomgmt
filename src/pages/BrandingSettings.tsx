@@ -71,6 +71,11 @@ interface BrandingState {
   login_cta_text: string;
   right_panel_bg_color: string;
   show_app_name: boolean;
+  show_hero_title: boolean;
+  show_hero_description: boolean;
+  show_welcome_message: boolean;
+  show_login_cta: boolean;
+  show_footer: boolean;
 }
 
 const defaultBranding: BrandingState = {
@@ -104,6 +109,11 @@ const defaultBranding: BrandingState = {
   login_cta_text: "",
   right_panel_bg_color: "",
   show_app_name: true,
+  show_hero_title: true,
+  show_hero_description: true,
+  show_welcome_message: true,
+  show_login_cta: true,
+  show_footer: true,
 };
 
 export default function BrandingSettings() {
@@ -159,6 +169,11 @@ export default function BrandingSettings() {
         login_cta_text: (data as any).login_cta_text || "",
         right_panel_bg_color: (data as any).right_panel_bg_color || "",
         show_app_name: (data as any).show_app_name !== false,
+        show_hero_title: (data as any).show_hero_title !== false,
+        show_hero_description: (data as any).show_hero_description !== false,
+        show_welcome_message: (data as any).show_welcome_message !== false,
+        show_login_cta: (data as any).show_login_cta !== false,
+        show_footer: (data as any).show_footer !== false,
       });
     } else {
       setBranding(defaultBranding);
@@ -443,23 +458,36 @@ export default function BrandingSettings() {
 
             {/* Hero Content */}
             <div className="metric-card">
-              <h3 className="text-lg font-semibold mb-4">Hero Section Content</h3>
+              <h3 className="text-lg font-semibold mb-2">Hero Section Content</h3>
+              <p className="text-xs text-muted-foreground mb-4">Toggle individual sections on/off to control what appears on the login page.</p>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Hero Title</Label>
-                  <Input value={branding.hero_title} onChange={(e) => update("hero_title", e.target.value)} placeholder="Manage programmes with confidence" />
+                  <div className="flex items-center justify-between">
+                    <Label>Hero Title</Label>
+                    <Switch checked={branding.show_hero_title} onCheckedChange={(v) => update("show_hero_title", v)} />
+                  </div>
+                  <Input value={branding.hero_title} onChange={(e) => update("hero_title", e.target.value)} placeholder="Manage programmes with confidence" disabled={!branding.show_hero_title} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Hero Description</Label>
-                  <Textarea value={branding.hero_description} onChange={(e) => update("hero_description", e.target.value)} placeholder="Your tagline will be shown here by default" rows={3} />
+                  <div className="flex items-center justify-between">
+                    <Label>Hero Description</Label>
+                    <Switch checked={branding.show_hero_description} onCheckedChange={(v) => update("show_hero_description", v)} />
+                  </div>
+                  <Textarea value={branding.hero_description} onChange={(e) => update("hero_description", e.target.value)} placeholder="Your tagline will be shown here by default" rows={3} disabled={!branding.show_hero_description} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Welcome Message (Login form title)</Label>
-                  <Input value={branding.welcome_message} onChange={(e) => update("welcome_message", e.target.value)} placeholder="Welcome back" />
+                  <div className="flex items-center justify-between">
+                    <Label>Welcome Message (Login form title)</Label>
+                    <Switch checked={branding.show_welcome_message} onCheckedChange={(v) => update("show_welcome_message", v)} />
+                  </div>
+                  <Input value={branding.welcome_message} onChange={(e) => update("welcome_message", e.target.value)} placeholder="Welcome back" disabled={!branding.show_welcome_message} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Call-to-Action Text</Label>
-                  <Input value={branding.login_cta_text} onChange={(e) => update("login_cta_text", e.target.value)} placeholder="Enter your credentials to access your dashboard." />
+                  <div className="flex items-center justify-between">
+                    <Label>Call-to-Action Text</Label>
+                    <Switch checked={branding.show_login_cta} onCheckedChange={(v) => update("show_login_cta", v)} />
+                  </div>
+                  <Input value={branding.login_cta_text} onChange={(e) => update("login_cta_text", e.target.value)} placeholder="Enter your credentials to access your dashboard." disabled={!branding.show_login_cta} />
                 </div>
                 <div className="space-y-2">
                   <Label>Sign In Button Text</Label>
@@ -499,8 +527,11 @@ export default function BrandingSettings() {
             <div className="metric-card">
               <h3 className="text-lg font-semibold mb-4">Footer</h3>
               <div className="space-y-2">
-                <Label>Login Footer Text</Label>
-                <Input value={branding.login_footer_text} onChange={(e) => update("login_footer_text", e.target.value)} placeholder={`© ${new Date().getFullYear()} TaskMaster. All rights reserved.`} />
+                <div className="flex items-center justify-between">
+                  <Label>Show Login Footer</Label>
+                  <Switch checked={branding.show_footer} onCheckedChange={(v) => update("show_footer", v)} />
+                </div>
+                <Input value={branding.login_footer_text} onChange={(e) => update("login_footer_text", e.target.value)} placeholder={`© ${new Date().getFullYear()} TaskMaster. All rights reserved.`} disabled={!branding.show_footer} />
               </div>
             </div>
           </TabsContent>
