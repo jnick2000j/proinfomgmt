@@ -396,7 +396,7 @@ export default function Auth() {
         <div className="w-full max-w-md">
           <div className="rounded-2xl border border-border shadow-lg overflow-hidden">
             {/* Mini hero banner */}
-            <div className="bg-primary p-6 text-primary-foreground relative overflow-hidden">
+            <div className="bg-primary p-6 text-primary-foreground relative overflow-hidden" style={{ color: heroTextColor }}>
               {!branding?.login_bg_image_url && <PatternOverlay pattern={bgPattern} />}
               {branding?.login_bg_image_url && (
                 <>
@@ -414,7 +414,7 @@ export default function Auth() {
                 ) : (
                   <div className="h-8 w-8 rounded-lg bg-primary-foreground/20 flex items-center justify-center"><Layers className="h-4 w-4" /></div>
                 )}
-                {showAppName && <span className="font-semibold">{appName}</span>}
+                {showAppName && <span className="font-semibold" style={{ color: appNameColor }}>{appName}</span>}
               </div>
               {showHeroTitle && <h1 className="relative z-10 text-lg font-bold">{branding?.hero_title || "Manage programmes with confidence"}</h1>}
             </div>
@@ -437,6 +437,7 @@ export default function Auth() {
             backgroundImage: branding?.login_bg_image_url ? `url(${branding.login_bg_image_url})` : undefined,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            color: heroTextColor,
           }}
         >
           {branding?.login_bg_image_url && <div className="absolute inset-0 bg-black/50" />}
@@ -452,10 +453,10 @@ export default function Auth() {
               ) : (
                 <div className="h-10 w-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center"><Layers className="h-5 w-5" /></div>
               )}
-              {showAppName && <span className="text-lg font-semibold">{appName}</span>}
+              {showAppName && <span className="text-lg font-semibold" style={{ color: appNameColor }}>{appName}</span>}
             </div>
             {showHeroTitle && <h1 className="text-2xl md:text-3xl font-bold mb-2">{branding?.hero_title || "Manage programmes with confidence"}</h1>}
-            {showHeroDescription && <p className="text-primary-foreground/70 max-w-lg">{branding?.hero_description || appTagline}</p>}
+            {showHeroDescription && <p className="text-primary-foreground/70 max-w-lg" style={{ color: taglineColor }}>{branding?.hero_description || appTagline}</p>}
             {showFeatures && (
               <div className="flex flex-wrap gap-6 mt-6">
                 {features.map((f, i) => (
