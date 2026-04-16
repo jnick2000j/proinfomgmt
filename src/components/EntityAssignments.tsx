@@ -29,7 +29,8 @@ export function EntityAssignments({
   organizationId,
 }: EntityAssignmentsProps) {
   const { user } = useAuth();
-  const { isAdmin } = usePermissions();
+  const { isAdmin, canManage } = usePermissions();
+  const canManageEntity = canManage(entityType === "programme" ? "programmes" : entityType === "project" ? "projects" : "products");
   const queryClient = useQueryClient();
   const [selectedUserId, setSelectedUserId] = useState("");
   const [selectedRole, setSelectedRole] = useState("contributor");
