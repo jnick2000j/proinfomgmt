@@ -77,6 +77,10 @@ interface BrandingState {
   show_welcome_message: boolean;
   show_login_cta: boolean;
   show_footer: boolean;
+  hero_text_color: string;
+  form_text_color: string;
+  app_name_color: string;
+  tagline_color: string;
 }
 
 const defaultBranding: BrandingState = {
