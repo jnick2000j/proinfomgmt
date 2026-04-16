@@ -116,6 +116,62 @@ export function CreateWeeklyReportDialog({ open, onOpenChange }: CreateWeeklyRep
 
       const { error } = await supabase.from("weekly_reports").insert(insertData);
       if (error) throw error;
+
+      // Auto-create entity updates for the linked entity
+      if (data.entity_id && user?.id) {
+        const entityType = data.report_type as "programme" | "project" | "product";
+        const updateEntries: Array<{
+          entity_type: string;
+          entity_id: string;
+          created_by: string;
+          update_text: string;
+          organization_id: string | null;
+          is_risk_flagged: boolean;
+          risk_criticality: string | null;
+        }> = [];
+
+        const orgId = currentOrganization?.id || null;
+
+        if (highlights.length > 0) {
+          updateEntries.push({
+            entity_type: entityType,
+            entity_id: data.entity_id,
+            created_by: user.id,
+            update_text: `[Weekly Report – Highlights] ${highlights.join("; ")}`,
+            organization_id: orgId,
+            is_risk_flagged: false,
+            risk_criticality: null,
+          });
+        }
+
+        if (risksIssues.length > 0) {
+          updateEntries.push({
+            entity_type: entityType,
+            entity_id: data.entity_id,
+            created_by: user.id,
+            update_text: `[Weekly Report – Risks & Issues] ${risksIssues.join("; ")}`,
+            organization_id: orgId,
+            is_risk_flagged: true,
+            risk_criticality: data.overall_health === "red" ? "high" : data.overall_health === "amber" ? "medium" : "low",
+          });
+        }
+
+        if (nextWeek.length > 0) {
+          updateEntries.push({
+            entity_type: entityType,
+            entity_id: data.entity_id,
+            created_by: user.id,
+            update_text: `[Weekly Report – Next Week Plans] ${nextWeek.join("; ")}`,
+            organization_id: orgId,
+            is_risk_flagged: false,
+            risk_criticality: null,
+          });
+        }
+
+        if (updateEntries.length > 0) {
+          await supabase.from("entity_updates").insert(updateEntries);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["weekly-reports"] });
