@@ -81,7 +81,8 @@ interface Organization {
 }
 
 const roleConfig: Record<AppRole, { label: string; icon: React.ElementType; className: string }> = {
-  admin: { label: "Admin", icon: Crown, className: "bg-primary/10 text-primary" },
+  admin: { label: "Platform Administrator", icon: Crown, className: "bg-primary/10 text-primary" },
+  org_admin: { label: "Org Administrator", icon: Building2, className: "bg-primary/10 text-primary" },
   programme_owner: { label: "Program Owner", icon: Briefcase, className: "bg-success/10 text-success" },
   project_manager: { label: "Project Manager", icon: UserCog, className: "bg-warning/10 text-warning" },
   product_manager: { label: "Product Manager", icon: Briefcase, className: "bg-accent/10 text-accent-foreground" },
@@ -91,7 +92,6 @@ const roleConfig: Record<AppRole, { label: string; icon: React.ElementType; clas
   programme_stakeholder: { label: "Program Stakeholder", icon: Briefcase, className: "bg-muted text-muted-foreground" },
   project_stakeholder: { label: "Project Stakeholder", icon: FolderKanban, className: "bg-muted text-muted-foreground" },
   product_stakeholder: { label: "Product Stakeholder", icon: Package, className: "bg-muted text-muted-foreground" },
-  
 };
 
 export default function AdminPanel() {
@@ -444,7 +444,8 @@ export default function AdminPanel() {
                               </div>
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="admin">Platform Administrator</SelectItem>
+                              <SelectItem value="org_admin">Org Administrator</SelectItem>
                               <SelectItem value="programme_owner">Program Owner</SelectItem>
                               <SelectItem value="project_manager">Project Manager</SelectItem>
                               <SelectItem value="product_manager">Product Manager</SelectItem>
@@ -454,7 +455,6 @@ export default function AdminPanel() {
                               <SelectItem value="programme_stakeholder">Program Stakeholder</SelectItem>
                               <SelectItem value="project_stakeholder">Project Stakeholder</SelectItem>
                               <SelectItem value="product_stakeholder">Product Stakeholder</SelectItem>
-                              
                             </SelectContent>
                           </Select>
                         </TableCell>

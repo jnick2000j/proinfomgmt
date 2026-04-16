@@ -104,7 +104,7 @@ export function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           {navigation
-            .filter((item) => !item.adminOnly || userRole === "admin")
+            .filter((item) => !item.adminOnly || userRole === "admin" || userRole === "org_admin")
             .map((item) => (
             <div key={item.label}>
               {item.children ? (
