@@ -260,51 +260,53 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "signup" && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="firstName" className="text-xs font-medium">First Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="pl-9 h-10 text-sm bg-muted/30 border-border/60 focus:bg-background transition-colors"
+                      />
+                    </div>
+                    {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
                     <Input
-                      id="firstName"
+                      id="lastName"
                       type="text"
-                      placeholder="John"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Smith"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="h-10 text-sm bg-muted/30 border-border/60 focus:bg-background transition-colors"
+                    />
+                    {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="orgName" className="text-xs font-medium">Organization Name</Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
+                    <Input
+                      id="orgName"
+                      type="text"
+                      placeholder="Acme Corporation"
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
                       className="pl-9 h-10 text-sm bg-muted/30 border-border/60 focus:bg-background transition-colors"
                     />
                   </div>
-                  {errors.firstName && <p className="text-xs text-destructive">{errors.firstName}</p>}
+                  {errors.orgName && <p className="text-xs text-destructive">{errors.orgName}</p>}
                 </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="lastName" className="text-xs font-medium">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Smith"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="h-10 text-sm bg-muted/30 border-border/60 focus:bg-background transition-colors"
-                  />
-                  {errors.lastName && <p className="text-xs text-destructive">{errors.lastName}</p>}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="orgName" className="text-xs font-medium">Organization Name</Label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60" />
-                  <Input
-                    id="orgName"
-                    type="text"
-                    placeholder="Acme Corporation"
-                    value={orgName}
-                    onChange={(e) => setOrgName(e.target.value)}
-                    className="pl-9 h-10 text-sm bg-muted/30 border-border/60 focus:bg-background transition-colors"
-                  />
-                </div>
-                {errors.orgName && <p className="text-xs text-destructive">{errors.orgName}</p>}
-              </div>
+              </>
             )}
 
             <div className="space-y-1.5">
