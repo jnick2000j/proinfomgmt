@@ -853,7 +853,6 @@ export default function Documentation() {
         <TabsList className="bg-secondary">
           <TabsTrigger value="app-guide">Application Guide</TabsTrigger>
           <TabsTrigger value="principles">Principles</TabsTrigger>
-          <TabsTrigger value="templates">Templates & Guides</TabsTrigger>
           <TabsTrigger value="processes">Processes</TabsTrigger>
         </TabsList>
 
