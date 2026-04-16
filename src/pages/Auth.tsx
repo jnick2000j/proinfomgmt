@@ -347,7 +347,7 @@ export default function Auth() {
               <div className="h-10 w-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center backdrop-blur-sm">
                 <Layers className="h-5 w-5" />
               </div>
-              {showAppName && <span className="text-lg font-semibold tracking-tight">{appName}</span>}
+              {showAppName && <span className="text-lg font-semibold tracking-tight" style={{ color: appNameColor }}>{appName}</span>}
             </div>
           )}
         </div>
