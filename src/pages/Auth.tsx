@@ -328,6 +328,7 @@ export default function Auth() {
         backgroundImage: branding?.login_bg_image_url ? `url(${branding.login_bg_image_url})` : undefined,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        color: heroTextColor,
       }}
     >
       {branding?.login_bg_image_url && <div className="absolute inset-0 bg-black/50" />}
