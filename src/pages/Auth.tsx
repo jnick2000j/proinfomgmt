@@ -96,7 +96,7 @@ export default function Auth() {
         });
         document.title = data.app_name
           ? `${data.app_name} – Sign In`
-          : "Program Information Management Platform";
+          : "TaskMaster – Program Information & Management Platform";
       }
     };
     fetchGlobalBranding();
@@ -163,8 +163,8 @@ export default function Auth() {
     }
   };
 
-  const appName = branding?.app_name || "PIMP";
-  const appTagline = branding?.app_tagline || "Program Information Management Platform";
+  const appName = branding?.app_name || "TaskMaster";
+  const appTagline = branding?.app_tagline || "Program Information & Management Platform";
 
   return (
     <div
