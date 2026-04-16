@@ -532,6 +532,10 @@ export default function ProjectDetails() {
               <ListTodo className="h-4 w-4" />
               Tasks ({tasks.length})
             </TabsTrigger>
+            <TabsTrigger value="sprints" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Sprints
+            </TabsTrigger>
             <TabsTrigger value="products" className="gap-2">
               <Layers className="h-4 w-4" />
               Products ({products.length})
@@ -1048,6 +1052,14 @@ export default function ProjectDetails() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sprints">
+            <EntitySprintsTab
+              entityType="project"
+              entityId={project.id}
+              organizationId={project.organization_id}
+            />
           </TabsContent>
         </Tabs>
       </div>
