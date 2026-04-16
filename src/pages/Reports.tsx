@@ -475,62 +475,10 @@ export default function Reports() {
             </Button>
           </div>
 
+          {/* Status Overview */}
+          <StatusIndicators />
+
           {/* Charts Grid */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Project Status by Program</h3>
-                <BarChart3 className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="h-[300px]">
-                {programmeData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={programmeData} layout="vertical" barGap={4}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                      <XAxis type="number" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <YAxis dataKey="name" type="category" width={100} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
-                      <Legend />
-                      <Bar dataKey="onTrack" name="On Track" fill="hsl(var(--success))" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="atRisk" name="At Risk" fill="hsl(var(--warning))" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="delayed" name="Delayed" fill="hsl(var(--destructive))" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    No programme data available.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Benefits by Category</h3>
-                <TrendingUp className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div className="h-[300px]">
-                {benefitsTrendData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={benefitsTrendData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="month" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }} />
-                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px" }} />
-                      <Legend />
-                      <Bar dataKey="target" name="Target" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="actual" name="Actual" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    No benefits data available.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="metric-card">
               <div className="flex items-center justify-between mb-4">
@@ -562,7 +510,7 @@ export default function Reports() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Portfolio Summary</h3>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="p-4 rounded-lg bg-primary/10 text-center">
                   <p className="text-3xl font-bold text-primary">{programmes.length}</p>
                   <p className="text-sm text-muted-foreground">Programs</p>
@@ -570,6 +518,14 @@ export default function Reports() {
                 <div className="p-4 rounded-lg bg-success/10 text-center">
                   <p className="text-3xl font-bold text-success">{projects.length}</p>
                   <p className="text-sm text-muted-foreground">Projects</p>
+                </div>
+                <div className="p-4 rounded-lg bg-accent/10 text-center">
+                  <p className="text-3xl font-bold text-accent-foreground">{products.length}</p>
+                  <p className="text-sm text-muted-foreground">Products</p>
+                </div>
+                <div className="p-4 rounded-lg bg-secondary/10 text-center">
+                  <p className="text-3xl font-bold text-secondary-foreground">{tasks.length}</p>
+                  <p className="text-sm text-muted-foreground">Tasks</p>
                 </div>
                 <div className="p-4 rounded-lg bg-warning/10 text-center">
                   <p className="text-3xl font-bold text-warning">{risks.filter(r => r.status === "open").length}</p>
@@ -582,7 +538,6 @@ export default function Reports() {
               </div>
             </div>
           </div>
-        </TabsContent>
       </Tabs>
 
       {/* Schedule Dialog */}
