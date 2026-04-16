@@ -322,7 +322,7 @@ export default function AdminPanel() {
                   <Users className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold">{roleCounts.stakeholder}</p>
+                  <p className="text-2xl font-semibold">{roleCounts.org_stakeholder}</p>
                   <p className="text-sm text-muted-foreground">Stakeholders</p>
                 </div>
               </div>
