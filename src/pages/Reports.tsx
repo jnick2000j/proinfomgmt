@@ -100,6 +100,24 @@ export default function Reports() {
     },
   });
 
+  const { data: products = [] } = useQuery({
+    queryKey: ["products-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["tasks-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("product_features").select("id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Chart data
   const programmeData = programmes.map(prog => {
     const progProjects = projects.filter(p => p.programme_id === prog.id);
