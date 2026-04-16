@@ -799,36 +799,8 @@ const mspPhases = [
 
 export default function Documentation() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [copied, setCopied] = useState(false);
   const [selectedProcess, setSelectedProcess] = useState<typeof prince2Processes[0] | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<typeof mspPhases[0] | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-
-  const filteredTemplates = templates.filter((t) =>
-    t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleCopy = async (content: string) => {
-    await navigator.clipboard.writeText(content);
-    setCopied(true);
-    toast.success("Template copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownload = (template: Template) => {
-    const blob = new Blob([template.content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${template.name.replace(/\s+/g, "_")}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Template downloaded");
-  };
 
   return (
     <AppLayout title="Documentation" subtitle="PRINCE2, MSP, Agile & Product Management resources">
