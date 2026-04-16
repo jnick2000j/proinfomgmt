@@ -33,7 +33,22 @@ import {
   Users,
   FileEdit,
   Shield,
-  Building2
+  Building2,
+  Clock,
+  UserPlus,
+  Package,
+  FolderKanban,
+  ListChecks,
+  BarChart3,
+  Bell,
+  MessageSquare,
+  Upload,
+  Target,
+  Milestone,
+  GitBranch,
+  AlertTriangle,
+  Layers,
+  CalendarCheck
 } from "lucide-react";
 import { toast } from "sonner";
 
