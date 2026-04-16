@@ -299,9 +299,8 @@ export default function Auth() {
 
   const heroPanel = (
     <div
-      className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between p-10 text-primary-foreground relative overflow-hidden"
+      className="hidden lg:flex lg:w-[480px] xl:w-[540px] flex-col justify-between p-10 bg-primary text-primary-foreground relative overflow-hidden"
       style={{
-        backgroundColor: branding?.login_bg_image_url ? undefined : undefined,
         backgroundImage: branding?.login_bg_image_url ? `url(${branding.login_bg_image_url})` : undefined,
         backgroundSize: "cover",
         backgroundPosition: "center",
