@@ -56,6 +56,8 @@ import {
   MessageSquarePlus,
 } from "lucide-react";
 import { EntityUpdates } from "@/components/EntityUpdates";
+import { TaskAssignments } from "@/components/TaskAssignments";
+import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
 import { format } from "date-fns";
 
 type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "cancelled";
@@ -707,7 +709,14 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                     </TableRow>
                     {expandedTaskId === task.id && (
                       <TableRow>
-                        <TableCell colSpan={8} className="bg-muted/30 p-4">
+                        <TableCell colSpan={8} className="bg-muted/30 p-4 space-y-4">
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                              <h4 className="text-sm font-medium mb-2">Assigned Users</h4>
+                              <TaskAssignments taskId={task.id} organizationId={task.organization_id} />
+                            </div>
+                            <UpdateFrequencySettings entityType="task" entityId={task.id} organizationId={task.organization_id} />
+                          </div>
                           <EntityUpdates
                             entityType="task"
                             entityId={task.id}

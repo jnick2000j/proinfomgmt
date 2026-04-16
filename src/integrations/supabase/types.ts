@@ -559,6 +559,47 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_assignments: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          organization_id: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          organization_id?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          organization_id?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entity_updates: {
         Row: {
           created_at: string
@@ -2363,6 +2404,44 @@ export type Database = {
           },
         ]
       }
+      task_assignments: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          id: string
+          organization_id: string | null
+          role: string | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          role?: string | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          role?: string | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           actual_end: string | null
@@ -2682,6 +2761,56 @@ export type Database = {
             columns: ["programme_id"]
             isOneToOne: false
             referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      update_frequency_settings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          custom_interval_days: number | null
+          entity_id: string | null
+          entity_type: string
+          frequency: string
+          id: string
+          is_mandatory: boolean
+          organization_id: string | null
+          reminder_hours_before: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          custom_interval_days?: number | null
+          entity_id?: string | null
+          entity_type?: string
+          frequency?: string
+          id?: string
+          is_mandatory?: boolean
+          organization_id?: string | null
+          reminder_hours_before?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          custom_interval_days?: number | null
+          entity_id?: string | null
+          entity_type?: string
+          frequency?: string
+          id?: string
+          is_mandatory?: boolean
+          organization_id?: string | null
+          reminder_hours_before?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "update_frequency_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
