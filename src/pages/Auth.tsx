@@ -177,7 +177,7 @@ export default function Auth() {
               <img
                 src={branding.logo_url}
                 alt="Logo"
-                className={`${logoSizeClasses[branding?.logo_size || "medium"]} object-contain brightness-0 invert`}
+                className={`${logoSizeClasses[branding?.logo_size || "medium"]} object-contain`}
               />
             ) : (
               <div className="h-10 w-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center backdrop-blur-sm">
