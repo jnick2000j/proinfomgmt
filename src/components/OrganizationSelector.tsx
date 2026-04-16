@@ -43,7 +43,7 @@ export function OrganizationSelector() {
                 <Building2 className="h-3 w-3 text-white" />
               </div>
             )}
-            <span className="truncate max-w-[120px]">
+            <span className="truncate">
               {currentOrganization?.name || "Select Organization"}
             </span>
           </div>
