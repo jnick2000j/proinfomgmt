@@ -61,6 +61,8 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
         ...formData,
         programme_id: formData.programme_id || null,
         organization_id: formData.organization_id || null,
+        start_date: formData.start_date || null,
+        end_date: formData.end_date || null,
         created_by: user.id,
         manager_id: user.id,
       });
