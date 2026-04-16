@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, User } from "lucide-react";
+import { Search, HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, User, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,11 +121,19 @@ export function Header({ title, subtitle }: HeaderProps) {
                 Branding
               </Link>
             </DropdownMenuItem>
-            {isAdmin && (
+            {(isAdmin || userRole === "org_admin") && (
               <DropdownMenuItem asChild>
                 <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
                   <Shield className="h-4 w-4" />
                   Admin Panel
+                </Link>
+              </DropdownMenuItem>
+            )}
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/platform-admin" className="flex items-center gap-2 cursor-pointer">
+                  <Globe className="h-4 w-4" />
+                  Platform Admin
                 </Link>
               </DropdownMenuItem>
             )}
