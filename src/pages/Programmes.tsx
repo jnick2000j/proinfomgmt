@@ -12,9 +12,11 @@ import {
   Target,
   ArrowUpRight,
   Building2,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateProgrammeDialog } from "@/components/dialogs/CreateProgrammeDialog";
+import { EditProgrammeDialog } from "@/components/dialogs/EditProgrammeDialog";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,6 +66,7 @@ export default function Programmes() {
   const { user, userRole } = useAuth();
   const { hasFullOrgAccess } = useOrgAccessLevel();
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [editingProgramme, setEditingProgramme] = useState<Program | null>(null);
 
   useEffect(() => {
     fetchProgrammes();
