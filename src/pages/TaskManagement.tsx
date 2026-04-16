@@ -109,7 +109,8 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
-
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
