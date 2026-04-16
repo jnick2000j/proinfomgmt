@@ -3,7 +3,6 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { TemplateWizard, TemplateType } from "@/components/templates/TemplateWizard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -804,9 +803,6 @@ export default function Documentation() {
   const [copied, setCopied] = useState(false);
   const [selectedProcess, setSelectedProcess] = useState<typeof prince2Processes[0] | null>(null);
   const [selectedPhase, setSelectedPhase] = useState<typeof mspPhases[0] | null>(null);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardType, setWizardType] = useState<TemplateType>("programme_mandate");
-  const [wizardName, setWizardName] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const filteredTemplates = templates.filter((t) =>
