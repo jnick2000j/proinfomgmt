@@ -170,7 +170,8 @@ export default function Auth() {
   };
 
   const appName = branding?.app_name || "TaskMaster";
-  const appTagline = branding?.app_tagline || "Program Information & Management Platform";
+  const showTagline = branding?.show_tagline !== false;
+  const appTagline = showTagline ? (branding?.app_tagline || "Program Information & Management Platform") : "";
   const layout = branding?.login_layout || "split";
   const bgPattern = branding?.login_bg_pattern || "circles";
   const showFeatures = branding?.show_features !== false;
