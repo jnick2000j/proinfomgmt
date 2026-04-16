@@ -124,6 +124,8 @@ export function UpdateFrequencySettings({
   const effectiveSetting = entitySetting || orgDefault;
   const isUsingDefault = !entitySetting && !!orgDefault;
 
+  if (!canEdit) return null;
+
   return (
     <Card>
       <CardHeader className="pb-3">
