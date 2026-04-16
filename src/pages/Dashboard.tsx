@@ -76,10 +76,7 @@ export default function Dashboard() {
         <UpcomingMilestones />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3 mb-8">
-        <div className="lg:col-span-2">
-          <OrganizationStats />
-        </div>
+      <div className="mb-8">
         <StatusIndicators />
       </div>
     </AppLayout>
