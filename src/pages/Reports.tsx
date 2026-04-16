@@ -538,6 +538,7 @@ export default function Reports() {
               </div>
             </div>
           </div>
+        </TabsContent>
       </Tabs>
 
       {/* Schedule Dialog */}
