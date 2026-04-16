@@ -58,6 +58,10 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
   const [estimatedHours, setEstimatedHours] = useState("");
   const [storyPoints, setStoryPoints] = useState("");
   const [sprintId, setSprintId] = useState("");
+  const [programmeId, setProgrammeId] = useState("");
+  const [projectId, setProjectId] = useState("");
+  const [productId, setProductId] = useState("");
+  const [workPackageId, setWorkPackageId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { data: sprints = [] } = useQuery({
@@ -76,6 +80,56 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
     enabled: !!currentOrganization?.id && open,
   });
 
+  const { data: programmes = [] } = useQuery({
+    queryKey: ["programmes-for-task", currentOrganization?.id],
+    queryFn: async () => {
+      const q = supabase.from("programmes").select("id, name").order("name");
+      const { data } = currentOrganization?.id
+        ? await q.or(`organization_id.eq.${currentOrganization.id},organization_id.is.null`)
+        : await q;
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ["projects-for-task", currentOrganization?.id],
+    queryFn: async () => {
+      const q = supabase.from("projects").select("id, name, programme_id").order("name");
+      const { data } = currentOrganization?.id
+        ? await q.or(`organization_id.eq.${currentOrganization.id},organization_id.is.null`)
+        : await q;
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  const { data: products = [] } = useQuery({
+    queryKey: ["products-for-task", currentOrganization?.id],
+    queryFn: async () => {
+      const q = supabase.from("products").select("id, name, programme_id, project_id").order("name");
+      const { data } = currentOrganization?.id
+        ? await q.or(`organization_id.eq.${currentOrganization.id},organization_id.is.null`)
+        : await q;
+      return data || [];
+    },
+    enabled: open,
+  });
+
+  const { data: workPackages = [] } = useQuery({
+    queryKey: ["wp-for-task", projectId],
+    queryFn: async () => {
+      if (!projectId) return [];
+      const { data } = await supabase
+        .from("work_packages")
+        .select("id, name")
+        .eq("project_id", projectId)
+        .order("name");
+      return data || [];
+    },
+    enabled: open && !!projectId,
+  });
+
   useEffect(() => {
     if (task) {
       setName(task.name);
@@ -87,6 +141,10 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       setEstimatedHours(task.estimated_hours?.toString() || "");
       setStoryPoints(task.story_points?.toString() || "");
       setSprintId(task.sprint_id || "");
+      setProgrammeId(task.programme_id || "");
+      setProjectId(task.project_id || "");
+      setProductId(task.product_id || "");
+      setWorkPackageId(task.work_package_id || "");
     }
   }, [task]);
 
@@ -104,6 +162,10 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       estimated_hours: estimatedHours ? Number(estimatedHours) : null,
       story_points: storyPoints ? Number(storyPoints) : null,
       sprint_id: sprintId || null,
+      programme_id: programmeId || null,
+      project_id: projectId || null,
+      product_id: productId || null,
+      work_package_id: workPackageId || null,
     };
 
     if (status === "completed") {
@@ -184,6 +246,60 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
                 onChange={(e) => setStoryPoints(e.target.value)}
                 placeholder="—"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Program</Label>
+              <Select value={programmeId || "none"} onValueChange={(v) => { setProgrammeId(v === "none" ? "" : v); }}>
+                <SelectTrigger><SelectValue placeholder="No program" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Program</SelectItem>
+                  {programmes.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Project</Label>
+              <Select value={projectId || "none"} onValueChange={(v) => { setProjectId(v === "none" ? "" : v); setWorkPackageId(""); }}>
+                <SelectTrigger><SelectValue placeholder="No project" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Project</SelectItem>
+                  {projects
+                    .filter((p: any) => !programmeId || p.programme_id === programmeId || !p.programme_id)
+                    .map((p: any) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Product</Label>
+              <Select value={productId || "none"} onValueChange={(v) => setProductId(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="No product" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Product</SelectItem>
+                  {products
+                    .filter((p: any) => (!programmeId || p.programme_id === programmeId || !p.programme_id) && (!projectId || p.project_id === projectId || !p.project_id))
+                    .map((p: any) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Work Package</Label>
+              <Select value={workPackageId || "none"} onValueChange={(v) => setWorkPackageId(v === "none" ? "" : v)} disabled={!projectId}>
+                <SelectTrigger><SelectValue placeholder={projectId ? "No work package" : "Select project first"} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Work Package</SelectItem>
+                  {workPackages.map((w: any) => (
+                    <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="space-y-2">

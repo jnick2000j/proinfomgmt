@@ -12,9 +12,11 @@ import {
   Target,
   ArrowUpRight,
   Building2,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CreateProgrammeDialog } from "@/components/dialogs/CreateProgrammeDialog";
+import { EditProgrammeDialog } from "@/components/dialogs/EditProgrammeDialog";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +44,7 @@ interface Program {
   budget: string | null;
   benefits_target: string | null;
   organization_id: string | null;
+  manager_id: string | null;
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -64,6 +67,7 @@ export default function Programmes() {
   const { user, userRole } = useAuth();
   const { hasFullOrgAccess } = useOrgAccessLevel();
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [editingProgramme, setEditingProgramme] = useState<Program | null>(null);
 
   useEffect(() => {
     fetchProgrammes();
@@ -236,6 +240,15 @@ export default function Programmes() {
                 </h3>
               </div>
               <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={(e) => { e.stopPropagation(); setEditingProgramme(programme); }}
+                  title="Edit program"
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
                 <DocumentUpload
                   entityType="program"
                   entityId={programme.id}
@@ -301,6 +314,14 @@ export default function Programmes() {
           </div>
         ))}
       </div>
+      {editingProgramme && (
+        <EditProgrammeDialog
+          programme={editingProgramme}
+          open={!!editingProgramme}
+          onOpenChange={(o) => !o && setEditingProgramme(null)}
+          onSuccess={fetchProgrammes}
+        />
+      )}
     </AppLayout>
   );
 }

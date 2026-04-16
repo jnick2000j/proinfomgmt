@@ -16,6 +16,7 @@ import {
   Rocket,
   ArrowUpRight,
   Filter,
+  Pencil,
 } from "lucide-react";
 import {
   Table,
@@ -34,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateProductDialog } from "@/components/dialogs/CreateProductDialog";
+import { EditProductDialog } from "@/components/dialogs/EditProductDialog";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -87,6 +89,7 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState<string>("all");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { currentOrganization } = useOrganization();
   const { user, userRole } = useAuth();
   const { hasFullOrgAccess } = useOrgAccessLevel();
@@ -326,6 +329,15 @@ export default function Products() {
                         </TableCell>
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setEditingProduct(product)}
+                              title="Edit product"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
                             <DocumentUpload
                               entityType="product"
                               entityId={product.id}
@@ -496,6 +508,14 @@ export default function Products() {
           </div>
         </TabsContent>
       </Tabs>
+      {editingProduct && (
+        <EditProductDialog
+          product={editingProduct}
+          open={!!editingProduct}
+          onOpenChange={(o) => !o && setEditingProduct(null)}
+          onSuccess={fetchProducts}
+        />
+      )}
     </AppLayout>
   );
 }
