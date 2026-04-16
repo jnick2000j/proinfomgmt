@@ -45,7 +45,8 @@ export default function WeeklyUpdates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [expandedReport, setExpandedReport] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
+  const isStakeholder = ["stakeholder", "org_stakeholder", "programme_stakeholder", "project_stakeholder", "product_stakeholder"].includes(userRole || "");
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
