@@ -96,7 +96,7 @@ export default function Products() {
     let query = supabase.from("products").select("*").order("created_at", { ascending: false });
     
     if (currentOrganization) {
-      query = query.eq("organization_id", currentOrganization.id);
+      query = query.or(`organization_id.eq.${currentOrganization.id},organization_id.is.null`);
     }
 
     // Product managers only see products assigned to them

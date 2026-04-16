@@ -103,7 +103,7 @@ export default function Projects() {
         .order("created_at", { ascending: false });
 
       if (currentOrganization) {
-        query = query.eq("organization_id", currentOrganization.id);
+        query = query.or(`organization_id.eq.${currentOrganization.id},organization_id.is.null`);
       }
 
       // Project managers only see projects assigned to them
