@@ -547,6 +547,10 @@ export default function ProjectDetails() {
               <FileText className="h-4 w-4" />
               Project Brief
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
             <TabsTrigger value="updates" className="gap-2">
               <MessageSquarePlus className="h-4 w-4" />
               Updates

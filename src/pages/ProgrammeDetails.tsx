@@ -477,6 +477,10 @@ export default function ProgrammeDetails() {
               <Calendar className="h-4 w-4" />
               Tranches
             </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2">
+              <Users className="h-4 w-4" />
+              Team
+            </TabsTrigger>
             <TabsTrigger value="updates" className="gap-2">
               <MessageSquarePlus className="h-4 w-4" />
               Updates
