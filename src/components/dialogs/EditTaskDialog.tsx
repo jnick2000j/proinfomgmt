@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TaskAssignments } from "@/components/TaskAssignments";
 import {
   Dialog,
   DialogContent,
@@ -199,6 +200,13 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
               </SelectContent>
             </Select>
           </div>
+          <TaskAssignments
+            taskId={task.id}
+            organizationId={currentOrganization?.id}
+            projectId={task.project_id}
+            programmeId={task.programme_id}
+            productId={task.product_id}
+          />
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Planned Start</Label>
