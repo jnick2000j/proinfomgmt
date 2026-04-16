@@ -120,6 +120,10 @@ const defaultBranding: BrandingState = {
   show_welcome_message: true,
   show_login_cta: true,
   show_footer: true,
+  hero_text_color: "",
+  form_text_color: "",
+  app_name_color: "",
+  tagline_color: "",
 };
 
 export default function BrandingSettings() {
