@@ -183,6 +183,10 @@ export default function Auth() {
   const showFooter = branding?.show_footer !== false;
   const hasLogo = branding?.show_logo !== false && !!branding?.logo_url;
   const logoOnly = hasLogo && !showAppName;
+  const heroTextColor = (branding as any)?.hero_text_color || undefined;
+  const formTextColor = (branding as any)?.form_text_color || undefined;
+  const appNameColor = (branding as any)?.app_name_color || undefined;
+  const taglineColor = (branding as any)?.tagline_color || undefined;
 
   const features = defaultFeatures.map((def, i) => {
     const n = i + 1;
