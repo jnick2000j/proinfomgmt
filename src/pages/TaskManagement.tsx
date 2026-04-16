@@ -58,6 +58,7 @@ import {
 import { EntityUpdates } from "@/components/EntityUpdates";
 import { TaskAssignments } from "@/components/TaskAssignments";
 import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
+import { EditTaskDialog } from "@/components/dialogs/EditTaskDialog";
 import { format } from "date-fns";
 
 type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "cancelled";
@@ -108,7 +109,8 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
-
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -597,7 +599,10 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                     <React.Fragment key={task.id}>
                     <TableRow>
                       <TableCell>
-                        <div>
+                        <div
+                          className="cursor-pointer hover:text-primary"
+                          onClick={() => { setEditingTask(task); setEditDialogOpen(true); }}
+                        >
                           <p className="font-medium">{task.name}</p>
                           {task.description && (
                             <p className="text-xs text-muted-foreground line-clamp-1">
@@ -733,6 +738,13 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
           </Table>
         </CardContent>
       </Card>
+
+      <EditTaskDialog
+        task={editingTask}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+      />
     </>
   );
 
