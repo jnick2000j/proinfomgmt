@@ -29,7 +29,7 @@ export function AppLayout({ children, title, subtitle }: AppLayoutProps) {
   }, [currentOrganization?.id]);
 
   useEffect(() => {
-    const base = appName || "PIMP";
+    const base = appName || "TaskMaster";
     document.title = title ? `${title} – ${base}` : base;
   }, [title, appName]);
 
