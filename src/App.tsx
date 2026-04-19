@@ -58,7 +58,9 @@ import Billing from "./pages/Billing";
 import SecurityCenter from "./pages/SecurityCenter";
 import Pricing from "./pages/Pricing";
 import AcceptInvite from "./pages/AcceptInvite";
+import CheckoutReturn from "./pages/CheckoutReturn";
 import NotFound from "./pages/NotFound";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const queryClient = new QueryClient();
 
