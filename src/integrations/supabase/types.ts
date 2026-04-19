@@ -592,6 +592,7 @@ export type Database = {
       }
       change_requests: {
         Row: {
+          approver_id: string | null
           benefits: string | null
           change_type: string
           cost_impact: number | null
@@ -621,8 +622,10 @@ export type Database = {
           time_impact_days: number | null
           title: string
           updated_at: string
+          verifier_id: string | null
         }
         Insert: {
+          approver_id?: string | null
           benefits?: string | null
           change_type?: string
           cost_impact?: number | null
@@ -652,8 +655,10 @@ export type Database = {
           time_impact_days?: number | null
           title: string
           updated_at?: string
+          verifier_id?: string | null
         }
         Update: {
+          approver_id?: string | null
           benefits?: string | null
           change_type?: string
           cost_impact?: number | null
@@ -683,6 +688,7 @@ export type Database = {
           time_impact_days?: number | null
           title?: string
           updated_at?: string
+          verifier_id?: string | null
         }
         Relationships: [
           {
@@ -1818,6 +1824,8 @@ export type Database = {
         Row: {
           acceptance_criteria: string | null
           actual_date: string | null
+          approval_status: string | null
+          approver_id: string | null
           created_at: string
           created_by: string | null
           deliverables: string[] | null
@@ -1834,11 +1842,14 @@ export type Database = {
           status: Database["public"]["Enums"]["milestone_status"]
           target_date: string
           updated_at: string
+          verifier_id: string | null
           work_package_id: string | null
         }
         Insert: {
           acceptance_criteria?: string | null
           actual_date?: string | null
+          approval_status?: string | null
+          approver_id?: string | null
           created_at?: string
           created_by?: string | null
           deliverables?: string[] | null
@@ -1855,11 +1866,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["milestone_status"]
           target_date: string
           updated_at?: string
+          verifier_id?: string | null
           work_package_id?: string | null
         }
         Update: {
           acceptance_criteria?: string | null
           actual_date?: string | null
+          approval_status?: string | null
+          approver_id?: string | null
           created_at?: string
           created_by?: string | null
           deliverables?: string[] | null
@@ -1876,6 +1890,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["milestone_status"]
           target_date?: string
           updated_at?: string
+          verifier_id?: string | null
           work_package_id?: string | null
         }
         Relationships: [
@@ -4919,6 +4934,128 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_approvals: {
+        Row: {
+          approval_role: string
+          comments: string | null
+          conditions: string | null
+          created_at: string
+          created_by: string | null
+          decision: string
+          entity_id: string
+          entity_type: string
+          id: string
+          is_required: boolean
+          organization_id: string | null
+          reviewer_id: string
+          reviewer_role: string | null
+          signed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          approval_role?: string
+          comments?: string | null
+          conditions?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+          reviewer_id: string
+          reviewer_role?: string | null
+          signed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approval_role?: string
+          comments?: string | null
+          conditions?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+          reviewer_id?: string
+          reviewer_role?: string | null
+          signed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_approvals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_evidence: {
+        Row: {
+          attested_at: string | null
+          attested_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          document_id: string | null
+          entity_id: string
+          entity_type: string
+          evidence_label: string
+          id: string
+          is_required: boolean
+          organization_id: string | null
+        }
+        Insert: {
+          attested_at?: string | null
+          attested_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_id?: string | null
+          entity_id: string
+          entity_type: string
+          evidence_label: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+        }
+        Update: {
+          attested_at?: string | null
+          attested_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_id?: string | null
+          entity_id?: string
+          entity_type?: string
+          evidence_label?: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_evidence_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_evidence_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]

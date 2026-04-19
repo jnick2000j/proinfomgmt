@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { ExceptionLifecyclePanel } from "@/components/workflow/ExceptionLifecyclePanel";
 import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
+import { ApprovalTriadPanel } from "@/components/workflow/ApprovalTriadPanel";
 import {
   Plus,
   AlertTriangle,
@@ -678,6 +679,7 @@ export default function ExceptionManagement({ embedded = false }: { embedded?: b
                 <TabsList>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="lifecycle">Lifecycle</TabsTrigger>
+                  <TabsTrigger value="signoff">Sign-off</TabsTrigger>
                   <TabsTrigger value="evidence">Evidence</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4 mt-4">
@@ -804,6 +806,15 @@ export default function ExceptionManagement({ embedded = false }: { embedded?: b
                     exceptionStatus={selectedException.status}
                     severity={selectedException.severity}
                     organizationId={selectedException.organization_id}
+                  />
+                </TabsContent>
+                <TabsContent value="signoff" className="mt-4">
+                  <ApprovalTriadPanel
+                    entityType="exception"
+                    entityId={selectedException.id}
+                    organizationId={selectedException.organization_id}
+                    ownerId={selectedException.owner_id}
+                    ownerLabel="Exception owner"
                   />
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-4">

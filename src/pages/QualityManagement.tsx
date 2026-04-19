@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import { DocumentUpload } from "@/components/DocumentUpload";
 import { QualityCriteriaPanel } from "@/components/workflow/QualityCriteriaPanel";
 import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
+import { ApprovalTriadPanel } from "@/components/workflow/ApprovalTriadPanel";
 import {
   Plus,
   ClipboardCheck,
@@ -676,6 +677,7 @@ export default function QualityManagement({ embedded = false }: { embedded?: boo
                 <TabsList>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="criteria">Criteria</TabsTrigger>
+                  <TabsTrigger value="signoff">Sign-off</TabsTrigger>
                   <TabsTrigger value="evidence">Evidence</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4 mt-4">
@@ -798,6 +800,15 @@ export default function QualityManagement({ embedded = false }: { embedded?: boo
                     programmeId={selectedRecord.programme_id ?? undefined}
                     productId={selectedRecord.product_id ?? undefined}
                     organizationId={selectedRecord.organization_id}
+                  />
+                </TabsContent>
+                <TabsContent value="signoff" className="mt-4">
+                  <ApprovalTriadPanel
+                    entityType="quality_review"
+                    entityId={selectedRecord.id}
+                    organizationId={selectedRecord.organization_id}
+                    ownerId={selectedRecord.owner_id ?? null}
+                    ownerLabel="Quality owner"
                   />
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-4">

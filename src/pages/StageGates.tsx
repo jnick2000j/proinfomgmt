@@ -30,7 +30,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ApprovalMatrix } from "@/components/workflow/ApprovalMatrix";
+import { ApprovalTriadPanel } from "@/components/workflow/ApprovalTriadPanel";
 import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
 import { toast } from "sonner";
 import {
@@ -526,7 +526,7 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
               <Tabs defaultValue="overview" className="mt-4">
                 <TabsList>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="approvals">Approvals</TabsTrigger>
+                  <TabsTrigger value="signoff">Sign-off</TabsTrigger>
                   <TabsTrigger value="evidence">Evidence</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4 mt-4">
@@ -622,10 +622,13 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
                   </div>
                 </div>
                 </TabsContent>
-                <TabsContent value="approvals" className="mt-4">
-                  <ApprovalMatrix
-                    stageGateId={selectedGate.id}
+                <TabsContent value="signoff" className="mt-4">
+                  <ApprovalTriadPanel
+                    entityType="stage_gate"
+                    entityId={selectedGate.id}
                     organizationId={selectedGate.organization_id}
+                    ownerId={(selectedGate as any).owner_id ?? null}
+                    ownerLabel="Gate owner"
                   />
                 </TabsContent>
                 <TabsContent value="evidence" className="mt-4">
