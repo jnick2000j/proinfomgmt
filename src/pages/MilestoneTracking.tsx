@@ -618,7 +618,10 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div
+                            className="flex items-center gap-2"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Badge className={config.color}>
                               <StatusIcon className="h-3 w-3 mr-1" />
                               {config.label}
@@ -654,6 +657,77 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
           ))}
         </div>
       )}
+
+      {/* Milestone Detail Dialog */}
+      <Dialog open={!!selectedMilestone} onOpenChange={() => setSelectedMilestone(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedMilestone && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Milestone className="h-5 w-5" />
+                  {selectedMilestone.name}
+                </DialogTitle>
+              </DialogHeader>
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="signoff">Sign-off</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Type</p>
+                      <p className="font-medium capitalize">{selectedMilestone.milestone_type}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <Badge className={statusConfig[selectedMilestone.status].color}>
+                        {statusConfig[selectedMilestone.status].label}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Target date</p>
+                      <p className="font-medium">
+                        {format(parseISO(selectedMilestone.target_date), "PPP")}
+                      </p>
+                    </div>
+                    {selectedMilestone.actual_date && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Achieved on</p>
+                        <p className="font-medium text-success">
+                          {format(parseISO(selectedMilestone.actual_date), "PPP")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  {selectedMilestone.description && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Description</p>
+                      <p>{selectedMilestone.description}</p>
+                    </div>
+                  )}
+                  {selectedMilestone.acceptance_criteria && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Acceptance criteria</p>
+                      <p className="bg-muted p-3 rounded">{selectedMilestone.acceptance_criteria}</p>
+                    </div>
+                  )}
+                </TabsContent>
+                <TabsContent value="signoff" className="mt-4">
+                  <ApprovalTriadPanel
+                    entityType="milestone"
+                    entityId={selectedMilestone.id}
+                    organizationId={selectedMilestone.organization_id}
+                    ownerId={selectedMilestone.owner_id}
+                    ownerLabel="Milestone owner"
+                  />
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 
