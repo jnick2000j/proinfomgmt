@@ -492,54 +492,6 @@ export default function PRINCE2Dashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-base">Quick Actions</CardTitle>
-          <CardDescription>Navigate to PRINCE2 management areas</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Link to="/prince2/tasks">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <ListTodo className="h-5 w-5" />
-                <span className="text-xs">Tasks</span>
-              </Button>
-            </Link>
-            <Link to="/prince2/milestones">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <Target className="h-5 w-5" />
-                <span className="text-xs">Milestones</span>
-              </Button>
-            </Link>
-            <Link to="/prince2/stage-gates">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <Flag className="h-5 w-5" />
-                <span className="text-xs">Stage Gates</span>
-              </Button>
-            </Link>
-            <Link to="/prince2/change-control">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <FileEdit className="h-5 w-5" />
-                <span className="text-xs">Changes</span>
-              </Button>
-            </Link>
-            <Link to="/prince2/exceptions">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <AlertTriangle className="h-5 w-5" />
-                <span className="text-xs">Exceptions</span>
-              </Button>
-            </Link>
-            <Link to="/prince2/quality">
-              <Button variant="outline" className="w-full h-auto py-4 flex flex-col gap-2">
-                <ClipboardCheck className="h-5 w-5" />
-                <span className="text-xs">Quality</span>
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
-        </TabsContent>
 
         <TabsContent value="milestones">
           <MilestoneTracking embedded />
