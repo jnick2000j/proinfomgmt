@@ -609,13 +609,13 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     Loading tasks...
                   </TableCell>
                 </TableRow>
               ) : filteredTasks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     No tasks found. Create your first task to get started.
                   </TableCell>
                 </TableRow>
@@ -626,6 +626,9 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                   return (
                     <React.Fragment key={task.id}>
                     <TableRow>
+                      <TableCell className="font-mono text-xs text-muted-foreground">
+                        {task.reference_number || "—"}
+                      </TableCell>
                       <TableCell>
                         <div
                           className="cursor-pointer hover:text-primary"
