@@ -439,20 +439,14 @@ export default function Governance() {
     >
       <div className="p-6 space-y-6">
         <Tabs defaultValue="reports">
-          <TabsList>
-            <TabsTrigger value="reports">
-              <FileText className="h-4 w-4 mr-2" />
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="compliance">
-              <ShieldCheck className="h-4 w-4 mr-2" />
-              Compliance
-            </TabsTrigger>
-            <TabsTrigger value="comms">
-              <Mail className="h-4 w-4 mr-2" />
-              Comms Packs
-            </TabsTrigger>
-          </TabsList>
+          <QuickActionTabs
+            items={[
+              { value: "reports", label: "Reports", icon: FileText },
+              { value: "compliance", label: "Compliance", icon: ShieldCheck },
+              { value: "comms", label: "Comms Packs", icon: Mail },
+            ]}
+            className="grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3"
+          />
 
           {/* Reports tab */}
           <TabsContent value="reports" className="mt-4 space-y-4">
