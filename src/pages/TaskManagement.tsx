@@ -54,7 +54,18 @@ import {
   User,
   ListTree,
   MessageSquarePlus,
+  Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { EntityUpdates } from "@/components/EntityUpdates";
 import { TaskAssignments } from "@/components/TaskAssignments";
 import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
@@ -262,7 +273,21 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
     },
   });
 
-  // Update task completion percentage
+  // Delete task mutation
+  const deleteTask = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("tasks").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task deleted");
+      setTaskToDelete(null);
+    },
+    onError: (error: any) => {
+      toast.error("Failed to delete task: " + error.message);
+    },
+  });
   const updateCompletion = useMutation({
     mutationFn: async ({ id, completion_percentage }: { id: string; completion_percentage: number }) => {
       const updateData: Record<string, unknown> = { completion_percentage };
