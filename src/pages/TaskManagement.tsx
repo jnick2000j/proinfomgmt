@@ -754,7 +754,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                     </TableRow>
                     {expandedTaskId === task.id && (
                       <TableRow>
-                        <TableCell colSpan={8} className="bg-muted/30 p-4 space-y-4">
+                        <TableCell colSpan={9} className="bg-muted/30 p-4 space-y-4">
                           <div className="grid gap-4 md:grid-cols-2">
                             <div>
                               <h4 className="text-sm font-medium mb-2">Assigned Users</h4>
