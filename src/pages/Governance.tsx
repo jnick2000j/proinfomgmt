@@ -305,7 +305,11 @@ export default function Governance() {
     [reports],
   );
 
-  const recomputeScore = async (scope_type: "programme" | "project" | "product", scope_id: string) => {
+  const recomputeScore = async (
+    scope_type: "programme" | "project" | "product",
+    scope_id: string,
+    openReport = false,
+  ) => {
     if (!currentOrganization) return;
     const { data, error } = await supabase.rpc("compute_compliance_score", {
       _scope_type: scope_type,
@@ -315,7 +319,13 @@ export default function Governance() {
       toast.error("Failed to compute score");
       return;
     }
-    const result = data as { score: number; controls_score: number; cadence_score: number; hygiene_score: number; details: Record<string, unknown> };
+    const result = data as {
+      score: number;
+      controls_score: number;
+      cadence_score: number;
+      hygiene_score: number;
+      details: Record<string, unknown>;
+    };
     await (supabase.from("compliance_scores") as any).insert({
       organization_id: currentOrganization.id,
       scope_type,
@@ -328,6 +338,32 @@ export default function Governance() {
     });
     toast.success("Score updated");
     fetchAll();
+    if (openReport) {
+      setReportData({
+        ...result,
+        details: result.details as ScoreData["details"],
+        computed_at: new Date().toISOString(),
+        scope_name: getScopeName(scope_type, scope_id),
+        scope_type,
+      });
+      setReportOpen(true);
+    }
+  };
+
+  const viewStoredReport = (
+    score: ScoreRow,
+  ) => {
+    setReportData({
+      score: score.score,
+      controls_score: score.controls_score,
+      cadence_score: score.cadence_score,
+      hygiene_score: score.hygiene_score,
+      details: score.details as ScoreData["details"],
+      computed_at: score.computed_at,
+      scope_name: getScopeName(score.scope_type, score.scope_id),
+      scope_type: score.scope_type,
+    });
+    setReportOpen(true);
   };
 
   const copyText = async (text: string, label: string) => {
