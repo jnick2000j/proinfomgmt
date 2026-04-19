@@ -274,7 +274,7 @@ export default function Governance() {
       return;
     }
     const result = data as { score: number; controls_score: number; cadence_score: number; hygiene_score: number; details: Record<string, unknown> };
-    await supabase.from("compliance_scores").insert({
+    await (supabase.from("compliance_scores") as any).insert({
       organization_id: currentOrganization.id,
       scope_type,
       scope_id,
