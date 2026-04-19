@@ -54,21 +54,18 @@ export default function Dashboard() {
   });
 
   return (
-    <AppLayout
-      title="Dashboard"
-      subtitle="Program portfolio overview"
-      actions={
-        hasStakeholderAccess ? (
+    <AppLayout title="Dashboard" subtitle="Program portfolio overview">
+      <PlanUsageBar />
+      {hasStakeholderAccess && (
+        <div className="mb-6 flex justify-end">
           <Button asChild>
             <Link to="/portal">
               <Eye className="h-4 w-4 mr-2" />
-              Stakeholder Portal
+              Open Stakeholder Portal
             </Link>
           </Button>
-        ) : undefined
-      }
-    >
-      <PlanUsageBar />
+        </div>
+      )}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
         <MetricCard
           title="Active Programs"
