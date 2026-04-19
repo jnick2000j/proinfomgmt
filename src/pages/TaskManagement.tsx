@@ -77,6 +77,7 @@ type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "can
 interface Task {
   id: string;
   name: string;
+  reference_number: string | null;
   description: string | null;
   status: TaskStatus;
   priority: string;
@@ -594,6 +595,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[120px]">Ref</TableHead>
                 <TableHead>Task</TableHead>
                 <TableHead>Entity</TableHead>
                 <TableHead>Priority</TableHead>
