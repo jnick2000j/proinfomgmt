@@ -53,7 +53,10 @@ import {
   ShieldAlert,
   Loader2,
   RefreshCw,
+  BarChart3,
 } from "lucide-react";
+import { ComplianceRuleEditor } from "@/components/governance/ComplianceRuleEditor";
+import { ComplianceReportDialog, type ScoreData } from "@/components/governance/ComplianceReportDialog";
 
 type Report = {
   id: string;
