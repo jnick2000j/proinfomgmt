@@ -24,12 +24,33 @@ interface HeaderProps {
 }
 
 export function Header({ title, subtitle }: HeaderProps) {
-  const { user, signOut, userRole } = useAuth();
+  const { user, signOut, userRole, userProfile } = useAuth();
   const { currentOrganization } = useOrganization();
   const navigate = useNavigate();
   const isAdmin = userRole === "admin";
   const [globalLogoUrl, setGlobalLogoUrl] = useState<string | null>(null);
   const [supportOpen, setSupportOpen] = useState(false);
+
+  const getDisplayName = () => {
+    if (userProfile?.first_name && userProfile?.last_name) {
+      return `${userProfile.first_name} ${userProfile.last_name}`;
+    }
+    if (userProfile?.full_name) return userProfile.full_name;
+    return user?.email?.split("@")[0] || "User";
+  };
+
+  const getInitials = () => {
+    if (userProfile?.first_name && userProfile?.last_name) {
+      return `${userProfile.first_name[0]}${userProfile.last_name[0]}`.toUpperCase();
+    }
+    if (userProfile?.full_name) {
+      const parts = userProfile.full_name.split(" ");
+      return parts.length >= 2
+        ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+        : userProfile.full_name.substring(0, 2).toUpperCase();
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || "U";
+  };
 
   // Fetch global branding logo for unassigned/global admins
   useEffect(() => {
@@ -106,15 +127,16 @@ export function Header({ title, subtitle }: HeaderProps) {
             <Button variant="ghost" className="flex items-center gap-2 px-2">
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                  {user?.email?.substring(0, 2).toUpperCase() || "U"}
+                  {getInitials()}
                 </AvatarFallback>
               </Avatar>
+              <span className="hidden md:inline text-sm font-medium max-w-[140px] truncate">{getDisplayName()}</span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium">{user?.email?.split("@")[0] || "User"}</p>
+              <p className="text-sm font-medium">{getDisplayName()}</p>
               <p className="text-xs text-muted-foreground capitalize">{userRole?.replace("_", " ") || "User"}</p>
             </div>
             <DropdownMenuSeparator />
