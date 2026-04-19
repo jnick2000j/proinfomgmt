@@ -220,9 +220,9 @@ export default function Timesheets() {
             .order("name"),
           supabase
             .from("tasks")
-            .select("id, title")
+            .select("id, name")
             .eq("organization_id", currentOrganization.id)
-            .order("title"),
+            .order("name"),
           supabase.from("profiles").select("user_id, full_name, email"),
           supabase
             .from("user_organization_access")
@@ -239,9 +239,9 @@ export default function Timesheets() {
       setProjects((projRes.data || []) as NamedRow[]);
       setProducts((prodRes.data || []) as NamedRow[]);
       setTasksList(
-        ((taskRes.data || []) as Array<{ id: string; title: string }>).map((t) => ({
+        ((taskRes.data || []) as Array<{ id: string; name: string }>).map((t) => ({
           id: t.id,
-          name: t.title,
+          name: t.name,
         })),
       );
 
