@@ -34,8 +34,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { QualityCriteriaPanel } from "@/components/workflow/QualityCriteriaPanel";
+import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
 import {
   Plus,
   ClipboardCheck,
@@ -657,7 +660,7 @@ export default function QualityManagement({ embedded = false }: { embedded?: boo
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedRecord} onOpenChange={() => setSelectedRecord(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedRecord && (
             <>
               <DialogHeader>
@@ -669,7 +672,13 @@ export default function QualityManagement({ embedded = false }: { embedded?: boo
                   {selectedRecord.title}
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="criteria">Criteria</TabsTrigger>
+                  <TabsTrigger value="evidence">Evidence</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="space-y-4 mt-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
@@ -782,7 +791,23 @@ export default function QualityManagement({ embedded = false }: { embedded?: boo
                     </div>
                   )}
                 </div>
-              </div>
+                </TabsContent>
+                <TabsContent value="criteria" className="mt-4">
+                  <QualityCriteriaPanel
+                    projectId={selectedRecord.project_id ?? undefined}
+                    programmeId={selectedRecord.programme_id ?? undefined}
+                    productId={selectedRecord.product_id ?? undefined}
+                    organizationId={selectedRecord.organization_id}
+                  />
+                </TabsContent>
+                <TabsContent value="evidence" className="mt-4">
+                  <EvidenceChecklist
+                    approvalType="quality_review"
+                    approvalId={selectedRecord.id}
+                    organizationId={selectedRecord.organization_id}
+                  />
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </DialogContent>

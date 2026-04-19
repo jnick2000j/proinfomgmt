@@ -29,6 +29,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ApprovalMatrix } from "@/components/workflow/ApprovalMatrix";
+import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
 import { toast } from "sonner";
 import {
   Plus,
@@ -511,7 +514,7 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
 
       {/* Gate Detail Dialog */}
       <Dialog open={!!selectedGate} onOpenChange={() => setSelectedGate(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedGate && (
             <>
               <DialogHeader>
@@ -520,7 +523,13 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
                   {selectedGate.name}
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="approvals">Approvals</TabsTrigger>
+                  <TabsTrigger value="evidence">Evidence</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="space-y-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Stage Number</p>
@@ -612,7 +621,21 @@ export default function StageGates({ embedded }: { embedded?: boolean }) {
                     </Button>
                   </div>
                 </div>
-              </div>
+                </TabsContent>
+                <TabsContent value="approvals" className="mt-4">
+                  <ApprovalMatrix
+                    stageGateId={selectedGate.id}
+                    organizationId={selectedGate.organization_id}
+                  />
+                </TabsContent>
+                <TabsContent value="evidence" className="mt-4">
+                  <EvidenceChecklist
+                    approvalType="stage_gate"
+                    approvalId={selectedGate.id}
+                    organizationId={selectedGate.organization_id}
+                  />
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </DialogContent>
