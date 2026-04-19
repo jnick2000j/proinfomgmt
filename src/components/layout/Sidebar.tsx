@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Wand2,
   FolderKanban,
-  AlertTriangle,
   Users,
   BarChart3,
   BookOpen,
@@ -72,7 +71,7 @@ export function Sidebar() {
 
   const navigation: NavItem[] = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/" },
-    { label: "Search", icon: Search, href: "/search" },
+    { label: "Search the TaskMaster", icon: Search, href: "/search" },
     { label: "Notifications", icon: Bell, href: "/updates", badge: unreadCount },
     { label: "Programs", icon: Layers, href: "/programmes" },
     { label: "Projects", icon: FolderKanban, href: "/projects" },

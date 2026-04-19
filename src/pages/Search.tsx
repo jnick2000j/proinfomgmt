@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Search as SearchIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
 
 const examples = [
   "Show me all overdue projects",
@@ -33,7 +34,7 @@ export default function Search() {
 
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-search`;
-      const { data: sessionData } = await (await import("@/integrations/supabase/client")).supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
       const resp = await fetch(url, {
@@ -101,12 +102,12 @@ export default function Search() {
   };
 
   return (
-    <AppLayout title="AI Search">
+    <AppLayout title="Search the TaskMaster">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold">AI Search</h1>
+            <h1 className="text-3xl font-bold">Search the TaskMaster</h1>
           </div>
           <p className="text-muted-foreground">
             Ask in natural language to find programmes, projects, products, tasks, risks, issues, benefits, and milestones.

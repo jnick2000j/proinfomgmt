@@ -30,7 +30,6 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
 
-    // Pull a lightweight slice of entities the user can access (RLS enforced)
     const [
       programmes,
       projects,
@@ -41,38 +40,14 @@ Deno.serve(async (req) => {
       benefits,
       milestones,
     ] = await Promise.all([
-      supabase
-        .from("programmes")
-        .select("id,name,description,status")
-        .limit(50),
-      supabase
-        .from("projects")
-        .select("id,name,description,status,stage")
-        .limit(50),
-      supabase
-        .from("products")
-        .select("id,name,description,status")
-        .limit(50),
-      supabase
-        .from("tasks")
-        .select("id,title,description,status,reference_number")
-        .limit(50),
-      supabase
-        .from("risks")
-        .select("id,title,description,status,reference_number")
-        .limit(30),
-      supabase
-        .from("issues")
-        .select("id,title,description,status,reference_number")
-        .limit(30),
-      supabase
-        .from("benefits")
-        .select("id,name,description,status,reference_number")
-        .limit(30),
-      supabase
-        .from("milestones")
-        .select("id,name,description,status,reference_number,target_date")
-        .limit(30),
+      supabase.from("programmes").select("id,name,description,status").limit(50),
+      supabase.from("projects").select("id,name,description,status,stage").limit(50),
+      supabase.from("products").select("id,name,description,status").limit(50),
+      supabase.from("tasks").select("id,title,description,status,reference_number").limit(50),
+      supabase.from("risks").select("id,title,description,status,reference_number").limit(30),
+      supabase.from("issues").select("id,title,description,status,reference_number").limit(30),
+      supabase.from("benefits").select("id,name,description,status,reference_number").limit(30),
+      supabase.from("milestones").select("id,name,description,status,reference_number,target_date").limit(30),
     ]);
 
     const corpus = {
@@ -86,9 +61,9 @@ Deno.serve(async (req) => {
       milestones: milestones.data ?? [],
     };
 
-    const systemPrompt = `You are an intelligent search assistant for a project/programme/product management platform.
-The user will give you a natural language query. Search across the provided data and return the MOST RELEVANT items.
-For each match, explain briefly WHY it matches. Group results by entity type. Use markdown with clear headings and bullet lists.
+    const systemPrompt = `You are TaskMaster, an intelligent search assistant for a project/programme/product management platform.
+Search across the provided data and return the MOST RELEVANT items for the user's query.
+For each match, briefly explain WHY it matches. Group results by entity type. Use markdown with clear headings and bullet lists.
 If nothing matches, say so plainly and suggest what they could try instead. Keep responses concise and scannable.
 
 Routes for linking (use these paths in markdown links):
@@ -106,7 +81,7 @@ Routes for linking (use these paths in markdown links):
 Available data (JSON):
 ${JSON.stringify(corpus, null, 2)}
 
-Return the matches grouped by type with reference numbers where available.`;
+Return matches grouped by type with reference numbers where available.`;
 
     const aiResp = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
