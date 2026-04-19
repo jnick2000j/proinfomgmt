@@ -29,12 +29,11 @@ import {
   Bell,
   Pencil,
   X,
-  MessageSquare,
   Edit3,
-  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { DecisionComments } from "./DecisionComments";
 
 export type WorkflowEntityType =
   | "stage_gate"
