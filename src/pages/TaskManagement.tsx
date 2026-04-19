@@ -54,7 +54,18 @@ import {
   User,
   ListTree,
   MessageSquarePlus,
+  Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { EntityUpdates } from "@/components/EntityUpdates";
 import { TaskAssignments } from "@/components/TaskAssignments";
 import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
@@ -111,6 +122,7 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -262,7 +274,21 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
     },
   });
 
-  // Update task completion percentage
+  // Delete task mutation
+  const deleteTask = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("tasks").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task deleted");
+      setTaskToDelete(null);
+    },
+    onError: (error: any) => {
+      toast.error("Failed to delete task: " + error.message);
+    },
+  });
   const updateCompletion = useMutation({
     mutationFn: async ({ id, completion_percentage }: { id: string; completion_percentage: number }) => {
       const updateData: Record<string, unknown> = { completion_percentage };
@@ -709,6 +735,15 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                               <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
                           </Select>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setTaskToDelete({ id: task.id, name: task.name })}
+                            title="Delete task"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -745,6 +780,30 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
         onOpenChange={setEditDialogOpen}
         onUpdate={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
       />
+
+      <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this task?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{taskToDelete?.name}</strong>. This action cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (taskToDelete) deleteTask.mutate(taskToDelete.id);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 
