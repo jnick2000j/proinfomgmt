@@ -149,15 +149,17 @@ export default function Governance() {
   const [selectedReportForPack, setSelectedReportForPack] = useState<string>("");
 
   const [genForm, setGenForm] = useState({
-    report_type: "highlight" as Report["report_type"],
+    report_type: "programme_status" as Report["report_type"],
     scope_type: "programme" as Report["scope_type"],
     scope_id: "",
+    period_start: "",
+    period_end: "",
   });
 
   const fetchAll = async () => {
     if (!currentOrganization) return;
     setLoading(true);
-    const [reportsRes, packsRes, scoresRes, progRes, projRes] = await Promise.all([
+    const [reportsRes, packsRes, scoresRes, progRes, projRes, prodRes] = await Promise.all([
       supabase
         .from("governance_reports")
         .select("*")
@@ -183,6 +185,11 @@ export default function Governance() {
         .select("id, name")
         .eq("organization_id", currentOrganization.id)
         .order("name"),
+      supabase
+        .from("products")
+        .select("id, name")
+        .eq("organization_id", currentOrganization.id)
+        .order("name"),
     ]);
 
     setReports((reportsRes.data || []) as Report[]);
@@ -190,6 +197,7 @@ export default function Governance() {
     setScores((scoresRes.data || []) as ScoreRow[]);
     setProgrammes(progRes.data || []);
     setProjects(projRes.data || []);
+    setProducts(prodRes.data || []);
     setLoading(false);
   };
 
