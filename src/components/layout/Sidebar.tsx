@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { OrganizationSelector } from "@/components/OrganizationSelector";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard,
