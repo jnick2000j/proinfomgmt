@@ -116,6 +116,11 @@ const decisionMeta: Record<
     icon: AlertTriangle,
     cls: "bg-warning/20 text-warning",
   },
+  modification_required: {
+    label: "Modification required",
+    icon: Edit3,
+    cls: "bg-warning/20 text-warning",
+  },
 };
 
 const approverDecisionOptions = [
