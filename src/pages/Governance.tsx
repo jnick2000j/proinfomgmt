@@ -150,6 +150,8 @@ export default function Governance() {
   const [packTab, setPackTab] = useState("email");
   const [packDialogOpen, setPackDialogOpen] = useState(false);
   const [selectedReportForPack, setSelectedReportForPack] = useState<string>("");
+  const [reportData, setReportData] = useState<ScoreData | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const [genForm, setGenForm] = useState({
     report_type: "programme_status" as Report["report_type"],
