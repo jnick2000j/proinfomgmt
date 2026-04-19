@@ -34,8 +34,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { DocumentUpload } from "@/components/DocumentUpload";
+import { ExceptionLifecyclePanel } from "@/components/workflow/ExceptionLifecyclePanel";
+import { EvidenceChecklist } from "@/components/workflow/EvidenceChecklist";
 import {
   Plus,
   AlertTriangle,
@@ -659,7 +662,7 @@ export default function ExceptionManagement({ embedded = false }: { embedded?: b
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedException} onOpenChange={() => setSelectedException(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedException && (
             <>
               <DialogHeader>
@@ -671,7 +674,13 @@ export default function ExceptionManagement({ embedded = false }: { embedded?: b
                   {selectedException.title}
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <Tabs defaultValue="overview" className="mt-4">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="lifecycle">Lifecycle</TabsTrigger>
+                  <TabsTrigger value="evidence">Evidence</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview" className="space-y-4 mt-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
@@ -788,7 +797,23 @@ export default function ExceptionManagement({ embedded = false }: { embedded?: b
                     </Button>
                   </div>
                 </div>
-              </div>
+                </TabsContent>
+                <TabsContent value="lifecycle" className="mt-4">
+                  <ExceptionLifecyclePanel
+                    exceptionId={selectedException.id}
+                    exceptionStatus={selectedException.status}
+                    severity={selectedException.severity}
+                    organizationId={selectedException.organization_id}
+                  />
+                </TabsContent>
+                <TabsContent value="evidence" className="mt-4">
+                  <EvidenceChecklist
+                    approvalType="exception"
+                    approvalId={selectedException.id}
+                    organizationId={selectedException.organization_id}
+                  />
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </DialogContent>
