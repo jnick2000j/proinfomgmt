@@ -1,0 +1,1 @@
+ALTER TABLE public.stage_gates ADD COLUMN IF NOT EXISTS owner_id UUID;

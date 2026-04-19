@@ -3661,6 +3661,7 @@ export type Database = {
           id: string
           name: string
           organization_id: string | null
+          owner_id: string | null
           planned_date: string | null
           programme_id: string | null
           project_id: string | null
@@ -3684,6 +3685,7 @@ export type Database = {
           id?: string
           name: string
           organization_id?: string | null
+          owner_id?: string | null
           planned_date?: string | null
           programme_id?: string | null
           project_id?: string | null
@@ -3707,6 +3709,7 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string | null
+          owner_id?: string | null
           planned_date?: string | null
           programme_id?: string | null
           project_id?: string | null
