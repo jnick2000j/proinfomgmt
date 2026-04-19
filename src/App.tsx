@@ -7,7 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { OrganizationProvider } from "@/hooks/useOrganization";
 import { PermissionsProvider } from "@/hooks/usePermissions";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { TaskMasterChat } from "@/components/TaskMasterChat";
+
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -136,7 +136,6 @@ const App = () => (
             <Route path="/portal" element={<ProtectedRoute><StakeholderPortal /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <TaskMasterChat />
           </PermissionsProvider>
           </OrganizationProvider>
         </AuthProvider>
