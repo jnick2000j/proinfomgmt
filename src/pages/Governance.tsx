@@ -300,7 +300,7 @@ export default function Governance() {
     [reports],
   );
 
-  const recomputeScore = async (scope_type: "programme" | "project", scope_id: string) => {
+  const recomputeScore = async (scope_type: "programme" | "project" | "product", scope_id: string) => {
     if (!currentOrganization) return;
     const { data, error } = await supabase.rpc("compute_compliance_score", {
       _scope_type: scope_type,
@@ -593,7 +593,8 @@ export default function Governance() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[...programmes.map((p) => ({ ...p, type: "programme" as const })),
-                ...projects.map((p) => ({ ...p, type: "project" as const }))].map((entity) => {
+                ...projects.map((p) => ({ ...p, type: "project" as const })),
+                ...products.map((p) => ({ ...p, type: "product" as const }))].map((entity) => {
                 const score = latestScoresByScope.find((s) => s.scope_type === entity.type && s.scope_id === entity.id);
                 return (
                   <Card key={`${entity.type}:${entity.id}`}>
@@ -648,9 +649,9 @@ export default function Governance() {
                   </Card>
                 );
               })}
-              {programmes.length === 0 && projects.length === 0 && (
+              {programmes.length === 0 && projects.length === 0 && products.length === 0 && (
                 <p className="text-muted-foreground col-span-full text-center py-8">
-                  Create a programme or project to start scoring compliance.
+                  Create a programme, project, or product to start scoring compliance.
                 </p>
               )}
             </div>
