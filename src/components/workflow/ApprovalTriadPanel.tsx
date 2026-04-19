@@ -67,12 +67,22 @@ interface ApprovalRow {
     | "reject"
     | "abstain"
     | "conditional"
+    | "modification_required"
     | "verified"
     | "rejected_verification";
   comments: string | null;
   conditions: string | null;
   signed_at: string | null;
   is_required: boolean;
+}
+
+interface CommentRow {
+  id: string;
+  approval_id: string;
+  author_id: string;
+  comment: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface NotifierRow {
