@@ -55,6 +55,7 @@ import Registers from "./pages/Registers";
 import PlatformAdmin from "./pages/PlatformAdmin";
 import Onboarding from "./pages/Onboarding";
 import Billing from "./pages/Billing";
+import SecurityCenter from "./pages/SecurityCenter";
 import Pricing from "./pages/Pricing";
 import AcceptInvite from "./pages/AcceptInvite";
 import NotFound from "./pages/NotFound";
@@ -109,6 +110,7 @@ const App = () => (
             <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/branding" element={<ProtectedRoute><BrandingSettings /></ProtectedRoute>} />
+            <Route path="/security" element={<ProtectedRoute><SecurityCenter /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><AdminPanel /></ProtectedRoute>} />
             <Route path="/platform-admin" element={<ProtectedRoute requiredRoles={["admin"]}><PlatformAdmin /></ProtectedRoute>} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
