@@ -87,6 +87,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<MilestoneData | null>(null);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
@@ -558,7 +559,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                   return (
                     <Card
                       key={milestone.id}
-                      className={`border-l-4 ${
+                      className={`border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
                         milestone.is_stage_boundary
                           ? "border-l-warning"
                           : milestone.status === "achieved"
@@ -567,6 +568,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                           ? "border-l-destructive"
                           : "border-l-primary"
                       }`}
+                      onClick={() => setSelectedMilestone(milestone)}
                     >
                       <CardContent className="pt-4">
                         <div className="flex items-start justify-between">
