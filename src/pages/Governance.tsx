@@ -588,11 +588,59 @@ export default function Governance() {
 
           {/* Comms packs tab */}
           <TabsContent value="comms" className="mt-4 space-y-4">
-            <div>
-              <h2 className="text-lg font-semibold">Comms packs</h2>
-              <p className="text-sm text-muted-foreground">
-                AI-generated executive email, Slack/Teams summary, and PDF 1-pager from each report
-              </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold">Comms packs</h2>
+                <p className="text-sm text-muted-foreground">
+                  AI-generated executive email, Slack/Teams summary, and PDF 1-pager. All packs are retained for historical reference.
+                </p>
+              </div>
+              <Dialog open={packDialogOpen} onOpenChange={setPackDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button disabled={eligibleReportsForPack.length === 0}>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate comms pack
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Generate comms pack</DialogTitle>
+                    <DialogDescription>
+                      Choose an approved or published governance report to bundle into stakeholder comms.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-2">
+                    <Label>Source report</Label>
+                    <Select value={selectedReportForPack} onValueChange={setSelectedReportForPack}>
+                      <SelectTrigger><SelectValue placeholder="Choose a report…" /></SelectTrigger>
+                      <SelectContent>
+                        {eligibleReportsForPack.map((r) => (
+                          <SelectItem key={r.id} value={r.id}>
+                            {r.title} · {getScopeName(r.scope_type, r.scope_id)} · {r.status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {eligibleReportsForPack.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        No eligible reports yet — approve or publish a report first.
+                      </p>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setPackDialogOpen(false)} disabled={generating}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => generateCommsPack(selectedReportForPack)}
+                      disabled={generating || !selectedReportForPack}
+                    >
+                      {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                      Generate
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
             <Card>
               <CardContent className="p-0">
@@ -600,29 +648,36 @@ export default function Governance() {
                   <div className="p-8 text-center text-muted-foreground">Loading…</div>
                 ) : packs.length === 0 ? (
                   <div className="p-12 text-center text-muted-foreground">
-                    No comms packs yet. Open a report and click <strong>Generate comms pack</strong>.
+                    No comms packs yet. Click <strong>Generate comms pack</strong> to create one.
                   </div>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Title</TableHead>
+                        <TableHead>Source report</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Created</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {packs.map((p) => (
-                        <TableRow key={p.id} className="cursor-pointer" onClick={() => setActivePack(p)}>
-                          <TableCell className="font-medium">{p.title}</TableCell>
-                          <TableCell>
-                            <Badge variant={STATUS_VARIANTS[p.status] || "outline"}>{p.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {format(new Date(p.created_at), "PP")}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {packs.map((p) => {
+                        const sourceReport = reports.find((r) => r.id === p.governance_report_id);
+                        return (
+                          <TableRow key={p.id} className="cursor-pointer" onClick={() => setActivePack(p)}>
+                            <TableCell className="font-medium">{p.title}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {sourceReport ? sourceReport.title : "—"}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={STATUS_VARIANTS[p.status] || "outline"}>{p.status}</Badge>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {format(new Date(p.created_at), "PP")}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
@@ -678,7 +733,7 @@ export default function Governance() {
                         Archive
                       </Button>
                     )}
-                    <Button variant="outline" onClick={generateCommsPack} disabled={generating}>
+                    <Button variant="outline" onClick={() => generateCommsPack()} disabled={generating}>
                       {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
                       Generate comms pack
                     </Button>
