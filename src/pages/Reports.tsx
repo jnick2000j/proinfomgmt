@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QuickActionTabs } from "@/components/QuickActionTabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -284,28 +285,16 @@ export default function Reports() {
       {/* Main Tabs */}
       <Tabs value={mainTab} onValueChange={setMainTab} className="space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <TabsList>
-            <TabsTrigger value="builder" className="gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" />
-              Report Builder
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="gap-1.5">
-              <BookOpen className="h-3.5 w-3.5" />
-              Templates
-            </TabsTrigger>
-            <TabsTrigger value="saved" className="gap-1.5">
-              <Save className="h-3.5 w-3.5" />
-              Saved Reports
-            </TabsTrigger>
-            <TabsTrigger value="scheduled" className="gap-1.5">
-              <CalendarClock className="h-3.5 w-3.5" />
-              Scheduled
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-1.5">
-              <BarChart3 className="h-3.5 w-3.5" />
-              Analytics
-            </TabsTrigger>
-          </TabsList>
+          <QuickActionTabs
+            items={[
+              { value: "builder", label: "Report Builder", icon: Sparkles },
+              { value: "templates", label: "Templates", icon: BookOpen },
+              { value: "saved", label: "Saved Reports", icon: Save },
+              { value: "scheduled", label: "Scheduled", icon: CalendarClock },
+              { value: "analytics", label: "Analytics", icon: BarChart3 },
+            ]}
+            className="flex-1 grid-cols-5 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5"
+          />
 
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { setSchedPrefillQuery(""); setSchedPrefillTitle(""); setSchedPrefillTemplate(undefined); setScheduleOpen(true); }}>

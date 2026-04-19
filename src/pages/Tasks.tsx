@@ -1,28 +1,25 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { QuickActionTabs } from "@/components/QuickActionTabs";
 import { ListTodo, Calendar, Layers } from "lucide-react";
 import TaskManagement from "./TaskManagement";
 import SprintPlanning from "./SprintPlanning";
 import UnifiedBacklog from "./UnifiedBacklog";
 
+const TASK_TABS = [
+  { value: "tasks", label: "Task Management", icon: ListTodo },
+  { value: "sprints", label: "Sprint Planning", icon: Calendar },
+  { value: "backlog", label: "Unified Backlog", icon: Layers },
+];
+
 export default function Tasks() {
   return (
     <AppLayout title="Tasks" subtitle="Task management, sprint planning, and unified backlog">
       <Tabs defaultValue="tasks" className="space-y-6">
-        <TabsList className="flex-wrap h-auto gap-1">
-          <TabsTrigger value="tasks" className="gap-2">
-            <ListTodo className="h-4 w-4" />
-            Task Management
-          </TabsTrigger>
-          <TabsTrigger value="sprints" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Sprint Planning
-          </TabsTrigger>
-          <TabsTrigger value="backlog" className="gap-2">
-            <Layers className="h-4 w-4" />
-            Unified Backlog
-          </TabsTrigger>
-        </TabsList>
+        <QuickActionTabs
+          items={TASK_TABS}
+          className="grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3"
+        />
 
         <TabsContent value="tasks">
           <TaskManagement embedded />
