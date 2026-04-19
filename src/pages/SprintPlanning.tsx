@@ -355,7 +355,7 @@ export default function SprintPlanning({ embedded }: { embedded?: boolean }) {
             items={Object.entries(entityTypeConfig).map(([key, config]) => ({
               value: key,
               label: config.label,
-              icon: config.icon,
+              icon: config.icon as LucideIcon,
             }))}
             className="flex-1 grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3"
           />
