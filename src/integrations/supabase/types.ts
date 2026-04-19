@@ -558,6 +558,131 @@ export type Database = {
         }
         Relationships: []
       }
+      comms_packs: {
+        Row: {
+          created_at: string
+          created_by: string
+          email_html: string | null
+          email_subject: string | null
+          governance_report_id: string | null
+          id: string
+          organization_id: string
+          pdf_summary: string | null
+          period_end: string | null
+          period_start: string | null
+          published_at: string | null
+          scope_id: string
+          scope_type: string
+          slack_markdown: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email_html?: string | null
+          email_subject?: string | null
+          governance_report_id?: string | null
+          id?: string
+          organization_id: string
+          pdf_summary?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          scope_id: string
+          scope_type: string
+          slack_markdown?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email_html?: string | null
+          email_subject?: string | null
+          governance_report_id?: string | null
+          id?: string
+          organization_id?: string
+          pdf_summary?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          scope_id?: string
+          scope_type?: string
+          slack_markdown?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comms_packs_governance_report_id_fkey"
+            columns: ["governance_report_id"]
+            isOneToOne: false
+            referencedRelation: "governance_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comms_packs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_scores: {
+        Row: {
+          cadence_score: number
+          computed_at: string
+          controls_score: number
+          created_at: string
+          details: Json
+          hygiene_score: number
+          id: string
+          organization_id: string
+          scope_id: string
+          scope_type: string
+          score: number
+        }
+        Insert: {
+          cadence_score?: number
+          computed_at?: string
+          controls_score?: number
+          created_at?: string
+          details?: Json
+          hygiene_score?: number
+          id?: string
+          organization_id: string
+          scope_id: string
+          scope_type: string
+          score: number
+        }
+        Update: {
+          cadence_score?: number
+          computed_at?: string
+          controls_score?: number
+          created_at?: string
+          details?: Json
+          hygiene_score?: number
+          id?: string
+          organization_id?: string
+          scope_id?: string
+          scope_type?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_scores_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_roles: {
         Row: {
           can_manage_benefits: boolean | null
@@ -941,6 +1066,80 @@ export type Database = {
             columns: ["feature_id"]
             isOneToOne: false
             referencedRelation: "product_features"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      governance_reports: {
+        Row: {
+          ai_model: string | null
+          ai_prompt_version: string | null
+          approved_at: string | null
+          approved_by: string | null
+          content: Json
+          created_at: string
+          created_by: string
+          generated_by: string | null
+          id: string
+          organization_id: string
+          period_end: string | null
+          period_start: string | null
+          published_at: string | null
+          report_type: string
+          scope_id: string
+          scope_type: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_model?: string | null
+          ai_prompt_version?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          content?: Json
+          created_at?: string
+          created_by: string
+          generated_by?: string | null
+          id?: string
+          organization_id: string
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          report_type: string
+          scope_id: string
+          scope_type: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_model?: string | null
+          ai_prompt_version?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string
+          generated_by?: string | null
+          id?: string
+          organization_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          report_type?: string
+          scope_id?: string
+          scope_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "governance_reports_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -2699,6 +2898,47 @@ export type Database = {
           },
         ]
       }
+      stakeholder_portal_access: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_by: string | null
+          id: string
+          organization_id: string
+          scope_id: string
+          scope_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          organization_id: string
+          scope_id: string
+          scope_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_by?: string | null
+          id?: string
+          organization_id?: string
+          scope_id?: string
+          scope_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_portal_access_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stakeholders: {
         Row: {
           communication_frequency: string | null
@@ -3867,6 +4107,10 @@ export type Database = {
         Args: { _org_id: string; _resource_type: string }
         Returns: boolean
       }
+      compute_compliance_score: {
+        Args: { _scope_id: string; _scope_type: string }
+        Returns: Json
+      }
       create_org_for_new_user: { Args: { _org_name: string }; Returns: string }
       get_invitation_by_token: {
         Args: { _token: string }
@@ -3926,6 +4170,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      has_stakeholder_access: {
+        Args: { _scope_id: string; _scope_type: string; _user_id: string }
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }

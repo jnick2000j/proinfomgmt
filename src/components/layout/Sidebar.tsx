@@ -26,6 +26,8 @@ import {
   ClipboardCheck,
   Shield,
   CreditCard,
+  Eye,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +49,9 @@ const navigation: NavItem[] = [
   { label: "Reporting", icon: BarChart3, children: [
     { label: "Reports", href: "/reports" },
     { label: "Updates", href: "/updates" },
+    { label: "Governance & Comms", href: "/governance" },
   ]},
+  { label: "Stakeholder Portal", icon: Eye, href: "/portal" },
   { label: "Documentation", icon: BookOpen, href: "/documentation" },
   { label: "Project Teams", icon: Users, href: "/team" },
   { label: "Wizards", icon: Wand2, href: "/wizards" },

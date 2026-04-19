@@ -60,6 +60,8 @@ import Pricing from "./pages/Pricing";
 import AcceptInvite from "./pages/AcceptInvite";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import Support from "./pages/Support";
+import Governance from "./pages/Governance";
+import StakeholderPortal from "./pages/StakeholderPortal";
 import NotFound from "./pages/NotFound";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
@@ -128,6 +130,8 @@ const App = () => (
             <Route path="/prince2/exceptions" element={<ProtectedRoute><ExceptionManagement /></ProtectedRoute>} />
             <Route path="/prince2/quality" element={<ProtectedRoute><QualityManagement /></ProtectedRoute>} />
             <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+            <Route path="/governance" element={<ProtectedRoute><Governance /></ProtectedRoute>} />
+            <Route path="/portal" element={<ProtectedRoute><StakeholderPortal /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <TaskMasterChat />
