@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { QuickActionTabs } from "@/components/QuickActionTabs";
 import {
   AlertTriangle,
   Bug,
@@ -17,40 +18,21 @@ import BusinessRequirements from "./BusinessRequirements";
 import TechnicalRequirements from "./TechnicalRequirements";
 import LessonsLearned from "./LessonsLearned";
 
+const REGISTER_TABS = [
+  { value: "risks", label: "Risks", icon: AlertTriangle },
+  { value: "issues", label: "Issues", icon: Bug },
+  { value: "benefits", label: "Benefits", icon: Target },
+  { value: "stakeholders", label: "Stakeholders", icon: Users },
+  { value: "business-req", label: "Business Req.", icon: FileText },
+  { value: "technical-req", label: "Technical Req.", icon: Wrench },
+  { value: "lessons", label: "Lessons", icon: BookOpen },
+];
+
 export default function Registers() {
   return (
     <AppLayout title="Registers" subtitle="PRINCE2 MSP registers and requirements management">
       <Tabs defaultValue="risks" className="space-y-6">
-        <TabsList className="flex-wrap h-auto gap-1">
-          <TabsTrigger value="risks" className="gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Risks
-          </TabsTrigger>
-          <TabsTrigger value="issues" className="gap-2">
-            <Bug className="h-4 w-4" />
-            Issues
-          </TabsTrigger>
-          <TabsTrigger value="benefits" className="gap-2">
-            <Target className="h-4 w-4" />
-            Benefits
-          </TabsTrigger>
-          <TabsTrigger value="stakeholders" className="gap-2">
-            <Users className="h-4 w-4" />
-            Stakeholders
-          </TabsTrigger>
-          <TabsTrigger value="business-req" className="gap-2">
-            <FileText className="h-4 w-4" />
-            Business Req.
-          </TabsTrigger>
-          <TabsTrigger value="technical-req" className="gap-2">
-            <Wrench className="h-4 w-4" />
-            Technical Req.
-          </TabsTrigger>
-          <TabsTrigger value="lessons" className="gap-2">
-            <BookOpen className="h-4 w-4" />
-            Lessons
-          </TabsTrigger>
-        </TabsList>
+        <QuickActionTabs items={REGISTER_TABS} />
 
         <TabsContent value="risks">
           <RiskRegister embedded />
