@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      approval_evidence: {
+        Row: {
+          approval_id: string
+          approval_type: string
+          attested_at: string | null
+          attested_by: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          document_id: string | null
+          evidence_label: string
+          id: string
+          is_required: boolean
+          organization_id: string | null
+        }
+        Insert: {
+          approval_id: string
+          approval_type: string
+          attested_at?: string | null
+          attested_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_id?: string | null
+          evidence_label: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+        }
+        Update: {
+          approval_id?: string
+          approval_type?: string
+          attested_at?: string | null
+          attested_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          document_id?: string | null
+          evidence_label?: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_evidence_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auth_audit_log: {
         Row: {
           created_at: string
@@ -69,6 +122,134 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefit_measurements: {
+        Row: {
+          actual_value: number | null
+          benefit_id: string
+          created_at: string
+          evidence_document_id: string | null
+          id: string
+          measurement_date: string
+          notes: string | null
+          organization_id: string | null
+          qualitative_status: string | null
+          recorded_by: string | null
+        }
+        Insert: {
+          actual_value?: number | null
+          benefit_id: string
+          created_at?: string
+          evidence_document_id?: string | null
+          id?: string
+          measurement_date?: string
+          notes?: string | null
+          organization_id?: string | null
+          qualitative_status?: string | null
+          recorded_by?: string | null
+        }
+        Update: {
+          actual_value?: number | null
+          benefit_id?: string
+          created_at?: string
+          evidence_document_id?: string | null
+          id?: string
+          measurement_date?: string
+          notes?: string | null
+          organization_id?: string | null
+          qualitative_status?: string | null
+          recorded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_measurements_benefit_id_fkey"
+            columns: ["benefit_id"]
+            isOneToOne: false
+            referencedRelation: "benefits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_measurements_evidence_document_id_fkey"
+            columns: ["evidence_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefit_profiles: {
+        Row: {
+          baseline_date: string | null
+          baseline_value: number | null
+          benefit_id: string
+          created_at: string
+          created_by: string | null
+          current_maturity_level: string | null
+          dependencies: string | null
+          dis_benefits: string | null
+          id: string
+          measurement_method: string | null
+          measurement_unit: string | null
+          organization_id: string | null
+          profile_type: string
+          qualitative_rubric: Json | null
+          realization_owner: string | null
+          target_date: string | null
+          target_value: number | null
+          trajectory: Json | null
+          updated_at: string
+        }
+        Insert: {
+          baseline_date?: string | null
+          baseline_value?: number | null
+          benefit_id: string
+          created_at?: string
+          created_by?: string | null
+          current_maturity_level?: string | null
+          dependencies?: string | null
+          dis_benefits?: string | null
+          id?: string
+          measurement_method?: string | null
+          measurement_unit?: string | null
+          organization_id?: string | null
+          profile_type?: string
+          qualitative_rubric?: Json | null
+          realization_owner?: string | null
+          target_date?: string | null
+          target_value?: number | null
+          trajectory?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          baseline_date?: string | null
+          baseline_value?: number | null
+          benefit_id?: string
+          created_at?: string
+          created_by?: string | null
+          current_maturity_level?: string | null
+          dependencies?: string | null
+          dis_benefits?: string | null
+          id?: string
+          measurement_method?: string | null
+          measurement_unit?: string | null
+          organization_id?: string | null
+          profile_type?: string
+          qualitative_rubric?: Json | null
+          realization_owner?: string | null
+          target_date?: string | null
+          target_value?: number | null
+          trajectory?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_profiles_benefit_id_fkey"
+            columns: ["benefit_id"]
+            isOneToOne: true
+            referencedRelation: "benefits"
             referencedColumns: ["id"]
           },
         ]
@@ -974,6 +1155,103 @@ export type Database = {
           },
         ]
       }
+      exception_assessments: {
+        Row: {
+          assessed_at: string
+          assessed_by: string | null
+          cost_estimate: number | null
+          created_at: string
+          exception_id: string
+          id: string
+          impact_summary: string | null
+          options_considered: Json | null
+          organization_id: string | null
+          recommendation: string | null
+          recommended_option: string | null
+          time_estimate_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          assessed_at?: string
+          assessed_by?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          exception_id: string
+          id?: string
+          impact_summary?: string | null
+          options_considered?: Json | null
+          organization_id?: string | null
+          recommendation?: string | null
+          recommended_option?: string | null
+          time_estimate_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          assessed_at?: string
+          assessed_by?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          exception_id?: string
+          id?: string
+          impact_summary?: string | null
+          options_considered?: Json | null
+          organization_id?: string | null
+          recommendation?: string | null
+          recommended_option?: string | null
+          time_estimate_days?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exception_assessments_exception_id_fkey"
+            columns: ["exception_id"]
+            isOneToOne: false
+            referencedRelation: "exceptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exception_lifecycle_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          exception_id: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          organization_id: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          exception_id: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          organization_id?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          exception_id?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exception_lifecycle_events_exception_id_fkey"
+            columns: ["exception_id"]
+            isOneToOne: false
+            referencedRelation: "exceptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exceptions: {
         Row: {
           cause: string | null
@@ -1312,6 +1590,119 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lesson_applications: {
+        Row: {
+          application_notes: string | null
+          applied_by: string | null
+          applied_to_id: string
+          applied_to_type: string
+          created_at: string
+          id: string
+          lesson_id: string
+          organization_id: string | null
+          outcome: string | null
+        }
+        Insert: {
+          application_notes?: string | null
+          applied_by?: string | null
+          applied_to_id: string
+          applied_to_type: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          organization_id?: string | null
+          outcome?: string | null
+        }
+        Update: {
+          application_notes?: string | null
+          applied_by?: string | null
+          applied_to_id?: string
+          applied_to_type?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          organization_id?: string | null
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_applications_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons_learned"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_tag_assignments: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          id: string
+          lesson_id: string
+          tag_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          lesson_id: string
+          tag_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_tag_assignments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons_learned"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          organization_id: string | null
+          tag_name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          organization_id?: string | null
+          tag_name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          organization_id?: string | null
+          tag_name?: string
+        }
+        Relationships: []
       }
       lessons_learned: {
         Row: {
@@ -2180,6 +2571,62 @@ export type Database = {
           },
         ]
       }
+      programme_blueprint: {
+        Row: {
+          business_changes: Json | null
+          capability_gaps: Json | null
+          created_at: string
+          created_by: string | null
+          current_state: string | null
+          future_state: string | null
+          id: string
+          organization_id: string | null
+          programme_id: string
+          target_operating_model: string | null
+          transformation_flow: string | null
+          updated_at: string
+          vision_statement: string | null
+        }
+        Insert: {
+          business_changes?: Json | null
+          capability_gaps?: Json | null
+          created_at?: string
+          created_by?: string | null
+          current_state?: string | null
+          future_state?: string | null
+          id?: string
+          organization_id?: string | null
+          programme_id: string
+          target_operating_model?: string | null
+          transformation_flow?: string | null
+          updated_at?: string
+          vision_statement?: string | null
+        }
+        Update: {
+          business_changes?: Json | null
+          capability_gaps?: Json | null
+          created_at?: string
+          created_by?: string | null
+          current_state?: string | null
+          future_state?: string | null
+          id?: string
+          organization_id?: string | null
+          programme_id?: string
+          target_operating_model?: string | null
+          transformation_flow?: string | null
+          updated_at?: string
+          vision_statement?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programme_blueprint_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: true
+            referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programme_definitions: {
         Row: {
           constraints: string | null
@@ -2278,6 +2725,115 @@ export type Database = {
             columns: ["stakeholder_id"]
             isOneToOne: false
             referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programme_success_plan: {
+        Row: {
+          benefit_links: Json | null
+          created_at: string
+          created_by: string | null
+          governance_arrangements: string | null
+          id: string
+          measurement_approach: string | null
+          organization_id: string | null
+          programme_id: string
+          review_cadence: string | null
+          success_criteria: Json | null
+          updated_at: string
+        }
+        Insert: {
+          benefit_links?: Json | null
+          created_at?: string
+          created_by?: string | null
+          governance_arrangements?: string | null
+          id?: string
+          measurement_approach?: string | null
+          organization_id?: string | null
+          programme_id: string
+          review_cadence?: string | null
+          success_criteria?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          benefit_links?: Json | null
+          created_at?: string
+          created_by?: string | null
+          governance_arrangements?: string | null
+          id?: string
+          measurement_approach?: string | null
+          organization_id?: string | null
+          programme_id?: string
+          review_cadence?: string | null
+          success_criteria?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programme_success_plan_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: true
+            referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programme_tranches: {
+        Row: {
+          benefits_realized: string | null
+          capabilities_delivered: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          organization_id: string | null
+          programme_id: string
+          sequence_number: number
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          benefits_realized?: string | null
+          capabilities_delivered?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          organization_id?: string | null
+          programme_id: string
+          sequence_number?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          benefits_realized?: string | null
+          capabilities_delivered?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          organization_id?: string | null
+          programme_id?: string
+          sequence_number?: number
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programme_tranches_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "programmes"
             referencedColumns: ["id"]
           },
         ]
@@ -2416,6 +2972,89 @@ export type Database = {
           },
         ]
       }
+      quality_criteria: {
+        Row: {
+          acceptance_test: string | null
+          created_at: string
+          created_by: string | null
+          criterion: string
+          id: string
+          method: string | null
+          organization_id: string | null
+          priority: string
+          product_id: string | null
+          programme_id: string | null
+          project_id: string | null
+          status: string
+          tolerance: string | null
+          updated_at: string
+          work_package_id: string | null
+        }
+        Insert: {
+          acceptance_test?: string | null
+          created_at?: string
+          created_by?: string | null
+          criterion: string
+          id?: string
+          method?: string | null
+          organization_id?: string | null
+          priority?: string
+          product_id?: string | null
+          programme_id?: string | null
+          project_id?: string | null
+          status?: string
+          tolerance?: string | null
+          updated_at?: string
+          work_package_id?: string | null
+        }
+        Update: {
+          acceptance_test?: string | null
+          created_at?: string
+          created_by?: string | null
+          criterion?: string
+          id?: string
+          method?: string | null
+          organization_id?: string | null
+          priority?: string
+          product_id?: string | null
+          programme_id?: string | null
+          project_id?: string | null
+          status?: string
+          tolerance?: string | null
+          updated_at?: string
+          work_package_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_criteria_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_criteria_programme_id_fkey"
+            columns: ["programme_id"]
+            isOneToOne: false
+            referencedRelation: "programmes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_criteria_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_criteria_work_package_id_fkey"
+            columns: ["work_package_id"]
+            isOneToOne: false
+            referencedRelation: "work_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quality_records: {
         Row: {
           acceptance_criteria: string | null
@@ -2537,6 +3176,60 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_reviews: {
+        Row: {
+          conditions: string | null
+          created_at: string
+          evidence_document_id: string | null
+          findings: string | null
+          id: string
+          organization_id: string | null
+          quality_criteria_id: string
+          result: string
+          reviewed_at: string
+          reviewer_id: string | null
+        }
+        Insert: {
+          conditions?: string | null
+          created_at?: string
+          evidence_document_id?: string | null
+          findings?: string | null
+          id?: string
+          organization_id?: string | null
+          quality_criteria_id: string
+          result: string
+          reviewed_at?: string
+          reviewer_id?: string | null
+        }
+        Update: {
+          conditions?: string | null
+          created_at?: string
+          evidence_document_id?: string | null
+          findings?: string | null
+          id?: string
+          organization_id?: string | null
+          quality_criteria_id?: string
+          result?: string
+          reviewed_at?: string
+          reviewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_reviews_evidence_document_id_fkey"
+            columns: ["evidence_document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_reviews_quality_criteria_id_fkey"
+            columns: ["quality_criteria_id"]
+            isOneToOne: false
+            referencedRelation: "quality_criteria"
             referencedColumns: ["id"]
           },
         ]
@@ -2880,6 +3573,59 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_gate_approvals: {
+        Row: {
+          comments: string | null
+          conditions: string | null
+          created_at: string
+          decision: string
+          id: string
+          is_required: boolean
+          organization_id: string | null
+          reviewer_id: string
+          reviewer_role: string | null
+          signed_at: string | null
+          stage_gate_id: string
+          updated_at: string
+        }
+        Insert: {
+          comments?: string | null
+          conditions?: string | null
+          created_at?: string
+          decision?: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+          reviewer_id: string
+          reviewer_role?: string | null
+          signed_at?: string | null
+          stage_gate_id: string
+          updated_at?: string
+        }
+        Update: {
+          comments?: string | null
+          conditions?: string | null
+          created_at?: string
+          decision?: string
+          id?: string
+          is_required?: boolean
+          organization_id?: string | null
+          reviewer_id?: string
+          reviewer_role?: string | null
+          signed_at?: string | null
+          stage_gate_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_gate_approvals_stage_gate_id_fkey"
+            columns: ["stage_gate_id"]
+            isOneToOne: false
+            referencedRelation: "stage_gates"
             referencedColumns: ["id"]
           },
         ]
