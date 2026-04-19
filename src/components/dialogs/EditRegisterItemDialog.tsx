@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
+import { BenefitProfilePanel } from "@/components/workflow/BenefitProfilePanel";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type RegisterType = "risks" | "issues" | "benefits" | "stakeholders";
 
@@ -249,14 +251,89 @@ export function EditRegisterItemDialog({ item, type, open, onOpenChange, onSucce
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit {config.title}</DialogTitle>
           <DialogDescription>
             Update {config.title.toLowerCase()} details. Only administrators can delete.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {type === "benefits" ? (
+          <Tabs defaultValue="details" className="mt-2">
+            <TabsList>
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="profile">Profile & Trajectory</TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="mt-4">
+              <EditForm
+                config={config}
+                formData={formData}
+                setFormData={setFormData}
+                canEdit={canEdit}
+                handleSubmit={handleSubmit}
+                onOpenChange={onOpenChange}
+                isAdmin={isAdmin}
+                handleDelete={handleDelete}
+                deleting={deleting}
+                loading={loading}
+                itemName={itemName}
+              />
+            </TabsContent>
+            <TabsContent value="profile" className="mt-4">
+              <BenefitProfilePanel
+                benefitId={item.id}
+                organizationId={item.organization_id ?? null}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <EditForm
+            config={config}
+            formData={formData}
+            setFormData={setFormData}
+            canEdit={canEdit}
+            handleSubmit={handleSubmit}
+            onOpenChange={onOpenChange}
+            isAdmin={isAdmin}
+            handleDelete={handleDelete}
+            deleting={deleting}
+            loading={loading}
+            itemName={itemName}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface EditFormProps {
+  config: any;
+  formData: any;
+  setFormData: (d: any) => void;
+  canEdit: boolean;
+  handleSubmit: (e: React.FormEvent) => void;
+  onOpenChange: (open: boolean) => void;
+  isAdmin: boolean;
+  handleDelete: () => void;
+  deleting: boolean;
+  loading: boolean;
+  itemName: string;
+}
+
+function EditForm({
+  config,
+  formData,
+  setFormData,
+  canEdit,
+  handleSubmit,
+  onOpenChange,
+  isAdmin,
+  handleDelete,
+  deleting,
+  loading,
+  itemName,
+}: EditFormProps) {
+  return (
           <div className="grid gap-4 sm:grid-cols-2">
             {config.fields.map((field) => (
               <div key={field.key} className={field.type === "textarea" ? "sm:col-span-2" : ""}>
