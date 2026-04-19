@@ -58,8 +58,8 @@ import {
 type Report = {
   id: string;
   organization_id: string;
-  report_type: "highlight" | "end_stage" | "programme_status";
-  scope_type: "programme" | "project";
+  report_type: "highlight" | "end_stage" | "programme_status" | "product_status";
+  scope_type: "programme" | "project" | "product";
   scope_id: string;
   title: string;
   period_start: string | null;
@@ -98,10 +98,26 @@ type ScoreRow = {
 
 type EntityOption = { id: string; name: string };
 
-const REPORT_LABELS = {
+const REPORT_LABELS: Record<Report["report_type"], string> = {
   highlight: "PRINCE2 Highlight Report",
   end_stage: "PRINCE2 End Stage Report",
   programme_status: "MSP Programme Status Report",
+  product_status: "Product Status Report",
+};
+
+const REPORT_TYPES_BY_SCOPE: Record<Report["scope_type"], { value: Report["report_type"]; label: string }[]> = {
+  programme: [
+    { value: "programme_status", label: "MSP Programme Status Report" },
+    { value: "highlight", label: "PRINCE2 Highlight Report" },
+    { value: "end_stage", label: "PRINCE2 End Stage Report" },
+  ],
+  project: [
+    { value: "highlight", label: "PRINCE2 Highlight Report" },
+    { value: "end_stage", label: "PRINCE2 End Stage Report" },
+  ],
+  product: [
+    { value: "product_status", label: "Product Status Report" },
+  ],
 };
 
 const STATUS_VARIANTS: Record<string, "default" | "secondary" | "outline"> = {
@@ -122,6 +138,7 @@ export default function Governance() {
   const [scores, setScores] = useState<ScoreRow[]>([]);
   const [programmes, setProgrammes] = useState<EntityOption[]>([]);
   const [projects, setProjects] = useState<EntityOption[]>([]);
+  const [products, setProducts] = useState<EntityOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [generateOpen, setGenerateOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -132,15 +149,17 @@ export default function Governance() {
   const [selectedReportForPack, setSelectedReportForPack] = useState<string>("");
 
   const [genForm, setGenForm] = useState({
-    report_type: "highlight" as Report["report_type"],
+    report_type: "programme_status" as Report["report_type"],
     scope_type: "programme" as Report["scope_type"],
     scope_id: "",
+    period_start: "",
+    period_end: "",
   });
 
   const fetchAll = async () => {
     if (!currentOrganization) return;
     setLoading(true);
-    const [reportsRes, packsRes, scoresRes, progRes, projRes] = await Promise.all([
+    const [reportsRes, packsRes, scoresRes, progRes, projRes, prodRes] = await Promise.all([
       supabase
         .from("governance_reports")
         .select("*")
@@ -166,6 +185,11 @@ export default function Governance() {
         .select("id, name")
         .eq("organization_id", currentOrganization.id)
         .order("name"),
+      supabase
+        .from("products")
+        .select("id, name")
+        .eq("organization_id", currentOrganization.id)
+        .order("name"),
     ]);
 
     setReports((reportsRes.data || []) as Report[]);
@@ -173,6 +197,7 @@ export default function Governance() {
     setScores((scoresRes.data || []) as ScoreRow[]);
     setProgrammes(progRes.data || []);
     setProjects(projRes.data || []);
+    setProducts(prodRes.data || []);
     setLoading(false);
   };
 
@@ -203,12 +228,14 @@ export default function Governance() {
           scope_type: genForm.scope_type,
           scope_id: genForm.scope_id,
           organization_id: currentOrganization.id,
+          period_start: genForm.period_start || undefined,
+          period_end: genForm.period_end || undefined,
         },
       });
       if (error) throw error;
       toast.success("Draft report generated");
       setGenerateOpen(false);
-      setGenForm({ ...genForm, scope_id: "" });
+      setGenForm({ ...genForm, scope_id: "", period_start: "", period_end: "" });
       fetchAll();
       if (data?.report) {
         setActiveReport(data.report as Report);
@@ -273,7 +300,7 @@ export default function Governance() {
     [reports],
   );
 
-  const recomputeScore = async (scope_type: "programme" | "project", scope_id: string) => {
+  const recomputeScore = async (scope_type: "programme" | "project" | "product", scope_id: string) => {
     if (!currentOrganization) return;
     const { data, error } = await supabase.rpc("compute_compliance_score", {
       _scope_type: scope_type,
@@ -310,6 +337,7 @@ export default function Governance() {
   const getScopeName = (scope_type: string, scope_id: string) => {
     if (scope_type === "programme") return programmes.find((p) => p.id === scope_id)?.name || "Unknown";
     if (scope_type === "project") return projects.find((p) => p.id === scope_id)?.name || "Unknown";
+    if (scope_type === "product") return products.find((p) => p.id === scope_id)?.name || "Unknown";
     return "Unknown";
   };
 
@@ -391,7 +419,7 @@ export default function Governance() {
               <div>
                 <h2 className="text-lg font-semibold">Governance reports</h2>
                 <p className="text-sm text-muted-foreground">
-                  AI-drafted Highlight, End Stage, and Programme Status reports
+                  AI-drafted reports for programmes, projects, and products — grounded in your live registers
                 </p>
               </div>
               <Dialog open={generateOpen} onOpenChange={setGenerateOpen}>
@@ -405,10 +433,60 @@ export default function Governance() {
                   <DialogHeader>
                     <DialogTitle>Generate governance report</DialogTitle>
                     <DialogDescription>
-                      AI drafts a structured report from your live programme/project data.
+                      AI drafts a structured report from your live programme, project, or product data.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label>Scope</Label>
+                        <Select
+                          value={genForm.scope_type}
+                          onValueChange={(v) => {
+                            const newScope = v as Report["scope_type"];
+                            const firstReportType = REPORT_TYPES_BY_SCOPE[newScope][0].value;
+                            setGenForm({
+                              ...genForm,
+                              scope_type: newScope,
+                              scope_id: "",
+                              report_type: firstReportType,
+                            });
+                          }}
+                        >
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="programme">Programme</SelectItem>
+                            <SelectItem value="project">Project</SelectItem>
+                            <SelectItem value="product">Product</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>
+                          {genForm.scope_type === "programme"
+                            ? "Programme"
+                            : genForm.scope_type === "project"
+                              ? "Project"
+                              : "Product"}
+                        </Label>
+                        <Select
+                          value={genForm.scope_id}
+                          onValueChange={(v) => setGenForm({ ...genForm, scope_id: v })}
+                        >
+                          <SelectTrigger><SelectValue placeholder="Choose…" /></SelectTrigger>
+                          <SelectContent>
+                            {(genForm.scope_type === "programme"
+                              ? programmes
+                              : genForm.scope_type === "project"
+                                ? projects
+                                : products
+                            ).map((e) => (
+                              <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       <Label>Report type</Label>
                       <Select
@@ -417,41 +495,33 @@ export default function Governance() {
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="highlight">PRINCE2 Highlight Report</SelectItem>
-                          <SelectItem value="end_stage">PRINCE2 End Stage Report</SelectItem>
-                          <SelectItem value="programme_status">MSP Programme Status Report</SelectItem>
+                          {REPORT_TYPES_BY_SCOPE[genForm.scope_type].map((rt) => (
+                            <SelectItem key={rt.value} value={rt.value}>{rt.label}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label>Scope</Label>
-                        <Select
-                          value={genForm.scope_type}
-                          onValueChange={(v) => setGenForm({ ...genForm, scope_type: v as Report["scope_type"], scope_id: "" })}
-                        >
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="programme">Programme</SelectItem>
-                            <SelectItem value="project">Project</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Label>Period start</Label>
+                        <Input
+                          type="date"
+                          value={genForm.period_start}
+                          onChange={(e) => setGenForm({ ...genForm, period_start: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label>{genForm.scope_type === "programme" ? "Programme" : "Project"}</Label>
-                        <Select
-                          value={genForm.scope_id}
-                          onValueChange={(v) => setGenForm({ ...genForm, scope_id: v })}
-                        >
-                          <SelectTrigger><SelectValue placeholder="Choose…" /></SelectTrigger>
-                          <SelectContent>
-                            {(genForm.scope_type === "programme" ? programmes : projects).map((e) => (
-                              <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Label>Period end</Label>
+                        <Input
+                          type="date"
+                          value={genForm.period_end}
+                          onChange={(e) => setGenForm({ ...genForm, period_end: e.target.value })}
+                        />
                       </div>
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Leave dates blank to default to the last 14 days.
+                    </p>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setGenerateOpen(false)} disabled={generating}>
@@ -523,7 +593,8 @@ export default function Governance() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[...programmes.map((p) => ({ ...p, type: "programme" as const })),
-                ...projects.map((p) => ({ ...p, type: "project" as const }))].map((entity) => {
+                ...projects.map((p) => ({ ...p, type: "project" as const })),
+                ...products.map((p) => ({ ...p, type: "product" as const }))].map((entity) => {
                 const score = latestScoresByScope.find((s) => s.scope_type === entity.type && s.scope_id === entity.id);
                 return (
                   <Card key={`${entity.type}:${entity.id}`}>
@@ -578,9 +649,9 @@ export default function Governance() {
                   </Card>
                 );
               })}
-              {programmes.length === 0 && projects.length === 0 && (
+              {programmes.length === 0 && projects.length === 0 && products.length === 0 && (
                 <p className="text-muted-foreground col-span-full text-center py-8">
-                  Create a programme or project to start scoring compliance.
+                  Create a programme, project, or product to start scoring compliance.
                 </p>
               )}
             </div>
