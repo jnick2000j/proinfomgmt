@@ -51,6 +51,7 @@ const navigation: NavItem[] = [
   { label: "Documentation", icon: BookOpen, href: "/documentation" },
   { label: "Project Teams", icon: Users, href: "/team" },
   { label: "Wizards", icon: Wand2, href: "/wizards" },
+  { label: "Security", icon: Shield, href: "/security" },
   { label: "Billing", icon: CreditCard, href: "/billing" },
 ];
 
