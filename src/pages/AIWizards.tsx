@@ -249,75 +249,79 @@ export default function AIWizards() {
       subtitle="Generate PRINCE2 / MSP documents and helper artefacts. Every draft goes to AI Approvals for review before publishing."
     >
       <div className="space-y-8">
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h2 className="text-lg font-semibold">Document Wizards</h2>
-            <Badge variant="outline" className="text-xs">Powered by gemini-2.5-pro</Badge>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {documents.map((w) => {
-              const Icon = w.icon;
-              return (
-                <Card key={w.kind} className="flex flex-col">
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="p-2 rounded-md bg-primary/10">
-                        <Icon className="h-4 w-4 text-primary" />
-                      </div>
-                    </div>
-                    <CardTitle className="text-base">{w.title}</CardTitle>
-                    <CardDescription className="text-xs">{w.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="mt-auto">
-                    <AIDraftLauncher
-                      wizard={w.kind}
-                      title={w.title}
-                      description={w.description}
-                      fields={w.fields}
-                      buttonLabel="Draft with AI"
-                      variant="default"
-                    />
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </section>
-
-        <section>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h2 className="text-lg font-semibold">Quick Helpers</h2>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {helpers.map((w) => {
-              const Icon = w.icon;
-              return (
-                <Card key={w.kind} className="flex flex-col">
-                  <CardHeader>
-                    <div className="p-2 rounded-md bg-primary/10 w-fit">
-                      <Icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <CardTitle className="text-base">{w.title}</CardTitle>
-                    <CardDescription className="text-xs">{w.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="mt-auto">
-                    <AIDraftLauncher
-                      wizard={w.kind}
-                      title={w.title}
-                      description={w.description}
-                      fields={w.fields}
-                      buttonLabel="Generate"
-                      variant="default"
-                    />
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </section>
+        <WizardSection
+          title="Document Wizards"
+          items={documents}
+          buttonLabel="Draft with AI"
+          showModelBadge
+        />
+        <WizardSection
+          title="Strategy Wizards"
+          items={strategy}
+          buttonLabel="Draft with AI"
+        />
+        <WizardSection
+          title="Governance & Comms Wizards"
+          items={governance}
+          buttonLabel="Draft with AI"
+        />
+        <WizardSection
+          title="Quick Helpers"
+          items={helpers}
+          buttonLabel="Generate"
+        />
       </div>
     </AppLayout>
+  );
+}
+
+function WizardSection({
+  title,
+  items,
+  buttonLabel,
+  showModelBadge,
+}: {
+  title: string;
+  items: WizardSpec[];
+  buttonLabel: string;
+  showModelBadge?: boolean;
+}) {
+  if (!items.length) return null;
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="h-4 w-4 text-primary" />
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {showModelBadge && (
+          <Badge variant="outline" className="text-xs">Powered by gemini-2.5-pro</Badge>
+        )}
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((w) => {
+          const Icon = w.icon;
+          return (
+            <Card key={w.kind} className="flex flex-col">
+              <CardHeader>
+                <div className="p-2 rounded-md bg-primary/10 w-fit">
+                  <Icon className="h-4 w-4 text-primary" />
+                </div>
+                <CardTitle className="text-base">{w.title}</CardTitle>
+                <CardDescription className="text-xs">{w.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="mt-auto">
+                <AIDraftLauncher
+                  wizard={w.kind}
+                  title={w.title}
+                  description={w.description}
+                  fields={w.fields}
+                  buttonLabel={buttonLabel}
+                  variant="default"
+                />
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
   );
 }
