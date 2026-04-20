@@ -1,6 +1,8 @@
 // Phase 5 — On-demand AI translation for any text snippet.
 // Used by the AISummaryPanel language switcher and by ai-summarize after approval.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { evaluateResidency } from "../_shared/residency.ts";
+import { consumeAiCredits } from "../_shared/credits.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
