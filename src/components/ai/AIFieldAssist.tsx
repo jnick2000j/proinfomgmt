@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useLanguage } from "@/hooks/useLanguage";
 import { toast } from "sonner";
 
 type Mode = "improve" | "shorten" | "expand" | "translate" | "formal";
@@ -55,6 +56,7 @@ export function AIFieldAssist({
 }: AIFieldAssistProps) {
   const { currentOrganization } = useOrganization();
   const { can } = usePermissions();
+  const { language: userLang } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [suggestion, setSuggestion] = useState("");
@@ -83,6 +85,8 @@ export function AIFieldAssist({
           entity_type: entityType,
           entity_id: entityId,
           organization_id: currentOrganization?.id ?? null,
+          // Phase 5: tell the backend the user's preferred output language (overridden by `language` for translate mode).
+          output_language: mode === "translate" ? language : userLang,
         },
       });
       if (error) throw error;
