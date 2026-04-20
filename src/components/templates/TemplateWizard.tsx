@@ -981,11 +981,104 @@ export function TemplateWizard({ open, onOpenChange, templateType, templateName 
         if (error) throw error;
         toast.success("Feature created from template!");
         navigate(`/products/${formData.product_id}`);
+      } else if (entityType === "issue") {
+        const { error } = await supabase.from("issues").insert({
+          title: formData.title,
+          description: formData.description || null,
+          type: formData.type || "problem",
+          priority: formData.priority || "medium",
+          status: "open",
+          date_raised: formData.date_raised || null,
+          target_date: formData.target_date || null,
+          organization_id: formData.organization_id || null,
+          programme_id: formData.programme_id || null,
+          project_id: formData.project_id || null,
+          product_id: formData.product_id || null,
+          created_by: user.id,
+          owner_id: user.id,
+        });
+        if (error) throw error;
+        toast.success("Issue created from template!");
+        navigate("/registers");
+      } else if (entityType === "benefit") {
+        const { error } = await supabase.from("benefits").insert({
+          name: formData.name,
+          description: formData.description || null,
+          category: formData.category || "operational",
+          type: formData.type || "quantitative",
+          target_value: formData.target_value || null,
+          current_value: formData.current_value || null,
+          status: "identified",
+          start_date: formData.start_date || null,
+          end_date: formData.end_date || null,
+          organization_id: formData.organization_id || null,
+          programme_id: formData.programme_id || null,
+          project_id: formData.project_id || null,
+          product_id: formData.product_id || null,
+          created_by: user.id,
+          owner_id: user.id,
+        });
+        if (error) throw error;
+        toast.success("Benefit created from template!");
+        navigate("/benefits");
+      } else if (entityType === "stakeholder") {
+        const { error } = await supabase.from("stakeholders").insert({
+          name: formData.name,
+          email: formData.email || null,
+          role: formData.role || null,
+          organization: formData.organization || null,
+          influence: formData.influence || "medium",
+          interest: formData.interest || "medium",
+          engagement: formData.engagement || "neutral",
+          communication_frequency: formData.communication_frequency || "monthly",
+          organization_id: formData.organization_id || null,
+          programme_id: formData.programme_id || null,
+          project_id: formData.project_id || null,
+          product_id: formData.product_id || null,
+          created_by: user.id,
+        });
+        if (error) throw error;
+        toast.success("Stakeholder added from template!");
+        navigate("/registers");
+      } else if (entityType === "change_request") {
+        const ref = `CR-${Date.now().toString(36).toUpperCase()}`;
+        const { error } = await supabase.from("change_requests").insert({
+          reference_number: ref,
+          title: formData.title,
+          description: formData.description || null,
+          change_type: formData.change_type || "scope",
+          reason: formData.reason || null,
+          impact_summary: formData.impact_summary || null,
+          cost_impact: formData.cost_impact ? parseFloat(formData.cost_impact) : null,
+          time_impact_days: formData.time_impact_days ? parseInt(formData.time_impact_days) : null,
+          risk_impact: formData.risk_impact || null,
+          quality_impact: formData.quality_impact || null,
+          benefits: formData.benefits || null,
+          priority: formData.priority || "medium",
+          date_required: formData.date_required || null,
+          status: "pending",
+          organization_id: formData.organization_id || null,
+          programme_id: formData.programme_id || null,
+          project_id: formData.project_id || null,
+          product_id: formData.product_id || null,
+          created_by: user.id,
+          raised_by: user.id,
+          owner_id: user.id,
+        });
+        if (error) throw error;
+        toast.success("Change request raised!");
+        navigate("/change-control");
       }
 
-      // For non-entity wizards (sprint_planning, definition_of_done), just close and show success
+      // For non-entity wizards (guides), just close and show success.
       if (!entityType) {
-        toast.success("Template completed! Use the guide to run your sprint planning.");
+        if (templateType === "sprint_retro") {
+          toast.success("Retro captured — share the actions with your team.");
+        } else if (templateType === "compliance_health_check") {
+          toast.success("Health check captured — review with the steering committee.");
+        } else {
+          toast.success("Template completed!");
+        }
       }
 
       onOpenChange(false);
