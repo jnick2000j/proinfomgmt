@@ -1527,12 +1527,16 @@ export type Database = {
         Row: {
           can_approve_ai_output: boolean
           can_draft_with_ai: boolean
+          can_manage_ai_credits: boolean
           can_manage_benefits: boolean | null
           can_manage_change_requests: boolean | null
+          can_manage_compliance: boolean
           can_manage_exceptions: boolean | null
+          can_manage_integrations: boolean
           can_manage_issues: boolean | null
           can_manage_lessons: boolean | null
           can_manage_milestones: boolean | null
+          can_manage_platform: boolean
           can_manage_products: boolean | null
           can_manage_programmes: boolean | null
           can_manage_projects: boolean | null
@@ -1541,12 +1545,17 @@ export type Database = {
           can_manage_requirements: boolean | null
           can_manage_risks: boolean | null
           can_manage_stage_gates: boolean | null
+          can_manage_stakeholder_portal: boolean
           can_manage_stakeholders: boolean | null
+          can_manage_templates: boolean
           can_manage_tranches: boolean | null
           can_manage_translations: boolean
           can_manage_users: boolean | null
           can_manage_work_packages: boolean | null
+          can_publish_comms: boolean
           can_view_ai_advisor: boolean
+          can_view_ai_insights: boolean
+          can_view_audit_log: boolean
           can_view_reports: boolean | null
           color: string | null
           created_at: string
@@ -1561,12 +1570,16 @@ export type Database = {
         Insert: {
           can_approve_ai_output?: boolean
           can_draft_with_ai?: boolean
+          can_manage_ai_credits?: boolean
           can_manage_benefits?: boolean | null
           can_manage_change_requests?: boolean | null
+          can_manage_compliance?: boolean
           can_manage_exceptions?: boolean | null
+          can_manage_integrations?: boolean
           can_manage_issues?: boolean | null
           can_manage_lessons?: boolean | null
           can_manage_milestones?: boolean | null
+          can_manage_platform?: boolean
           can_manage_products?: boolean | null
           can_manage_programmes?: boolean | null
           can_manage_projects?: boolean | null
@@ -1575,12 +1588,17 @@ export type Database = {
           can_manage_requirements?: boolean | null
           can_manage_risks?: boolean | null
           can_manage_stage_gates?: boolean | null
+          can_manage_stakeholder_portal?: boolean
           can_manage_stakeholders?: boolean | null
+          can_manage_templates?: boolean
           can_manage_tranches?: boolean | null
           can_manage_translations?: boolean
           can_manage_users?: boolean | null
           can_manage_work_packages?: boolean | null
+          can_publish_comms?: boolean
           can_view_ai_advisor?: boolean
+          can_view_ai_insights?: boolean
+          can_view_audit_log?: boolean
           can_view_reports?: boolean | null
           color?: string | null
           created_at?: string
@@ -1595,12 +1613,16 @@ export type Database = {
         Update: {
           can_approve_ai_output?: boolean
           can_draft_with_ai?: boolean
+          can_manage_ai_credits?: boolean
           can_manage_benefits?: boolean | null
           can_manage_change_requests?: boolean | null
+          can_manage_compliance?: boolean
           can_manage_exceptions?: boolean | null
+          can_manage_integrations?: boolean
           can_manage_issues?: boolean | null
           can_manage_lessons?: boolean | null
           can_manage_milestones?: boolean | null
+          can_manage_platform?: boolean
           can_manage_products?: boolean | null
           can_manage_programmes?: boolean | null
           can_manage_projects?: boolean | null
@@ -1609,12 +1631,17 @@ export type Database = {
           can_manage_requirements?: boolean | null
           can_manage_risks?: boolean | null
           can_manage_stage_gates?: boolean | null
+          can_manage_stakeholder_portal?: boolean
           can_manage_stakeholders?: boolean | null
+          can_manage_templates?: boolean
           can_manage_tranches?: boolean | null
           can_manage_translations?: boolean
           can_manage_users?: boolean | null
           can_manage_work_packages?: boolean | null
+          can_publish_comms?: boolean
           can_view_ai_advisor?: boolean
+          can_view_ai_insights?: boolean
+          can_view_audit_log?: boolean
           can_view_reports?: boolean | null
           color?: string | null
           created_at?: string
