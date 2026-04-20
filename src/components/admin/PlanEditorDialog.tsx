@@ -636,7 +636,7 @@ export function PlanEditorDialog({
                         >
                           <div>
                             <p className="font-medium">
-                              {h.interval}: {h.currency} {h.old_amount ?? "—"} → {h.currency} {h.new_amount}
+                              {h.interval}: {formatPrice(h.currency, h.old_amount ?? "—")} → {formatPrice(h.currency, h.new_amount)}
                             </p>
                             <p className="text-muted-foreground">
                               {h.migration_strategy === "migrate_all"
