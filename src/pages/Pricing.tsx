@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { formatPrice } from "@/lib/currency";
 
 interface Plan {
   id: string;
