@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { User, Lock, MapPin, Save } from "lucide-react";
+import { LanguagePreferenceCard } from "@/components/settings/LanguagePreferenceCard";
 
 interface ProfileData {
   first_name: string;
@@ -300,6 +301,9 @@ export default function Profile() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Language preference */}
+        <LanguagePreferenceCard />
 
         {/* Change Password */}
         <Card>
