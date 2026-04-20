@@ -14,17 +14,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-export type TemplateType = 
-  | "programme_mandate" 
-  | "project_brief" 
-  | "business_case" 
+export type TemplateType =
+  | "programme_mandate"
+  | "project_brief"
+  | "business_case"
   | "product_vision"
   | "risk_register"
   | "lessons_learned"
   | "sprint_planning"
   | "user_story"
   | "rice_worksheet"
-  | "definition_of_done";
+  | "definition_of_done"
+  | "issue_register"
+  | "benefit_definition"
+  | "stakeholder_engagement"
+  | "change_request_form"
+  | "sprint_retro"
+  | "compliance_health_check";
 
 interface WizardStep {
   title: string;
