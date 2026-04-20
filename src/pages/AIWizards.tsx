@@ -28,7 +28,7 @@ interface WizardSpec {
   title: string;
   description: string;
   icon: React.ElementType;
-  category: "Document" | "Helper";
+  category: "Document" | "Helper" | "Governance" | "Strategy";
   fields: WizardField[];
 }
 
