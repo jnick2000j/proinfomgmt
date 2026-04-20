@@ -739,8 +739,18 @@ const getCreatesEntity = (templateType: TemplateType): string | null => {
     case "user_story":
     case "rice_worksheet":
       return "feature";
+    case "issue_register":
+      return "issue";
+    case "benefit_definition":
+      return "benefit";
+    case "stakeholder_engagement":
+      return "stakeholder";
+    case "change_request_form":
+      return "change_request";
     case "sprint_planning":
     case "definition_of_done":
+    case "sprint_retro":
+    case "compliance_health_check":
       return null; // reference/guide wizards — no entity created
     default:
       return null;
@@ -755,6 +765,10 @@ const getEntityLabel = (entityType: string | null): string => {
     case "risk": return "Risk";
     case "lesson": return "Lesson";
     case "feature": return "Feature";
+    case "issue": return "Issue";
+    case "benefit": return "Benefit";
+    case "stakeholder": return "Stakeholder";
+    case "change_request": return "Change Request";
     default: return "";
   }
 };
