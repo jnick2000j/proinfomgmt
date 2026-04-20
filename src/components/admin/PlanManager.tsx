@@ -190,8 +190,8 @@ export function PlanManager() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <p className="font-medium">{p.currency} {p.price_monthly}/mo</p>
-                        <p className="text-xs text-muted-foreground">{p.currency} {p.price_yearly}/yr</p>
+                        <p className="font-medium">{formatPrice(p.currency, p.price_monthly)}/mo</p>
+                        <p className="text-xs text-muted-foreground">{formatPrice(p.currency, p.price_yearly)}/yr</p>
                       </TableCell>
                       <TableCell>{p.trial_days} days</TableCell>
                       <TableCell>{p.active_subscriptions}</TableCell>
