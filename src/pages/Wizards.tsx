@@ -143,7 +143,15 @@ const CREATE_CATEGORIES = ["all", "MSP", "PRINCE2", "Agile", "Product", "Governa
 const AI_CATEGORIES = ["all", "Document", "Strategy", "Governance", "Helper"] as const;
 
 export default function Wizards() {
-  const [tab, setTab] = useState<"create" | "ai">("create");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") === "ai" ? "ai" : "create";
+  const [tab, setTabState] = useState<"create" | "ai">(initialTab);
+  const setTab = (v: "create" | "ai") => {
+    setTabState(v);
+    const next = new URLSearchParams(searchParams);
+    if (v === "ai") next.set("tab", "ai"); else next.delete("tab");
+    setSearchParams(next, { replace: true });
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [createCategory, setCreateCategory] = useState<string>("all");
   const [aiCategory, setAiCategory] = useState<string>("all");
