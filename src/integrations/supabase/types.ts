@@ -6357,6 +6357,7 @@ export type Database = {
         | "project_stakeholder"
         | "product_stakeholder"
         | "org_admin"
+        | "stakeholder"
       change_status:
         | "pending"
         | "under_review"
@@ -6534,6 +6535,7 @@ export const Constants = {
         "project_stakeholder",
         "product_stakeholder",
         "org_admin",
+        "stakeholder",
       ],
       change_status: [
         "pending",
