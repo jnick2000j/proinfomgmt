@@ -567,6 +567,53 @@ export default function Team() {
           })}
         </div>
       )}
+
+      {/* Disable / enable member dialog */}
+      <Dialog open={!!statusTarget} onOpenChange={(open) => !open && setStatusTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {statusAction === "disable" ? "Disable member access" : "Re-enable member access"}
+            </DialogTitle>
+            <DialogDescription>
+              {statusAction === "disable"
+                ? `${statusTarget?.full_name || statusTarget?.email} will lose access to ${currentOrganization?.name ?? "this organization"}. They will keep access to any other organizations they belong to.`
+                : `Restore access for ${statusTarget?.full_name || statusTarget?.email} to ${currentOrganization?.name ?? "this organization"}.`}
+            </DialogDescription>
+          </DialogHeader>
+          {statusAction === "disable" && (
+            <div className="space-y-2 py-2">
+              <Label htmlFor="disable-reason">Reason (optional)</Label>
+              <Textarea
+                id="disable-reason"
+                placeholder="e.g. Left the team, security concern, awaiting review…"
+                value={statusReason}
+                onChange={(e) => setStatusReason(e.target.value)}
+                rows={3}
+              />
+              <p className="text-xs text-muted-foreground">
+                Shown to the user on the access-blocked screen and recorded in the audit log.
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStatusTarget(null)} disabled={statusBusy}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmStatus}
+              disabled={statusBusy}
+              variant={statusAction === "disable" ? "destructive" : "default"}
+            >
+              {statusBusy
+                ? "Saving…"
+                : statusAction === "disable"
+                ? "Disable access"
+                : "Enable access"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
