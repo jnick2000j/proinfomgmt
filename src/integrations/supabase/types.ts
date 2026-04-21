@@ -7125,6 +7125,14 @@ export type Database = {
         }[]
       }
       get_license_entitlements: { Args: { _org_id: string }; Returns: Json }
+      get_org_admin_emails: {
+        Args: { _org_id: string }
+        Returns: {
+          email: string
+          full_name: string
+          user_id: string
+        }[]
+      }
       get_org_credit_purchase_history: {
         Args: { _limit?: number; _org_id: string }
         Returns: {
