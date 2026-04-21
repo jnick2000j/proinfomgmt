@@ -475,10 +475,15 @@ export default function Team() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredMembers.map((member, index) => (
-            <div 
-              key={member.id} 
-              className="metric-card animate-slide-up"
+          {filteredMembers.map((member, index) => {
+            const isSelf = member.user_id === user?.id;
+            return (
+            <div
+              key={member.id}
+              className={cn(
+                "metric-card animate-slide-up",
+                member.is_disabled && "opacity-70 border-destructive/40"
+              )}
               style={{ animationDelay: `${index * 0.03}s` }}
             >
               <div className="flex items-start justify-between mb-4">
@@ -511,14 +516,44 @@ export default function Team() {
                       )}
                       Resend Invite
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {member.is_disabled ? (
+                      <DropdownMenuItem onClick={() => openStatusDialog(member, "enable")}>
+                        <ShieldCheck className="h-4 w-4 mr-2" />
+                        Enable access
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onClick={() => openStatusDialog(member, "disable")}
+                        disabled={isSelf}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <ShieldOff className="h-4 w-4 mr-2" />
+                        Disable access
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
 
               <div className="space-y-3">
-                <Badge variant="secondary" className={cn("text-xs", roleConfig[member.role]?.className || "")}>
-                  {roleConfig[member.role]?.label || member.role}
-                </Badge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className={cn("text-xs", roleConfig[member.role]?.className || "")}>
+                    {roleConfig[member.role]?.label || member.role}
+                  </Badge>
+                  {member.is_disabled && (
+                    <Badge variant="outline" className="text-xs gap-1 border-destructive/40 text-destructive">
+                      <ShieldOff className="h-3 w-3" />
+                      Disabled
+                    </Badge>
+                  )}
+                </div>
+
+                {member.is_disabled && member.disabled_reason && (
+                  <p className="text-xs text-muted-foreground italic line-clamp-2">
+                    Reason: {member.disabled_reason}
+                  </p>
+                )}
 
                 <div className="pt-3 border-t border-border">
                   <Button variant="ghost" size="sm" className="w-full gap-2 justify-start text-muted-foreground hover:text-foreground">
@@ -528,7 +563,8 @@ export default function Team() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </AppLayout>
