@@ -7120,6 +7120,7 @@ export type Database = {
         Returns: string
       }
       get_ai_credit_status: { Args: { _org_id: string }; Returns: Json }
+      get_deployment_mode: { Args: { _org_id: string }; Returns: string }
       get_effective_ai_provider: { Args: { _org_id?: string }; Returns: Json }
       get_effective_retention_days: {
         Args: { _org_id: string }
