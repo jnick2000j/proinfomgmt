@@ -219,6 +219,15 @@ export default function Billing() {
     );
   }
 
+  const usageItems = limits
+    ? [
+        { label: "Users", current: usage.users, max: limits.maxUsers },
+        { label: "Programs", current: usage.programmes, max: limits.maxProgrammes },
+        { label: "Projects", current: usage.projects, max: limits.maxProjects },
+        { label: "Products", current: usage.products, max: limits.maxProducts },
+      ]
+    : [];
+
   // License mode: replace Stripe-driven UI with a license summary.
   if (isLicenseMode) {
     return (
@@ -265,15 +274,6 @@ export default function Billing() {
   const trialEndsAt = subscription?.trial_ends_at ? new Date(subscription.trial_ends_at) : null;
   const trialExpired = trialEndsAt && trialEndsAt < new Date();
   const hasStripeSubscription = !!subscription?.stripe_subscription_id;
-
-  const usageItems = limits
-    ? [
-        { label: "Users", current: usage.users, max: limits.maxUsers },
-        { label: "Programs", current: usage.programmes, max: limits.maxProgrammes },
-        { label: "Projects", current: usage.projects, max: limits.maxProjects },
-        { label: "Products", current: usage.products, max: limits.maxProducts },
-      ]
-    : [];
 
   return (
     <AppLayout title="Billing & Plans" subtitle="Manage your subscription and view usage.">
