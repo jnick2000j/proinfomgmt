@@ -358,7 +358,11 @@ export default function Auth() {
       </form>
 
       <div className="mt-6 pt-5 border-t border-border/60 text-center">
-        {mode === "forgot-password" ? (
+        {mode === "forgot-password" || mode === "sso" ? (
+          <button type="button" onClick={() => { setMode("login"); setErrors({}); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 mx-auto font-medium">
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
+          </button>
+        ) : (
           <button type="button" onClick={() => { setMode("login"); setErrors({}); }} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5 mx-auto font-medium">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to sign in
           </button>
