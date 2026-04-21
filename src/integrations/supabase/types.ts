@@ -7086,7 +7086,65 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_directory: {
+        Row: {
+          archived: boolean | null
+          avatar_url: string | null
+          created_at: string | null
+          default_organization_id: string | null
+          department: string | null
+          email: string | null
+          first_name: string | null
+          full_name: string | null
+          id: string | null
+          last_name: string | null
+          preferred_language: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          archived?: boolean | null
+          avatar_url?: string | null
+          created_at?: string | null
+          default_organization_id?: string | null
+          department?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          preferred_language?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          archived?: boolean | null
+          avatar_url?: string | null
+          created_at?: string | null
+          default_organization_id?: string | null
+          department?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          preferred_language?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_default_organization_id_fkey"
+            columns: ["default_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: Json }
@@ -7238,6 +7296,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_org_manager_of: {
+        Args: { _caller: string; _target_user: string }
+        Returns: boolean
+      }
       is_org_suspended: { Args: { _org_id: string }; Returns: boolean }
       log_audit_event: {
         Args: {
