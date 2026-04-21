@@ -22,6 +22,7 @@ import {
   Activity,
   Ban,
   RotateCcw,
+  KeyRound,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformSSOQueue } from "@/components/sso/PlatformSSOQueue";
@@ -60,6 +61,10 @@ interface OrgOverview {
   plan_name: string | null;
   sub_status: string | null;
   trial_ends_at: string | null;
+  license_id: string | null;
+  license_status: string | null;
+  license_deployment_mode: string | null;
+  license_customer_reference: string | null;
 }
 
 export default function PlatformAdmin() {
@@ -79,17 +84,19 @@ export default function PlatformAdmin() {
     setLoading(true);
     try {
       // Fetch counts in parallel
-      const [orgsRes, usersRes, progsRes, projsRes, prodsRes, subsRes] = await Promise.all([
+      const [orgsRes, usersRes, progsRes, projsRes, prodsRes, subsRes, licsRes] = await Promise.all([
         supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("archived", false),
         supabase.from("programmes").select("id", { count: "exact", head: true }),
         supabase.from("projects").select("id", { count: "exact", head: true }),
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("organization_subscriptions").select("organization_id, status, plan_id, trial_ends_at, subscription_plans(name)"),
+        supabase.from("organization_licenses").select("id, organization_id, status, deployment_mode, customer_reference, valid_from, valid_until, issued_at").eq("status", "active").order("issued_at", { ascending: false }),
       ]);
 
       const allOrgs = orgsRes.data || [];
       const subs = subsRes.data || [];
+      const licenses = licsRes.data || [];
 
       setStats({
         totalOrgs: allOrgs.length,
@@ -112,6 +119,14 @@ export default function PlatformAdmin() {
           ]);
 
           const sub = subs.find(s => s.organization_id === org.id);
+          const lic = licenses.find((l: any) => {
+            const now = new Date();
+            const validFrom = l.valid_from ? new Date(l.valid_from) : null;
+            const validUntil = l.valid_until ? new Date(l.valid_until) : null;
+            return l.organization_id === org.id
+              && (!validFrom || validFrom <= now)
+              && (!validUntil || validUntil > now);
+          }) as any;
           return {
             id: org.id,
             name: org.name,
@@ -127,6 +142,10 @@ export default function PlatformAdmin() {
             plan_name: (sub?.subscription_plans as any)?.name || null,
             sub_status: sub?.status || null,
             trial_ends_at: sub?.trial_ends_at || null,
+            license_id: lic?.id ?? null,
+            license_status: lic?.status ?? null,
+            license_deployment_mode: lic?.deployment_mode ?? null,
+            license_customer_reference: lic?.customer_reference ?? null,
           };
         })
       );
