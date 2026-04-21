@@ -79,7 +79,7 @@ export default function PlatformAdmin() {
     try {
       // Fetch counts in parallel
       const [orgsRes, usersRes, progsRes, projsRes, prodsRes, subsRes] = await Promise.all([
-        supabase.from("organizations").select("id, name, slug, created_at"),
+        supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("archived", false),
         supabase.from("programmes").select("id", { count: "exact", head: true }),
         supabase.from("projects").select("id", { count: "exact", head: true }),
@@ -102,7 +102,7 @@ export default function PlatformAdmin() {
 
       // Build org overview with counts
       const orgOverviews: OrgOverview[] = await Promise.all(
-        allOrgs.map(async (org) => {
+        allOrgs.map(async (org: any) => {
           const [userCount, progCount, projCount, prodCount] = await Promise.all([
             supabase.from("user_organization_access").select("id", { count: "exact", head: true }).eq("organization_id", org.id),
             supabase.from("programmes").select("id", { count: "exact", head: true }).eq("organization_id", org.id),
@@ -116,6 +116,9 @@ export default function PlatformAdmin() {
             name: org.name,
             slug: org.slug,
             created_at: org.created_at,
+            is_suspended: !!org.is_suspended,
+            suspension_kind: org.suspension_kind ?? null,
+            suspended_reason: org.suspended_reason ?? null,
             user_count: userCount.count || 0,
             programme_count: progCount.count || 0,
             project_count: projCount.count || 0,
