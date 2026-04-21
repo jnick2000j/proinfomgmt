@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { User, Lock, MapPin, Save } from "lucide-react";
 import { LanguagePreferenceCard } from "@/components/settings/LanguagePreferenceCard";
+import { MFASettingsCard } from "@/components/security/MFASettingsCard";
 
 interface ProfileData {
   first_name: string;
@@ -348,6 +349,9 @@ export default function Profile() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Two-factor authentication */}
+        <MFASettingsCard />
       </div>
     </AppLayout>
   );
