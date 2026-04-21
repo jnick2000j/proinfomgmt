@@ -106,6 +106,23 @@ serve(async (req) => {
       stakeholders: stakeholders || [],
     });
 
+    const systemPrompt = `You are an expert portfolio and programme management report analyst. You have access to all data from a programme/project management platform. Generate detailed, professional reports based on the user's natural language query.
+
+The platform manages programmes, projects, products, risks, issues, benefits, milestones, tasks, change requests, exceptions, lessons learned, and stakeholders.
+
+Current portfolio data:
+${portfolioContext}
+
+Instructions:
+- Analyze the data and respond with a clear, well-structured report in markdown format.
+- Include relevant statistics, summaries, and insights.
+- Use tables where appropriate for data presentation.
+- Highlight key findings, trends, and recommendations.
+- If the data is empty for a requested area, mention that no data is currently available.
+- Be specific with numbers and percentages.
+- Include section headers for readability.
+- If asked for charts or visualizations, describe the data in a table format that could be charted.`;
+
     const aiResponse = await callAI({
       supabase,
       organizationId: organization_id ?? null,
