@@ -92,7 +92,10 @@ export function AICreditsMeter({ variant = "full", hideWhenEmpty = false }: Prop
         ) : (
           <>
             <span className="font-medium">{status.remaining}</span>
-            <span className="text-muted-foreground">/ {status.quota} AI credits</span>
+            <span className="text-muted-foreground">/ {totalQuota} AI credits</span>
+            {purchased > 0 && (
+              <span className="text-[10px] text-primary">+{purchased} bought</span>
+            )}
           </>
         )}
       </div>
@@ -134,7 +137,12 @@ export function AICreditsMeter({ variant = "full", hideWhenEmpty = false }: Prop
             <span>
               <span className="font-medium text-foreground">{status.used.toLocaleString()}</span>
               {" / "}
-              {status.quota.toLocaleString()} used this month
+              {totalQuota.toLocaleString()} used this month
+              {purchased > 0 && (
+                <span className="ml-1 text-primary">
+                  (includes +{purchased.toLocaleString()} purchased)
+                </span>
+              )}
             </span>
             <span>Resets {resetLabel}</span>
           </div>
