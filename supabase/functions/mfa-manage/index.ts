@@ -43,6 +43,55 @@ function generateRecoveryCode(): string {
   return `${chars.slice(0, 5)}-${chars.slice(5)}`;
 }
 
+/**
+ * Resolve a TOTP secret from the value stored in `user_mfa_factors.secret_encrypted`.
+ *
+ * Two storage formats are supported for backwards compatibility:
+ *   - Legacy: raw base32 secret (older enrolments)
+ *   - New:    "vault:<secret_id>" — opaque reference into Supabase Vault
+ *
+ * Vault references are looked up server-side via the `vault.decrypted_secrets`
+ * view (only readable with the service role key) and never exposed to the client.
+ */
+async function resolveTotpSecret(
+  admin: ReturnType<typeof createClient>,
+  stored: string,
+): Promise<string> {
+  if (!stored) throw new Error("Missing TOTP secret");
+  if (!stored.startsWith("vault:")) {
+    // Legacy plaintext base32 — still works while we migrate users.
+    return stored;
+  }
+  const secretId = stored.slice("vault:".length);
+  const { data, error } = await admin
+    .schema("vault")
+    .from("decrypted_secrets")
+    .select("decrypted_secret")
+    .eq("id", secretId)
+    .maybeSingle();
+  if (error || !data?.decrypted_secret) {
+    throw new Error("Failed to retrieve MFA secret from vault");
+  }
+  return data.decrypted_secret as string;
+}
+
+/** Stores a base32 TOTP secret in Supabase Vault and returns the reference token. */
+async function storeTotpSecretInVault(
+  admin: ReturnType<typeof createClient>,
+  base32: string,
+  userId: string,
+): Promise<string> {
+  const { data, error } = await admin.rpc("create_secret" as any, {
+    new_secret: base32,
+    new_name: `mfa_totp_${userId}_${crypto.randomUUID()}`,
+    new_description: "TOTP MFA factor secret",
+  } as any);
+  if (error || !data) {
+    throw new Error(`Failed to encrypt MFA secret: ${error?.message ?? "unknown"}`);
+  }
+  return `vault:${data}`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
@@ -72,13 +121,18 @@ Deno.serve(async (req) => {
         secret,
       });
 
+      // Encrypt the TOTP seed at rest using Supabase Vault.
+      // We store an opaque "vault:<id>" reference instead of the raw base32 secret,
+      // so a database compromise cannot reveal MFA seeds without also breaching Vault.
+      const vaultRef = await storeTotpSecretInVault(admin, secret.base32, user.id);
+
       const { data: factor, error } = await admin
         .from("user_mfa_factors")
         .insert({
           user_id: user.id,
           factor_type: "totp",
           friendly_name: friendly,
-          secret_encrypted: secret.base32, // TODO: wrap with vault if available
+          secret_encrypted: vaultRef,
           verified: false,
         })
         .select()
@@ -105,10 +159,11 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (error || !factor) return json({ error: "Factor not found" }, 404);
 
+      const totpSecret = await resolveTotpSecret(admin, factor.secret_encrypted);
       const totp = new OTPAuth.TOTP({
         issuer: "TaskMaster",
         label: user.email ?? user.id,
-        secret: OTPAuth.Secret.fromBase32(factor.secret_encrypted),
+        secret: OTPAuth.Secret.fromBase32(totpSecret),
       });
       const delta = totp.validate({ token: payload.code.replace(/\s/g, ""), window: 1 });
       if (delta === null) return json({ error: "Invalid code" }, 400);
@@ -174,10 +229,11 @@ Deno.serve(async (req) => {
       if (!factors || factors.length === 0) return json({ error: "No verified factor" }, 400);
 
       for (const factor of factors) {
+        const totpSecret = await resolveTotpSecret(admin, factor.secret_encrypted);
         const totp = new OTPAuth.TOTP({
           issuer: "TaskMaster",
           label: user.email ?? user.id,
-          secret: OTPAuth.Secret.fromBase32(factor.secret_encrypted),
+          secret: OTPAuth.Secret.fromBase32(totpSecret),
         });
         const delta = totp.validate({ token: payload.code.replace(/\s/g, ""), window: 1 });
         if (delta !== null) {
