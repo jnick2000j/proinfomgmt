@@ -54,3 +54,36 @@ export function isStripeAvailable(): boolean {
     Boolean(Deno.env.get("STRIPE_SANDBOX_API_KEY") || Deno.env.get("STRIPE_LIVE_API_KEY"))
   );
 }
+
+/** Build a 409 response signalling that a Stripe-only operation is unavailable
+ *  because the org is running in license mode (or Stripe is not configured at all). */
+export function licenseModeBlockedResponse(
+  reason: "license_mode" | "stripe_unavailable",
+  corsHeaders: Record<string, string>,
+  details?: { organization_id?: string },
+): Response {
+  const message =
+    reason === "license_mode"
+      ? "Billing operations are managed via your license — Stripe checkout is disabled for this organization."
+      : "Stripe is not available in this deployment.";
+  return new Response(
+    JSON.stringify({
+      error: message,
+      code: reason === "license_mode" ? "LICENSE_MODE" : "STRIPE_UNAVAILABLE",
+      ...(details || {}),
+    }),
+    { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+  );
+}
+
+/** Convenience helper for edge functions — returns true when the function should
+ *  short-circuit (org is in license mode OR Stripe is not configured). */
+export async function shouldSkipStripe(
+  supabase: { rpc: (name: string, args: Record<string, unknown>) => Promise<{ data: unknown }> },
+  orgId: string | null | undefined,
+): Promise<{ skip: boolean; reason: "license_mode" | "stripe_unavailable" | null }> {
+  if (!isStripeAvailable()) return { skip: true, reason: "stripe_unavailable" };
+  if (!orgId) return { skip: false, reason: null };
+  const { data } = await supabase.rpc("has_active_license", { _org_id: orgId });
+  return data ? { skip: true, reason: "license_mode" } : { skip: false, reason: null };
+}

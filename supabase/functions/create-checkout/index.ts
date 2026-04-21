@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient } from "../_shared/stripe.ts";
+import { licenseModeBlockedResponse, shouldSkipStripe } from "../_shared/license.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -29,6 +30,10 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // License-mode short-circuit: org running on a license (or air-gapped) skips Stripe.
+    const skip = await shouldSkipStripe(supabase, organizationId ?? null);
+    if (skip.skip) return licenseModeBlockedResponse(skip.reason!, corsHeaders, { organization_id: organizationId });
 
     const env = (environment || "sandbox") as StripeEnv;
     const stripe = createStripeClient(env);

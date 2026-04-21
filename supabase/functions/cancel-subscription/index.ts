@@ -41,6 +41,9 @@ serve(async (req) => {
       });
     }
 
+    const skip = await shouldSkipStripe(supabase, organizationId);
+    if (skip.skip) return licenseModeBlockedResponse(skip.reason!, corsHeaders, { organization_id: organizationId });
+
     // Verify caller is org admin
     const { data: access } = await supabase
       .from("user_organization_access")
