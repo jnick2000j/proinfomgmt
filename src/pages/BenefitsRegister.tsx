@@ -188,9 +188,10 @@ export default function BenefitsRegister({ embedded = false }: { embedded?: bool
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info/10">
               <TrendingUp className="h-5 w-5 text-info" />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <p className="text-2xl font-semibold">{avgRealization}%</p>
               <p className="text-sm text-muted-foreground">Avg Realization</p>
+              <Progress value={avgRealization} className="h-1.5 mt-1" />
             </div>
           </div>
         </div>
