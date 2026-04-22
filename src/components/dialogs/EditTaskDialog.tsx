@@ -204,26 +204,6 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       issue_id: issueId || null,
     };
 
-  if (!task) return null;
-
-  const handleSave = async () => {
-    setSaving(true);
-    const updateData: Record<string, unknown> = {
-      name,
-      description: description || null,
-      priority,
-      status,
-      planned_start: plannedStart || null,
-      planned_end: plannedEnd || null,
-      estimated_hours: estimatedHours ? Number(estimatedHours) : null,
-      story_points: storyPoints ? Number(storyPoints) : null,
-      sprint_id: sprintId || null,
-      programme_id: programmeId || null,
-      project_id: projectId || null,
-      product_id: productId || null,
-      work_package_id: workPackageId || null,
-    };
-
     if (status === "completed") {
       updateData.completion_percentage = 100;
       updateData.actual_end = new Date().toISOString().split("T")[0];
