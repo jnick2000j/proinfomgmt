@@ -293,6 +293,10 @@ export function EditRegisterItemDialog({ item, type, open, onOpenChange, onSucce
                 deleting={deleting}
                 loading={loading}
                 itemName={itemName}
+                showLinks
+                links={links}
+                setLinks={setLinks}
+                organizationId={item.organization_id}
               />
             </TabsContent>
             <TabsContent value="profile" className="mt-4">
@@ -321,6 +325,10 @@ export function EditRegisterItemDialog({ item, type, open, onOpenChange, onSucce
                 deleting={deleting}
                 loading={loading}
                 itemName={itemName}
+                showLinks
+                links={links}
+                setLinks={setLinks}
+                organizationId={item.organization_id}
               />
             </TabsContent>
             <TabsContent value="remediation" className="mt-4">
@@ -329,9 +337,9 @@ export function EditRegisterItemDialog({ item, type, open, onOpenChange, onSucce
                   kind: type === "risks" ? "risk" : "issue",
                   id: item.id,
                   organizationId: item.organization_id,
-                  programmeId: item.programme_id,
-                  projectId: item.project_id,
-                  productId: item.product_id,
+                  programmeId: links.programmeId || item.programme_id,
+                  projectId: links.projectId || item.project_id,
+                  productId: links.productId || item.product_id,
                 }}
               />
             </TabsContent>
@@ -368,6 +376,10 @@ interface EditFormProps {
   deleting: boolean;
   loading: boolean;
   itemName: string;
+  showLinks?: boolean;
+  links?: { programmeId: string; projectId: string; productId: string };
+  setLinks?: (l: { programmeId: string; projectId: string; productId: string }) => void;
+  organizationId?: string | null;
 }
 
 function EditForm({
@@ -382,6 +394,10 @@ function EditForm({
   deleting,
   loading,
   itemName,
+  showLinks,
+  links,
+  setLinks,
+  organizationId,
 }: EditFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
