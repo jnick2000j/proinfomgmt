@@ -44,6 +44,8 @@ import {
 import { format, differenceInDays, parseISO } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApprovalTriadPanel } from "@/components/workflow/ApprovalTriadPanel";
+import { MilestoneStatusChangeDialog } from "@/components/workflow/MilestoneStatusChangeDialog";
+import { MilestoneTimeline } from "@/components/workflow/MilestoneTimeline";
 
 type MilestoneStatus = "planned" | "in_progress" | "achieved" | "missed" | "deferred";
 
@@ -67,6 +69,9 @@ interface MilestoneData {
   created_by: string | null;
   created_at: string;
   reference_number: string | null;
+  original_target_date: string | null;
+  revised_target_date: string | null;
+  revision_reason: string | null;
 }
 
 interface WorkPackage {
@@ -91,6 +96,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
   const [selectedMilestone, setSelectedMilestone] = useState<MilestoneData | null>(null);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [statusChangeTarget, setStatusChangeTarget] = useState<{ milestone: MilestoneData; newStatus: MilestoneStatus } | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -634,12 +640,14 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                             </Badge>
                             <Select
                               value={milestone.status}
-                              onValueChange={(v) =>
-                                updateMilestoneStatus.mutate({
-                                  id: milestone.id,
-                                  status: v as MilestoneStatus,
-                                })
-                              }
+                              onValueChange={(v) => {
+                                if (v !== milestone.status) {
+                                  setStatusChangeTarget({
+                                    milestone,
+                                    newStatus: v as MilestoneStatus,
+                                  });
+                                }
+                              }}
                             >
                               <SelectTrigger className="w-32 h-8">
                                 <SelectValue />
@@ -678,6 +686,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
               <Tabs defaultValue="overview" className="mt-4">
                 <TabsList>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="timeline">Audit Timeline</TabsTrigger>
                   <TabsTrigger value="signoff">Sign Off & Notify</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4 mt-4">
@@ -707,6 +716,32 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                       </div>
                     )}
                   </div>
+                  {(selectedMilestone.original_target_date ||
+                    selectedMilestone.revised_target_date) && (
+                    <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
+                      {selectedMilestone.original_target_date && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Original target</span>
+                          <span>
+                            {format(parseISO(selectedMilestone.original_target_date), "MMM d, yyyy")}
+                          </span>
+                        </div>
+                      )}
+                      {selectedMilestone.revised_target_date && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Revised target</span>
+                          <span className="font-medium">
+                            {format(parseISO(selectedMilestone.revised_target_date), "MMM d, yyyy")}
+                          </span>
+                        </div>
+                      )}
+                      {selectedMilestone.revision_reason && (
+                        <p className="text-xs text-muted-foreground pt-1 border-t mt-2">
+                          <strong>Reason:</strong> {selectedMilestone.revision_reason}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   {selectedMilestone.description && (
                     <div>
                       <p className="text-sm text-muted-foreground">Description</p>
@@ -719,6 +754,9 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                       <p className="bg-muted p-3 rounded">{selectedMilestone.acceptance_criteria}</p>
                     </div>
                   )}
+                </TabsContent>
+                <TabsContent value="timeline" className="mt-4">
+                  <MilestoneTimeline milestoneId={selectedMilestone.id} />
                 </TabsContent>
                 <TabsContent value="signoff" className="mt-4">
                   <ApprovalTriadPanel
@@ -744,6 +782,29 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
           )}
         </DialogContent>
       </Dialog>
+
+      <MilestoneStatusChangeDialog
+        open={!!statusChangeTarget}
+        onOpenChange={(o) => !o && setStatusChangeTarget(null)}
+        milestone={
+          statusChangeTarget
+            ? {
+                id: statusChangeTarget.milestone.id,
+                name: statusChangeTarget.milestone.name,
+                status: statusChangeTarget.milestone.status,
+                target_date: statusChangeTarget.milestone.target_date,
+                original_target_date: statusChangeTarget.milestone.original_target_date,
+                revised_target_date: statusChangeTarget.milestone.revised_target_date,
+              }
+            : null
+        }
+        newStatus={statusChangeTarget?.newStatus || ""}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["milestones"] });
+          queryClient.invalidateQueries({ queryKey: ["milestone-history"] });
+          setStatusChangeTarget(null);
+        }}
+      />
     </>
   );
 

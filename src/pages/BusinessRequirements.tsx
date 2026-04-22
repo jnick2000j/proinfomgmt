@@ -377,6 +377,11 @@ export default function BusinessRequirements({ embedded = false }: { embedded?: 
     </div>
   );
 
+  const verifiedCount = requirements.filter(r => r.status === "verified").length;
+  const implementedCount = requirements.filter(r => r.status === "implemented" || r.status === "verified").length;
+  const completionPct = requirements.length > 0 ? Math.round((verifiedCount / requirements.length) * 100) : 0;
+  const implementedPct = requirements.length > 0 ? Math.round((implementedCount / requirements.length) * 100) : 0;
+
   const content = (
     <>
       <div className="space-y-6">
@@ -390,13 +395,25 @@ export default function BusinessRequirements({ embedded = false }: { embedded?: 
             <p className="text-2xl font-bold text-info">{requirements.filter(r => r.status === "approved").length}</p>
             <p className="text-sm text-muted-foreground">Approved</p>
           </div>
-          <div className="metric-card text-center">
-            <p className="text-2xl font-bold text-warning">{requirements.filter(r => r.status === "in_progress").length}</p>
-            <p className="text-sm text-muted-foreground">In Progress</p>
+          <div className="metric-card">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm text-muted-foreground">Implemented</p>
+              <Badge variant="secondary" className="text-xs">{implementedCount}/{requirements.length}</Badge>
+            </div>
+            <p className="text-2xl font-bold text-warning mb-2">{implementedPct}%</p>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+              <div className="h-full bg-warning transition-all" style={{ width: `${implementedPct}%` }} />
+            </div>
           </div>
-          <div className="metric-card text-center">
-            <p className="text-2xl font-bold text-success">{requirements.filter(r => r.status === "verified").length}</p>
-            <p className="text-sm text-muted-foreground">Verified</p>
+          <div className="metric-card">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm text-muted-foreground">Verified (met)</p>
+              <Badge variant="secondary" className="text-xs">{verifiedCount}/{requirements.length}</Badge>
+            </div>
+            <p className="text-2xl font-bold text-success mb-2">{completionPct}%</p>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+              <div className="h-full bg-success transition-all" style={{ width: `${completionPct}%` }} />
+            </div>
           </div>
         </div>
 

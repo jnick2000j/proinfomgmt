@@ -38,6 +38,8 @@ interface TaskData {
   programme_id: string | null;
   product_id: string | null;
   work_package_id: string | null;
+  risk_id: string | null;
+  issue_id: string | null;
 }
 
 interface EditTaskDialogProps {
@@ -62,6 +64,8 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
   const [projectId, setProjectId] = useState("");
   const [productId, setProductId] = useState("");
   const [workPackageId, setWorkPackageId] = useState("");
+  const [riskId, setRiskId] = useState("");
+  const [issueId, setIssueId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { data: sprints = [] } = useQuery({
@@ -130,6 +134,34 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
     enabled: open && !!projectId,
   });
 
+  const { data: risks = [] } = useQuery({
+    queryKey: ["risks-for-task", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return [];
+      const { data } = await supabase
+        .from("risks")
+        .select("id, title, reference_number")
+        .eq("organization_id", currentOrganization.id)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: open && !!currentOrganization?.id,
+  });
+
+  const { data: issues = [] } = useQuery({
+    queryKey: ["issues-for-task", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return [];
+      const { data } = await supabase
+        .from("issues")
+        .select("id, title, reference_number")
+        .eq("organization_id", currentOrganization.id)
+        .order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: open && !!currentOrganization?.id,
+  });
+
   useEffect(() => {
     if (task) {
       setName(task.name);
@@ -145,6 +177,8 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       setProjectId(task.project_id || "");
       setProductId(task.product_id || "");
       setWorkPackageId(task.work_package_id || "");
+      setRiskId((task as any).risk_id || "");
+      setIssueId((task as any).issue_id || "");
     }
   }, [task]);
 
@@ -166,6 +200,8 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       project_id: projectId || null,
       product_id: productId || null,
       work_package_id: workPackageId || null,
+      risk_id: riskId || null,
+      issue_id: issueId || null,
     };
 
     if (status === "completed") {
@@ -297,6 +333,36 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
                   <SelectItem value="none">No Work Package</SelectItem>
                   {workPackages.map((w: any) => (
                     <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Linked Risk</Label>
+              <Select value={riskId || "none"} onValueChange={(v) => setRiskId(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="No linked risk" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Risk</SelectItem>
+                  {risks.map((r: any) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.reference_number ? `${r.reference_number} — ` : ""}{r.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Linked Issue</Label>
+              <Select value={issueId || "none"} onValueChange={(v) => setIssueId(v === "none" ? "" : v)}>
+                <SelectTrigger><SelectValue placeholder="No linked issue" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Issue</SelectItem>
+                  {issues.map((i: any) => (
+                    <SelectItem key={i.id} value={i.id}>
+                      {i.reference_number ? `${i.reference_number} — ` : ""}{i.title}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

@@ -86,6 +86,8 @@ interface Task {
   programme_id: string | null;
   product_id: string | null;
   work_package_id: string | null;
+  risk_id: string | null;
+  issue_id: string | null;
   assigned_to: string | null;
   planned_start: string | null;
   planned_end: string | null;
@@ -209,6 +211,33 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
         .eq("organization_id", currentOrganization.id);
       if (error) throw error;
       return data as WorkPackage[];
+    },
+    enabled: !!currentOrganization?.id,
+  });
+
+  // Fetch risks for displaying linked items
+  const { data: risksList = [] } = useQuery({
+    queryKey: ["risks-mini-list", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return [];
+      const { data } = await supabase
+        .from("risks")
+        .select("id, title, reference_number")
+        .eq("organization_id", currentOrganization.id);
+      return data || [];
+    },
+    enabled: !!currentOrganization?.id,
+  });
+
+  const { data: issuesList = [] } = useQuery({
+    queryKey: ["issues-mini-list", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return [];
+      const { data } = await supabase
+        .from("issues")
+        .select("id, title, reference_number")
+        .eq("organization_id", currentOrganization.id);
+      return data || [];
     },
     enabled: !!currentOrganization?.id,
   });
@@ -650,6 +679,22 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                               WP: {getWorkPackageName(task.work_package_id)}
                             </Badge>
                           )}
+                          {task.risk_id && (() => {
+                            const r = risksList.find((x: any) => x.id === task.risk_id);
+                            return (
+                              <Badge variant="outline" className="text-xs border-destructive/40 text-destructive">
+                                Risk: {r?.reference_number || r?.title || "—"}
+                              </Badge>
+                            );
+                          })()}
+                          {task.issue_id && (() => {
+                            const i = issuesList.find((x: any) => x.id === task.issue_id);
+                            return (
+                              <Badge variant="outline" className="text-xs border-warning/40 text-warning">
+                                Issue: {i?.reference_number || i?.title || "—"}
+                              </Badge>
+                            );
+                          })()}
                         </div>
                       </TableCell>
                       <TableCell>
