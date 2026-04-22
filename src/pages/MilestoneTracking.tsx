@@ -782,6 +782,29 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
           )}
         </DialogContent>
       </Dialog>
+
+      <MilestoneStatusChangeDialog
+        open={!!statusChangeTarget}
+        onOpenChange={(o) => !o && setStatusChangeTarget(null)}
+        milestone={
+          statusChangeTarget
+            ? {
+                id: statusChangeTarget.milestone.id,
+                name: statusChangeTarget.milestone.name,
+                status: statusChangeTarget.milestone.status,
+                target_date: statusChangeTarget.milestone.target_date,
+                original_target_date: statusChangeTarget.milestone.original_target_date,
+                revised_target_date: statusChangeTarget.milestone.revised_target_date,
+              }
+            : null
+        }
+        newStatus={statusChangeTarget?.newStatus || ""}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["milestones"] });
+          queryClient.invalidateQueries({ queryKey: ["milestone-history"] });
+          setStatusChangeTarget(null);
+        }}
+      />
     </>
   );
 
