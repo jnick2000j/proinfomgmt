@@ -49,10 +49,12 @@ import {
   Calendar,
   Target,
   ArrowUpRight,
+  HelpCircle,
+  Pencil,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
-type ChangeStatus = "pending" | "under_review" | "approved" | "rejected" | "implemented" | "withdrawn";
+type ChangeStatus = "pending" | "under_review" | "needs_information" | "approved" | "rejected" | "implemented" | "withdrawn";
 
 interface ChangeRequest {
   id: string;
@@ -88,6 +90,7 @@ interface ChangeRequest {
 const statusConfig: Record<ChangeStatus, { label: string; icon: React.ElementType; color: string }> = {
   pending: { label: "Pending", icon: Clock, color: "bg-muted text-muted-foreground" },
   under_review: { label: "Under Review", icon: FileEdit, color: "bg-primary/20 text-primary" },
+  needs_information: { label: "Needs Information", icon: HelpCircle, color: "bg-warning/20 text-warning" },
   approved: { label: "Approved", icon: CheckCircle2, color: "bg-success/20 text-success" },
   rejected: { label: "Rejected", icon: XCircle, color: "bg-destructive/20 text-destructive" },
   implemented: { label: "Implemented", icon: CheckCircle2, color: "bg-success/20 text-success" },
@@ -101,6 +104,8 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [editOpen, setEditOpen] = useState(false);
+  const [editData, setEditData] = useState<Partial<ChangeRequest> | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -253,6 +258,48 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
       setSelectedRequest(null);
     },
   });
+
+  // Edit change request
+  const editChangeRequest = useMutation({
+    mutationFn: async (data: Partial<ChangeRequest> & { id: string }) => {
+      const { id, ...rest } = data;
+      const payload: Record<string, unknown> = {
+        title: rest.title,
+        description: rest.description ?? null,
+        change_type: rest.change_type,
+        priority: rest.priority,
+        date_required: rest.date_required ?? null,
+        reason: rest.reason ?? null,
+        benefits: rest.benefits ?? null,
+        impact_summary: rest.impact_summary ?? null,
+        cost_impact: rest.cost_impact ?? null,
+        time_impact_days: rest.time_impact_days ?? null,
+        project_id: rest.project_id ?? null,
+        programme_id: rest.programme_id ?? null,
+        product_id: rest.product_id ?? null,
+      };
+      const { error } = await supabase.from("change_requests").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["change-requests"] });
+      toast.success("Change request updated");
+      setEditOpen(false);
+      setEditData(null);
+      // Refresh detail view if open
+      if (selectedRequest?.id === vars.id) {
+        setSelectedRequest({ ...selectedRequest, ...vars } as ChangeRequest);
+      }
+    },
+    onError: (error: any) => {
+      toast.error("Failed to update: " + error.message);
+    },
+  });
+
+  const openEdit = (cr: ChangeRequest) => {
+    setEditData({ ...cr });
+    setEditOpen(true);
+  };
 
   const getEntityName = (cr: ChangeRequest) => {
     if (cr.project_id) {
