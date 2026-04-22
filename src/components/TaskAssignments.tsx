@@ -41,11 +41,18 @@ export function TaskAssignments({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("task_assignments")
-        .select("*, profiles:user_id(full_name, email)")
+        .select("*")
         .eq("task_id", taskId)
         .order("created_at");
       if (error) throw error;
-      return data;
+      const userIds = Array.from(new Set((data || []).map((a: any) => a.user_id)));
+      if (userIds.length === 0) return data || [];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email")
+        .in("user_id", userIds);
+      const map = new Map((profs || []).map((p: any) => [p.user_id, p]));
+      return (data || []).map((a: any) => ({ ...a, profiles: map.get(a.user_id) || null }));
     },
   });
 
@@ -53,59 +60,43 @@ export function TaskAssignments({
   const { data: entityUsers = [] } = useQuery({
     queryKey: ["entity-users-for-task", projectId, programmeId, productId, organizationId],
     queryFn: async () => {
-      const allUsers: { user_id: string; full_name: string | null; email: string }[] = [];
-      const seenIds = new Set<string>();
+      const userIds = new Set<string>();
 
-      const addUsers = (data: any[]) => {
-        for (const row of data) {
-          const uid = row.user_id;
-          if (!seenIds.has(uid)) {
-            seenIds.add(uid);
-            allUsers.push({
-              user_id: uid,
-              full_name: row.profiles?.full_name ?? null,
-              email: row.profiles?.email ?? "",
-            });
-          }
-        }
+      const collect = async (entityType: string, entityId: string | null | undefined) => {
+        if (!entityId) return;
+        const { data } = await supabase
+          .from("entity_assignments")
+          .select("user_id")
+          .eq("entity_id", entityId)
+          .eq("entity_type", entityType);
+        (data || []).forEach((r: any) => userIds.add(r.user_id));
       };
 
-      // Get users assigned to the specific entity via entity_assignments
-      if (projectId) {
-        const { data } = await supabase
-          .from("entity_assignments")
-          .select("user_id, profiles:user_id(full_name, email)")
-          .eq("entity_id", projectId)
-          .eq("entity_type", "project");
-        if (data) addUsers(data);
-      }
-      if (programmeId) {
-        const { data } = await supabase
-          .from("entity_assignments")
-          .select("user_id, profiles:user_id(full_name, email)")
-          .eq("entity_id", programmeId)
-          .eq("entity_type", "programme");
-        if (data) addUsers(data);
-      }
-      if (productId) {
-        const { data } = await supabase
-          .from("entity_assignments")
-          .select("user_id, profiles:user_id(full_name, email)")
-          .eq("entity_id", productId)
-          .eq("entity_type", "product");
-        if (data) addUsers(data);
-      }
+      await collect("project", projectId);
+      await collect("programme", programmeId);
+      await collect("product", productId);
 
-      // Fallback: if no entity-scoped users found, show org users
-      if (allUsers.length === 0 && organizationId) {
+      // Fallback: if no entity-scoped users, show org users
+      if (userIds.size === 0 && organizationId) {
         const { data } = await supabase
           .from("user_organization_access")
-          .select("user_id, profiles:user_id(full_name, email)")
+          .select("user_id")
           .eq("organization_id", organizationId);
-        if (data) addUsers(data);
+        (data || []).forEach((r: any) => userIds.add(r.user_id));
       }
 
-      return allUsers;
+      const ids = Array.from(userIds);
+      if (ids.length === 0) return [];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email")
+        .in("user_id", ids)
+        .eq("archived", false);
+      return (profs || []).map((p: any) => ({
+        user_id: p.user_id,
+        full_name: p.full_name,
+        email: p.email,
+      }));
     },
     enabled: !!(projectId || programmeId || productId || organizationId),
   });
