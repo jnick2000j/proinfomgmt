@@ -423,6 +423,7 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
             <SelectItem value="all">All Statuses</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="under_review">Under Review</SelectItem>
+            <SelectItem value="needs_information">Needs Information</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
             <SelectItem value="implemented">Implemented</SelectItem>
