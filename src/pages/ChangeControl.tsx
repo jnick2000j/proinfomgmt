@@ -847,10 +847,27 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => { openEdit(selectedRequest); }}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => updateStatus.mutate({ id: selectedRequest.id, status: "under_review" })}
                       >
                         <Clock className="h-4 w-4 mr-1" />
                         Under Review
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-warning text-warning hover:bg-warning/10"
+                        onClick={() => updateStatus.mutate({ id: selectedRequest.id, status: "needs_information" })}
+                      >
+                        <HelpCircle className="h-4 w-4 mr-1" />
+                        Needs Information
                       </Button>
                       <Button
                         variant="outline"
@@ -886,6 +903,123 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
                 </TabsContent>
               </Tabs>
             </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onOpenChange={(o) => { setEditOpen(o); if (!o) setEditData(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Change Request</DialogTitle>
+          </DialogHeader>
+          {editData && (
+            <div className="space-y-4 mt-4">
+              <div>
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  value={editData.title || ""}
+                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Textarea
+                  value={editData.description || ""}
+                  onChange={(e) => setEditData({ ...editData, description: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Change Type</label>
+                  <Select
+                    value={editData.change_type || "scope"}
+                    onValueChange={(v) => setEditData({ ...editData, change_type: v })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="scope">Scope</SelectItem>
+                      <SelectItem value="schedule">Schedule</SelectItem>
+                      <SelectItem value="budget">Budget</SelectItem>
+                      <SelectItem value="quality">Quality</SelectItem>
+                      <SelectItem value="resource">Resource</SelectItem>
+                      <SelectItem value="requirement">Requirement</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Priority</label>
+                  <Select
+                    value={editData.priority || "medium"}
+                    onValueChange={(v) => setEditData({ ...editData, priority: v })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Required By</label>
+                  <Input
+                    type="date"
+                    value={editData.date_required || ""}
+                    onChange={(e) => setEditData({ ...editData, date_required: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Reason</label>
+                <Textarea
+                  value={editData.reason || ""}
+                  onChange={(e) => setEditData({ ...editData, reason: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Expected Benefits</label>
+                <Textarea
+                  value={editData.benefits || ""}
+                  onChange={(e) => setEditData({ ...editData, benefits: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Impact Summary</label>
+                <Textarea
+                  value={editData.impact_summary || ""}
+                  onChange={(e) => setEditData({ ...editData, impact_summary: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Cost Impact ($)</label>
+                  <Input
+                    type="number"
+                    value={editData.cost_impact ?? ""}
+                    onChange={(e) => setEditData({ ...editData, cost_impact: e.target.value ? parseFloat(e.target.value) : null })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Time Impact (days)</label>
+                  <Input
+                    type="number"
+                    value={editData.time_impact_days ?? ""}
+                    onChange={(e) => setEditData({ ...editData, time_impact_days: e.target.value ? parseInt(e.target.value) : null })}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
+                <Button
+                  onClick={() => editData.id && editChangeRequest.mutate(editData as Partial<ChangeRequest> & { id: string })}
+                  disabled={editChangeRequest.isPending || !editData.title}
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
