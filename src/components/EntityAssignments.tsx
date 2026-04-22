@@ -40,12 +40,19 @@ export function EntityAssignments({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("entity_assignments")
-        .select("*, profiles:user_id(full_name, email)")
+        .select("*")
         .eq("entity_type", entityType)
         .eq("entity_id", entityId)
         .order("created_at");
       if (error) throw error;
-      return data;
+      const userIds = Array.from(new Set((data || []).map((a: any) => a.user_id)));
+      if (userIds.length === 0) return data || [];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email")
+        .in("user_id", userIds);
+      const map = new Map((profs || []).map((p: any) => [p.user_id, p]));
+      return (data || []).map((a: any) => ({ ...a, profiles: map.get(a.user_id) || null }));
     },
   });
 
@@ -53,12 +60,19 @@ export function EntityAssignments({
     queryKey: ["org-users-for-assign", organizationId],
     queryFn: async () => {
       if (!organizationId) return [];
-      const { data, error } = await supabase
+      const { data: access, error } = await supabase
         .from("user_organization_access")
-        .select("user_id, profiles:user_id(full_name, email)")
+        .select("user_id")
         .eq("organization_id", organizationId);
       if (error) throw error;
-      return data;
+      const userIds = (access || []).map((a: any) => a.user_id);
+      if (userIds.length === 0) return [];
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email")
+        .in("user_id", userIds)
+        .eq("archived", false);
+      return (profs || []).map((p: any) => ({ user_id: p.user_id, profiles: p }));
     },
     enabled: !!organizationId,
   });
