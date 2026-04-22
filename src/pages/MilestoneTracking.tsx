@@ -640,12 +640,14 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
                             </Badge>
                             <Select
                               value={milestone.status}
-                              onValueChange={(v) =>
-                                updateMilestoneStatus.mutate({
-                                  id: milestone.id,
-                                  status: v as MilestoneStatus,
-                                })
-                              }
+                              onValueChange={(v) => {
+                                if (v !== milestone.status) {
+                                  setStatusChangeTarget({
+                                    milestone,
+                                    newStatus: v as MilestoneStatus,
+                                  });
+                                }
+                              }}
                             >
                               <SelectTrigger className="w-32 h-8">
                                 <SelectValue />
@@ -684,6 +686,7 @@ export default function MilestoneTracking({ embedded }: { embedded?: boolean }) 
               <Tabs defaultValue="overview" className="mt-4">
                 <TabsList>
                   <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="timeline">Audit Timeline</TabsTrigger>
                   <TabsTrigger value="signoff">Sign Off & Notify</TabsTrigger>
                 </TabsList>
                 <TabsContent value="overview" className="space-y-4 mt-4">
