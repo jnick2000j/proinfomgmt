@@ -695,6 +695,9 @@ export default function ChangeControl({ embedded = false }: { embedded?: boolean
                             entityName={cr.title}
                             variant="icon"
                           />
+                          <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEdit(cr); }}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setSelectedRequest(cr); }}>
                             View
                           </Button>
