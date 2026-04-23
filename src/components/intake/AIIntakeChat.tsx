@@ -10,14 +10,26 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Markdown } from "@/components/ui/markdown";
-import { Loader2, Send, Sparkles, CheckCircle2, RotateCcw, PencilLine } from "lucide-react";
+import { Loader2, Send, Sparkles, CheckCircle2, RotateCcw, PencilLine, BookOpen, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
+type KbArticle = {
+  id: string;
+  title: string;
+  summary: string | null;
+  category: string | null;
+  similarity: number;
+};
+
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+  articles?: KbArticle[];
+};
 
 interface Props {
   intent: "ticket" | "change_request";
