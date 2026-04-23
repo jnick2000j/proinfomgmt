@@ -3650,6 +3650,81 @@ export type Database = {
           },
         ]
       }
+      organization_addon_subscriptions: {
+        Row: {
+          addon_plan_id: string
+          billing_interval: string | null
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          feature_keys: string[]
+          id: string
+          organization_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_price_id: string | null
+          stripe_subscription_id: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          addon_plan_id: string
+          billing_interval?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          feature_keys?: string[]
+          id?: string
+          organization_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          addon_plan_id?: string
+          billing_interval?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          feature_keys?: string[]
+          id?: string
+          organization_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_addon_subscriptions_addon_plan_id_fkey"
+            columns: ["addon_plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_addon_subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_invitations: {
         Row: {
           accepted_at: string | null
@@ -6309,6 +6384,7 @@ export type Database = {
       subscription_plans: {
         Row: {
           billing_interval: string
+          billing_model: string
           created_at: string
           cta_label: string | null
           currency: string
@@ -6317,6 +6393,7 @@ export type Database = {
           highlight: boolean
           id: string
           is_active: boolean | null
+          is_addon: boolean
           is_archived: boolean
           is_public: boolean
           last_synced_at: string | null
@@ -6326,6 +6403,7 @@ export type Database = {
           max_storage_mb: number | null
           max_users: number | null
           name: string
+          plan_kind: string
           price_monthly: number | null
           price_yearly: number | null
           sort_order: number | null
@@ -6335,11 +6413,13 @@ export type Database = {
           stripe_price_id_yearly: string | null
           stripe_product_id: string | null
           sync_status: string | null
+          target_audience: string | null
           trial_days: number
           updated_at: string
         }
         Insert: {
           billing_interval?: string
+          billing_model?: string
           created_at?: string
           cta_label?: string | null
           currency?: string
@@ -6348,6 +6428,7 @@ export type Database = {
           highlight?: boolean
           id?: string
           is_active?: boolean | null
+          is_addon?: boolean
           is_archived?: boolean
           is_public?: boolean
           last_synced_at?: string | null
@@ -6357,6 +6438,7 @@ export type Database = {
           max_storage_mb?: number | null
           max_users?: number | null
           name: string
+          plan_kind?: string
           price_monthly?: number | null
           price_yearly?: number | null
           sort_order?: number | null
@@ -6366,11 +6448,13 @@ export type Database = {
           stripe_price_id_yearly?: string | null
           stripe_product_id?: string | null
           sync_status?: string | null
+          target_audience?: string | null
           trial_days?: number
           updated_at?: string
         }
         Update: {
           billing_interval?: string
+          billing_model?: string
           created_at?: string
           cta_label?: string | null
           currency?: string
@@ -6379,6 +6463,7 @@ export type Database = {
           highlight?: boolean
           id?: string
           is_active?: boolean | null
+          is_addon?: boolean
           is_archived?: boolean
           is_public?: boolean
           last_synced_at?: string | null
@@ -6388,6 +6473,7 @@ export type Database = {
           max_storage_mb?: number | null
           max_users?: number | null
           name?: string
+          plan_kind?: string
           price_monthly?: number | null
           price_yearly?: number | null
           sort_order?: number | null
@@ -6397,6 +6483,7 @@ export type Database = {
           stripe_price_id_yearly?: string | null
           stripe_product_id?: string | null
           sync_status?: string | null
+          target_audience?: string | null
           trial_days?: number
           updated_at?: string
         }
@@ -7929,6 +8016,10 @@ export type Database = {
     }
     Functions: {
       accept_invitation: { Args: { _token: string }; Returns: Json }
+      apply_addon_feature_overrides: {
+        Args: { _addon_sub_id: string }
+        Returns: undefined
+      }
       check_plan_limit: {
         Args: { _org_id: string; _resource_type: string }
         Returns: boolean
