@@ -65,6 +65,7 @@ export default function AddonsCatalog() {
   const [loading, setLoading] = useState(true);
   const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
+  const [purchasingAddon, setPurchasingAddon] = useState<AddonPlan | null>(null);
 
   useEffect(() => {
     supabase
@@ -83,7 +84,21 @@ export default function AddonsCatalog() {
   const handlePurchase = (addon: AddonPlan) => {
     const lookupKey = cycle === "monthly" ? addon.stripe_lookup_key_monthly : addon.stripe_lookup_key_yearly;
     if (!lookupKey) return;
+    setPurchasingAddon(addon);
     setCheckoutPriceId(lookupKey);
+  };
+
+  const addonReturnUrl = () => {
+    const base = `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}&purchase_type=addon`;
+    if (!purchasingAddon) return base;
+    const key = purchasingAddon.name.toLowerCase().includes("itsm")
+      ? "itsm"
+      : purchasingAddon.name.toLowerCase().includes("helpdesk")
+      ? "helpdesk"
+      : purchasingAddon.name.toLowerCase().includes("change")
+      ? "change_management"
+      : "addon";
+    return `${base}&addon=${key}&addon_name=${encodeURIComponent(purchasingAddon.name)}`;
   };
 
   const isAlreadyActive = (addon: AddonPlan) => {
