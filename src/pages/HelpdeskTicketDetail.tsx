@@ -344,7 +344,7 @@ export default function HelpdeskTicketDetail() {
 
             <KBInlineSuggestions subject={ticket.subject} description={ticket.description ?? ""} />
 
-            <KBAssistant surface="agent_ticket" placeholder="Ask the KB for a suggested reply…" />
+            <KBAssistant surface="agent" ticketId={ticket.id} placeholder="Ask the KB for a suggested reply…" />
           </div>
         </div>
       </div>

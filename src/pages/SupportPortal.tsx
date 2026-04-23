@@ -67,7 +67,7 @@ export default function SupportPortal() {
           </div>
         </Card>
 
-        <KBAssistant surface="user_portal" placeholder="Search the knowledgebase before raising a ticket…" />
+        <KBAssistant surface="portal" placeholder="Search the knowledgebase before raising a ticket…" />
 
         <div>
           <h3 className="font-semibold mb-3">Open tickets ({open.length})</h3>
