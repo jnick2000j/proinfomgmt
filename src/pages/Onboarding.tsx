@@ -1,21 +1,25 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail } from "lucide-react";
+import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-type Step = "org" | "invite" | "plan" | "done";
+type Intent = "ppm" | "helpdesk" | "itsm";
+type Step = "intent" | "org" | "invite" | "plan" | "done";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [step, setStep] = useState<Step>("org");
+  const initialIntent = (searchParams.get("plan_kind") as Intent | null) || null;
+  const [step, setStep] = useState<Step>(initialIntent ? "org" : "intent");
+  const [intent, setIntent] = useState<Intent>(initialIntent || "ppm");
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState<string | null>(null);
