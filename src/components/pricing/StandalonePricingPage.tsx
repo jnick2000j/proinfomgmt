@@ -358,7 +358,7 @@ export function StandalonePricingPage({
               </thead>
               <tbody>
                 {comparisonGroups.map((group) => (
-                  <React.Fragment key={`g-${group.group}`}>
+                  <Fragment key={`g-${group.group}`}>
                     <tr className="bg-muted/20 border-b">
                       <td
                         colSpan={plans.length + 1}
@@ -386,7 +386,7 @@ export function StandalonePricingPage({
                         })}
                       </tr>
                     ))}
-                  </React.Fragment>
+                  </Fragment>
                 ))}
                 <tr className="border-t bg-muted/10">
                   <td className="p-4 font-medium">Starting price</td>
