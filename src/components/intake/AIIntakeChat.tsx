@@ -211,19 +211,66 @@ export function AIIntakeChat({ intent, greeting }: Props) {
 
       <div ref={scrollRef} className="max-h-[420px] overflow-y-auto px-4 py-4 space-y-3 bg-background">
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
-                m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
-              }`}
-            >
-              {m.role === "assistant" ? <Markdown content={m.content} /> : m.content}
+          <div key={i} className="space-y-2">
+            <div className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
+                  m.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted"
+                }`}
+              >
+                {m.role === "assistant" ? <Markdown content={m.content} /> : m.content}
+              </div>
             </div>
+            {m.articles && m.articles.length > 0 && (
+              <div className="flex flex-col gap-2 max-w-[85%]">
+                {m.articles.map((a) => (
+                  <Link
+                    key={a.id}
+                    to={`/knowledgebase/${a.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group block rounded-lg border bg-card hover:bg-accent transition-colors p-3"
+                  >
+                    <div className="flex items-start gap-2">
+                      <BookOpen className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium truncate">{a.title}</p>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        {a.summary && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                            {a.summary}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1">
+                          {a.category && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+                              {a.category}
+                            </Badge>
+                          )}
+                          <span className="text-[10px] text-muted-foreground">
+                            {Math.round(a.similarity * 100)}% match
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => send("None of those help — please continue.")}
+                    disabled={loading}
+                  >
+                    None of these help
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
         {loading && (
@@ -247,7 +294,7 @@ export function AIIntakeChat({ intent, greeting }: Props) {
               }
             }}
           />
-          <Button onClick={send} disabled={!input.trim() || loading}>
+          <Button onClick={() => send()} disabled={!input.trim() || loading}>
             <Send className="h-4 w-4" />
           </Button>
         </div>
