@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, User, Globe, Sparkles, CreditCard, KeyRound } from "lucide-react";
+import { HelpCircle, Settings, Shield, ChevronDown, LogOut, Palette, User, Globe, Sparkles, CreditCard, KeyRound, Receipt, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
