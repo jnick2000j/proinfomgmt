@@ -1,21 +1,25 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail } from "lucide-react";
+import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-type Step = "org" | "invite" | "plan" | "done";
+type Intent = "ppm" | "helpdesk" | "itsm";
+type Step = "intent" | "org" | "invite" | "plan" | "done";
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [step, setStep] = useState<Step>("org");
+  const initialIntent = (searchParams.get("plan_kind") as Intent | null) || null;
+  const [step, setStep] = useState<Step>(initialIntent ? "org" : "intent");
+  const [intent, setIntent] = useState<Intent>(initialIntent || "ppm");
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -47,17 +51,20 @@ export default function Onboarding() {
       setOrgId(org.id);
       localStorage.setItem("currentOrganizationId", org.id);
 
-      // Fetch plans for next step
+      // Fetch plans for next step — filter to the intent the user picked
+      const planKinds = intent === "ppm" ? ["core"] : intent === "helpdesk" ? ["helpdesk"] : ["itsm"];
       const { data: plansData } = await supabase
         .from("subscription_plans")
         .select("*")
         .eq("is_active", true)
+        .eq("is_archived", false)
+        .in("plan_kind", planKinds)
         .order("sort_order");
 
       setPlans(plansData || []);
 
-      // Auto-assign free plan
-      const freePlan = plansData?.find(p => p.price_monthly === 0);
+      // Auto-assign free plan if available (PPM Free, Helpdesk Free)
+      const freePlan = plansData?.find(p => p.price_monthly === 0 && p.price_yearly === 0);
       if (freePlan && org.id) {
         await supabase.from("organization_subscriptions").insert({
           organization_id: org.id,
@@ -114,21 +121,58 @@ export default function Onboarding() {
       <div className="w-full max-w-2xl">
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8 justify-center">
-          {["org", "invite", "plan", "done"].map((s, i) => (
+          {(["intent", "org", "invite", "plan", "done"] as Step[]).map((s, i, arr) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step === s ? "bg-primary text-primary-foreground" :
-                ["org", "invite", "plan", "done"].indexOf(step) > i
+                arr.indexOf(step) > i
                   ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
               }`}>
-                {["org", "invite", "plan", "done"].indexOf(step) > i ? (
+                {arr.indexOf(step) > i ? (
                   <Check className="h-4 w-4" />
                 ) : i + 1}
               </div>
-              {i < 3 && <div className="w-12 h-0.5 bg-muted" />}
+              {i < arr.length - 1 && <div className="w-10 h-0.5 bg-muted" />}
             </div>
           ))}
         </div>
+
+        {/* Step: Choose Intent */}
+        {step === "intent" && (
+          <Card className="p-8">
+            <div className="text-center mb-6">
+              <Rocket className="h-12 w-12 mx-auto text-primary mb-4" />
+              <h2 className="text-2xl font-bold mb-2">What brings you to TaskMaster?</h2>
+              <p className="text-muted-foreground">
+                Pick the area you want to focus on. You can add more later.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {[
+                { id: "ppm" as Intent, icon: Layers, title: "Full PPM", desc: "PRINCE2, MSP programmes, projects, products, agile" },
+                { id: "helpdesk" as Intent, icon: Headphones, title: "Helpdesk only", desc: "Tickets, SLA, customer portal, email intake" },
+                { id: "itsm" as Intent, icon: GitBranch, title: "ITSM", desc: "Helpdesk + Change Management, CAB workflow" },
+              ].map(({ id, icon: Icon, title, desc }) => (
+                <Card
+                  key={id}
+                  className={`p-4 cursor-pointer transition-all hover:border-primary text-left ${
+                    intent === id ? "border-primary ring-2 ring-primary/20" : ""
+                  }`}
+                  onClick={() => setIntent(id)}
+                >
+                  <Icon className="h-6 w-6 text-primary mb-2" />
+                  <div className="font-semibold mb-1">{title}</div>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </Card>
+              ))}
+            </div>
+            <div className="flex justify-center mt-6">
+              <Button onClick={() => setStep("org")} className="gap-2">
+                Continue <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* Step: Create Organization */}
         {step === "org" && (

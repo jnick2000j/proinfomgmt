@@ -59,7 +59,10 @@ export function FeatureGate({
           <Button
             size="sm"
             className="mt-3"
-            onClick={() => navigate("/billing")}
+            onClick={() => {
+              const isAddonFeature = feature === "feature_helpdesk" || feature === "feature_change_management";
+              navigate(isAddonFeature ? "/billing/addons" : "/billing");
+            }}
           >
             Upgrade plan
           </Button>

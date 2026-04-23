@@ -58,6 +58,9 @@ import Onboarding from "./pages/Onboarding";
 import Billing from "./pages/Billing";
 import SecurityCenter from "./pages/SecurityCenter";
 import Pricing from "./pages/Pricing";
+import HelpdeskPricing from "./pages/HelpdeskPricing";
+import ITSMPricing from "./pages/ITSMPricing";
+import AddonsCatalog from "./pages/AddonsCatalog";
 import AcceptInvite from "./pages/AcceptInvite";
 import CheckoutReturn from "./pages/CheckoutReturn";
 import Support from "./pages/Support";
@@ -93,9 +96,12 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/helpdesk-pricing" element={<HelpdeskPricing />} />
+            <Route path="/itsm-pricing" element={<ITSMPricing />} />
             <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/checkout/return" element={<CheckoutReturn />} />
             <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+            <Route path="/billing/addons" element={<ProtectedRoute><AddonsCatalog /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/programmes" element={<ProtectedRoute><Programmes /></ProtectedRoute>} />
