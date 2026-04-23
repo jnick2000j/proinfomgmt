@@ -101,6 +101,7 @@ export default function Helpdesk() {
         description="Premium module: ticket portal, email intake, SLA tracking, and links to projects, programmes, and products."
       >
         <div className="space-y-6">
+          <ViewSwitcher current="console" />
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard label="Open" value={stats.open} icon={<LifeBuoy className="h-4 w-4" />} />

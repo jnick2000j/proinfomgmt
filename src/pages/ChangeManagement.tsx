@@ -89,6 +89,7 @@ export default function ChangeManagement() {
         description="Premium module: standalone operational change control with approvals, CAB workflow, and risk scoring."
       >
         <div className="space-y-6">
+          <ViewSwitcher current="register" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard label="Pending approval" value={stats.pending_approval} accent="warning" />
             <StatCard label="Scheduled" value={stats.scheduled} accent="primary" />
