@@ -106,6 +106,10 @@ export default function Dashboard() {
       </div>
 
       <div className="mb-8">
+        <HelpdeskUsageCard />
+      </div>
+
+      <div className="mb-8">
         <StatusIndicators />
       </div>
     </AppLayout>
