@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -50,6 +50,21 @@ const formatLimit = (key: string, val: any) => {
   if (key === "helpdesk_max_tickets_per_month") return `${n} tickets/mo`;
   if (key === "cm_max_approvers") return `${n} approver${n === 1 ? "" : "s"}`;
   return String(val);
+};
+
+const formatCellValue = (meta: FeatureMeta, value: any): { display: string; isCheck: boolean; isDash: boolean } => {
+  if (value === undefined || value === null) return { display: "—", isCheck: false, isDash: true };
+  if (meta.feature_type === "boolean") {
+    const on = value === true || value === "true";
+    return { display: on ? "✓" : "—", isCheck: on, isDash: !on };
+  }
+  if (meta.feature_type === "numeric") {
+    const n = Number(value);
+    if (n === -1) return { display: "Unlimited", isCheck: false, isDash: false };
+    if (meta.feature_key === "helpdesk_max_tickets_per_month") return { display: `${n.toLocaleString()}/mo`, isCheck: false, isDash: false };
+    return { display: n.toLocaleString(), isCheck: false, isDash: false };
+  }
+  return { display: String(value), isCheck: false, isDash: false };
 };
 
 interface Props {
@@ -121,6 +136,52 @@ export function StandalonePricingPage({
     });
     return lines;
   }, [featureMeta, planValues, kind]);
+
+  // Comparison table row config — labels and feature_keys to look up per plan
+  const comparisonGroups = useMemo(() => {
+    if (kind === "helpdesk") {
+      return [
+        {
+          group: "Limits",
+          rows: [
+            { label: "Agents included", featureKey: "helpdesk_max_agents" },
+            { label: "Tickets per month", featureKey: "helpdesk_max_tickets_per_month" },
+          ],
+        },
+        {
+          group: "Capabilities",
+          rows: [
+            { label: "Helpdesk module", featureKey: "feature_helpdesk" },
+            { label: "Public API access", featureKey: "feature_api_access" },
+          ],
+        },
+      ];
+    }
+    return [
+      {
+        group: "Limits",
+        rows: [
+          { label: "Users included", featureKey: "helpdesk_max_agents" },
+          { label: "Change approvers", featureKey: "cm_max_approvers" },
+        ],
+      },
+      {
+        group: "Modules",
+        rows: [
+          { label: "Helpdesk", featureKey: "feature_helpdesk" },
+          { label: "Change Management", featureKey: "feature_change_management" },
+          { label: "Public API access", featureKey: "feature_api_access" },
+        ],
+      },
+    ];
+  }, [kind]);
+
+  const getCellFor = (planId: string, featureKey: string) => {
+    const meta = featureMeta.find((f) => f.feature_key === featureKey);
+    const pv = planValues.find((v) => v.plan_id === planId && v.feature_key === featureKey);
+    if (!meta) return { display: "—", isCheck: false, isDash: true };
+    return formatCellValue(meta, pv?.value);
+  };
 
   const handleStart = (plan: Plan) => {
     const lookupKey = cycle === "monthly" ? plan.stripe_lookup_key_monthly : plan.stripe_lookup_key_yearly;
@@ -269,6 +330,93 @@ export function StandalonePricingPage({
           </div>
         )}
       </section>
+
+      {!loading && plans.length > 0 && (
+        <section className="max-w-6xl mx-auto px-6 pb-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Compare plans</h2>
+            <p className="text-muted-foreground">Side-by-side limits and capabilities for every tier.</p>
+          </div>
+          <div className="border rounded-lg overflow-x-auto bg-card">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40">
+                  <th className="text-left font-medium p-4 min-w-[180px]">Feature</th>
+                  {plans.map((p) => (
+                    <th key={p.id} className="text-center font-medium p-4 min-w-[140px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className={p.highlight ? "text-primary" : ""}>{p.name}</span>
+                        {p.highlight && (
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                            Popular
+                          </Badge>
+                        )}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonGroups.map((group) => (
+                  <Fragment key={`g-${group.group}`}>
+                    <tr className="bg-muted/20 border-b">
+                      <td
+                        colSpan={plans.length + 1}
+                        className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                      >
+                        {group.group}
+                      </td>
+                    </tr>
+                    {group.rows.map((row) => (
+                      <tr key={`${group.group}-${row.featureKey}`} className="border-b last:border-0">
+                        <td className="p-4 font-medium">{row.label}</td>
+                        {plans.map((p) => {
+                          const cell = getCellFor(p.id, row.featureKey);
+                          return (
+                            <td key={p.id} className="p-4 text-center">
+                              {cell.isCheck ? (
+                                <Check className="h-4 w-4 text-primary mx-auto" />
+                              ) : cell.isDash ? (
+                                <span className="text-muted-foreground">—</span>
+                              ) : (
+                                <span className="font-medium">{cell.display}</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </Fragment>
+                ))}
+                <tr className="border-t bg-muted/10">
+                  <td className="p-4 font-medium">Starting price</td>
+                  {plans.map((p) => {
+                    const isContact =
+                      p.price_monthly === 0 && p.price_yearly === 0 && p.name.toLowerCase().includes("enterprise");
+                    const price = cycle === "monthly" ? p.price_monthly : p.price_yearly;
+                    return (
+                      <td key={p.id} className="p-4 text-center">
+                        {isContact ? (
+                          <span className="font-semibold">Custom</span>
+                        ) : price === 0 ? (
+                          <span className="font-semibold">Free</span>
+                        ) : (
+                          <span className="font-semibold">
+                            ${(price / 100).toFixed(0)}
+                            <span className="text-xs text-muted-foreground font-normal">
+                              /{cycle === "monthly" ? "mo" : "yr"}
+                            </span>
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="max-w-3xl mx-auto px-6 pb-16 text-center">
         <h2 className="text-2xl font-bold mb-3">Need the full PPM platform?</h2>
