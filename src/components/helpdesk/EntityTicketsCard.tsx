@@ -33,14 +33,14 @@ export function EntityTicketsCard({ scope, entityId, entityName }: EntityTickets
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["entity-tickets", scope, entityId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("helpdesk_tickets")
-        .select("id, reference_number, subject, status, priority, ticket_type, assignee_id, created_at, sla_resolution_due_at, sla_resolution_breached")
-        .eq(column, entityId)
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
+      const { data, error } = await (query as any).eq(column, entityId);
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as any[];
     },
     enabled: !!entityId,
   });
