@@ -33,7 +33,9 @@ import {
   Package,
   ListTodo,
   MessageSquarePlus,
+  LifeBuoy,
 } from "lucide-react";
+import { EntityTicketsCard } from "@/components/helpdesk/EntityTicketsCard";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
