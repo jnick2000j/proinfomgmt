@@ -753,6 +753,11 @@ export default function ProgrammeDetails() {
             <TranchesTabContent programmeId={programmeId!} />
           </TabsContent>
 
+          {/* Tickets Tab */}
+          <TabsContent value="tickets">
+            {programme && <EntityTicketsCard scope="programme" entityId={programme.id} entityName={programme.name} />}
+          </TabsContent>
+
           {/* Status Timeline Tab */}
           <TabsContent value="history">
             <Card>

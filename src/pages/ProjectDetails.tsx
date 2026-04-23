@@ -942,6 +942,11 @@ export default function ProjectDetails() {
             </Card>
           </TabsContent>
 
+          {/* Tickets Tab */}
+          <TabsContent value="tickets">
+            {project && <EntityTicketsCard scope="project" entityId={project.id} entityName={project.name} />}
+          </TabsContent>
+
           {/* Status Timeline Tab */}
           <TabsContent value="history">
             <Card>

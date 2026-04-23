@@ -724,6 +724,11 @@ export default function ProductDetails() {
             </Card>
           </TabsContent>
 
+          {/* Tickets Tab */}
+          <TabsContent value="tickets">
+            {product && <EntityTicketsCard scope="product" entityId={product.id} entityName={product.name} />}
+          </TabsContent>
+
           {/* Status Timeline Tab */}
           <TabsContent value="history">
             <Card>
