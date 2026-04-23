@@ -4,6 +4,7 @@ import { RiskSummary } from "@/components/dashboard/RiskSummary";
 import { UpcomingMilestones } from "@/components/dashboard/UpcomingMilestones";
 import { OrganizationStats } from "@/components/dashboard/OrganizationStats";
 import { StatusIndicators } from "@/components/dashboard/StatusIndicators";
+import { HelpdeskUsageCard } from "@/components/dashboard/HelpdeskUsageCard";
 import { PlanUsageBar } from "@/components/PlanUsageBar";
 import { Button } from "@/components/ui/button";
 import { Layers, FolderKanban, AlertTriangle, Target, Package, Eye } from "lucide-react";
@@ -102,6 +103,10 @@ export default function Dashboard() {
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         <RiskSummary />
         <UpcomingMilestones />
+      </div>
+
+      <div className="mb-8">
+        <HelpdeskUsageCard />
       </div>
 
       <div className="mb-8">
