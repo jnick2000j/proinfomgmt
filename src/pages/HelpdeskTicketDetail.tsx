@@ -306,6 +306,17 @@ export default function HelpdeskTicketDetail() {
               </div>
             </Card>
 
+            <SLAStatus
+              createdAt={ticket.created_at}
+              responseDueAt={(ticket as any).sla_response_due_at}
+              resolutionDueAt={(ticket as any).sla_resolution_due_at}
+              firstResponseAt={ticket.first_response_at}
+              resolvedAt={ticket.resolved_at}
+              responseBreached={(ticket as any).sla_response_breached ?? false}
+              resolutionBreached={(ticket as any).sla_resolution_breached ?? false}
+              status={ticket.status}
+            />
+
             <Card className="p-4 space-y-2">
               <h3 className="font-semibold">Linked</h3>
               <div className="text-sm space-y-1">
