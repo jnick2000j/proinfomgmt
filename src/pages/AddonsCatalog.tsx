@@ -65,6 +65,7 @@ export default function AddonsCatalog() {
   const [loading, setLoading] = useState(true);
   const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
+  const [purchasingAddon, setPurchasingAddon] = useState<AddonPlan | null>(null);
 
   useEffect(() => {
     supabase
@@ -83,7 +84,21 @@ export default function AddonsCatalog() {
   const handlePurchase = (addon: AddonPlan) => {
     const lookupKey = cycle === "monthly" ? addon.stripe_lookup_key_monthly : addon.stripe_lookup_key_yearly;
     if (!lookupKey) return;
+    setPurchasingAddon(addon);
     setCheckoutPriceId(lookupKey);
+  };
+
+  const addonReturnUrl = () => {
+    const base = `${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}&purchase_type=addon`;
+    if (!purchasingAddon) return base;
+    const key = purchasingAddon.name.toLowerCase().includes("itsm")
+      ? "itsm"
+      : purchasingAddon.name.toLowerCase().includes("helpdesk")
+      ? "helpdesk"
+      : purchasingAddon.name.toLowerCase().includes("change")
+      ? "change_management"
+      : "addon";
+    return `${base}&addon=${key}&addon_name=${encodeURIComponent(purchasingAddon.name)}`;
   };
 
   const isAlreadyActive = (addon: AddonPlan) => {
@@ -198,7 +213,7 @@ export default function AddonsCatalog() {
           </div>
         </div>
 
-        <Dialog open={!!checkoutPriceId} onOpenChange={(o) => !o && setCheckoutPriceId(null)}>
+        <Dialog open={!!checkoutPriceId} onOpenChange={(o) => { if (!o) { setCheckoutPriceId(null); setPurchasingAddon(null); } }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Complete your add-on subscription</DialogTitle>
@@ -209,7 +224,7 @@ export default function AddonsCatalog() {
                 customerEmail={user?.email}
                 organizationId={currentOrganization?.id}
                 purchaseType="addon"
-                returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+                returnUrl={addonReturnUrl()}
               />
             )}
           </DialogContent>
