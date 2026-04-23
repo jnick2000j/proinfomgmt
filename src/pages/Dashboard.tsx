@@ -4,6 +4,7 @@ import { RiskSummary } from "@/components/dashboard/RiskSummary";
 import { UpcomingMilestones } from "@/components/dashboard/UpcomingMilestones";
 import { OrganizationStats } from "@/components/dashboard/OrganizationStats";
 import { StatusIndicators } from "@/components/dashboard/StatusIndicators";
+import { HelpdeskUsageCard } from "@/components/dashboard/HelpdeskUsageCard";
 import { PlanUsageBar } from "@/components/PlanUsageBar";
 import { Button } from "@/components/ui/button";
 import { Layers, FolderKanban, AlertTriangle, Target, Package, Eye } from "lucide-react";
