@@ -36,6 +36,31 @@ export function Header({ title, subtitle }: HeaderProps) {
   const isAdmin = userRole === "admin";
   const [globalLogoUrl, setGlobalLogoUrl] = useState<string | null>(null);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [openingPortal, setOpeningPortal] = useState(false);
+
+  const handleOpenBillingPortal = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!currentOrganization?.id) {
+      toast.error("Select an organization first");
+      return;
+    }
+    setOpeningPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session", {
+        body: {
+          organizationId: currentOrganization.id,
+          environment: getStripeEnvironment(),
+          returnUrl: `${window.location.origin}/billing`,
+        },
+      });
+      if (error || !data?.url) throw new Error(error?.message || "Could not open billing portal. You may not have an active subscription yet.");
+      window.open(data.url, "_blank");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setOpeningPortal(false);
+    }
+  };
 
   const getDisplayName = () => {
     if (userProfile?.first_name && userProfile?.last_name) {
