@@ -149,7 +149,7 @@ export default function CheckoutReturn() {
 
         {status === "pending" && meta && (
           <>
-            <AlertCircle className="h-12 w-12 text-amber-500 mx-auto" />
+            <AlertCircle className="h-12 w-12 text-warning mx-auto" />
             <h1 className="text-2xl font-bold">Payment received</h1>
             <p className="text-sm text-muted-foreground">
               Your payment for <strong>{meta.label}</strong> went through, but activation is taking
