@@ -425,7 +425,23 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Sprint</Label>
+            <Label>Feature</Label>
+            <Select
+              value={featureId || "none"}
+              onValueChange={(v) => setFeatureId(v === "none" ? "" : v)}
+              disabled={!productId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={productId ? "No feature" : "Select product first"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Feature</SelectItem>
+                {featuresList.map((f: any) => (
+                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
             <Select value={sprintId || "none"} onValueChange={(v) => setSprintId(v === "none" ? "" : v)}>
               <SelectTrigger><SelectValue placeholder="No sprint" /></SelectTrigger>
               <SelectContent>
