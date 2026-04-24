@@ -119,6 +119,34 @@ export default function Reports() {
     },
   });
 
+  const { data: helpdeskTickets = [] } = useQuery({
+    queryKey: ["helpdesk-tickets-stats", currentOrganization?.id],
+    queryFn: async () => {
+      let q = supabase.from("helpdesk_tickets").select(
+        "id, ticket_type, status, priority, created_at, first_response_at, resolved_at, " +
+        "sla_response_breached, sla_resolution_breached, csat_rating"
+      );
+      if (currentOrganization?.id) q = q.eq("organization_id", currentOrganization.id);
+      const { data, error } = await q.limit(1000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const { data: cmRequests = [] } = useQuery({
+    queryKey: ["cm-requests-stats", currentOrganization?.id],
+    queryFn: async () => {
+      let q = supabase.from("change_management_requests").select(
+        "id, status, change_type, impact, urgency, risk_score, downtime_required, " +
+        "downtime_minutes, planned_start_at, planned_end_at, actual_end_at, created_at"
+      );
+      if (currentOrganization?.id) q = q.eq("organization_id", currentOrganization.id);
+      const { data, error } = await q.limit(1000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   // Chart data
   const riskCategories = risks.reduce((acc, r) => {
     const s = r.status || "unknown";
