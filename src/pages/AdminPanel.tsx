@@ -594,6 +594,9 @@ export default function AdminPanel() {
         <TabsContent value="ai-provider">
           <AIProviderSettings />
         </TabsContent>
+        <TabsContent value="verticals">
+          <OrgVerticalManager />
+        </TabsContent>
       </Tabs>
     </AppLayout>
   );
