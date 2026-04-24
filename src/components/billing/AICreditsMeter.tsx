@@ -18,8 +18,8 @@ interface CreditStatus {
 }
 
 interface Props {
-  /** "compact" → header chip, "full" → full card with meter */
-  variant?: "compact" | "full";
+  /** "compact" → header chip, "full" → full card with meter, "menu" → dropdown menu row */
+  variant?: "compact" | "full" | "menu";
   /** If true, render nothing when no org is selected. */
   hideWhenEmpty?: boolean;
 }
