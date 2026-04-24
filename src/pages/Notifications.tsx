@@ -77,7 +77,7 @@ export default function Notifications() {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("notifications-page")
+      .channel(`notifications-page:${user.id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
