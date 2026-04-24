@@ -91,8 +91,15 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = (await req.json()) as RequestBody;
-    if (!body.wizard || !body.system_prompt || !Array.isArray(body.messages)) {
+    if (!body.wizard || !Array.isArray(body.messages)) {
       return new Response(JSON.stringify({ error: "invalid request" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const systemPrompt = WIZARD_SYSTEM_PROMPTS[body.wizard];
+    if (!systemPrompt) {
+      return new Response(JSON.stringify({ error: `unknown wizard: ${body.wizard}` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -159,8 +166,8 @@ Deno.serve(async (req: Request) => {
         : "";
 
     const fullSystem =
-      `You are drafting a "${body.title}".\n\n` +
-      body.system_prompt +
+      `You are drafting a "${body.title || body.wizard}".\n\n` +
+      systemPrompt +
       "\n\n" +
       INTAKE_INSTRUCTIONS +
       requiredList +
