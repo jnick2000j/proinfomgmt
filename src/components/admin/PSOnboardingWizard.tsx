@@ -135,7 +135,7 @@ export function PSOnboardingWizard({ open, onOpenChange, organization, onSuccess
 
       // 2) Optionally seed a welcome knowledge entry / sample engagement
       if (seedWelcome) {
-        await supabase.from("knowledge_articles").insert({
+        const { error: kbErr } = await supabase.from("kb_articles").insert({
           organization_id: currentOrg.id,
           title: "Welcome to your Professional Services workspace",
           summary:
@@ -154,28 +154,41 @@ export function PSOnboardingWizard({ open, onOpenChange, organization, onSuccess
             "  3. Configure your rate card and resource pool under Settings.\n",
           category: "Onboarding",
           tags: ["onboarding", "professional_services"],
-        }).then(({ error }) => {
-          if (error) console.warn("Welcome article insert failed", error);
+          status: "published",
+          visibility: "internal",
         });
+        if (kbErr) console.warn("Welcome article insert failed", kbErr);
       }
 
       if (seedSampleEngagement) {
-        await supabase.from("vertical_entity_records").insert({
-          organization_id: currentOrg.id,
-          vertical_entity_slug: "client_engagements",
-          data: {
-            name: "Sample Engagement — Internal demo",
-            client_name: "Acme Corp (sample)",
-            engagement_type: "time_and_materials",
+        // Look up the engagement vertical_entity for this org's vertical
+        const { data: ent } = await supabase
+          .from("vertical_entities")
+          .select("id, slug")
+          .eq("vertical_id", "professional_services")
+          .in("slug", ["client_engagements", "engagements"])
+          .limit(1)
+          .maybeSingle();
+        if (ent?.id) {
+          const { error: recErr } = await supabase.from("vertical_entity_records").insert({
+            entity_id: ent.id,
+            organization_id: currentOrg.id,
+            title: "Sample Engagement — Internal demo",
             status: "draft",
-            start_date: new Date().toISOString().slice(0, 10),
-            account_manager: "TBD",
-            value: 0,
-            notes: "Sample engagement created by the onboarding wizard. Safe to delete.",
-          },
-        }).then(({ error }) => {
-          if (error) console.warn("Sample engagement insert failed", error);
-        });
+            priority: "medium",
+            data: {
+              client_name: "Acme Corp (sample)",
+              engagement_type: "time_and_materials",
+              start_date: new Date().toISOString().slice(0, 10),
+              account_manager: "TBD",
+              value: 0,
+              notes: "Sample engagement created by the onboarding wizard. Safe to delete.",
+            },
+          });
+          if (recErr) console.warn("Sample engagement insert failed", recErr);
+        } else {
+          console.warn("No engagement vertical entity found for professional_services");
+        }
       }
 
       toast.success(`Professional Services configured for ${currentOrg.name}`);
