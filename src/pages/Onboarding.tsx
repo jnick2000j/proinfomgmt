@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers } from "lucide-react";
+import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers, HardHat, Briefcase, Server, Code2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 type Intent = "ppm" | "helpdesk" | "itsm";
-type Step = "intent" | "org" | "invite" | "plan" | "done";
+type Vertical = "it_infrastructure" | "software_saas" | "construction" | "professional_services";
+type Step = "intent" | "vertical" | "org" | "invite" | "plan" | "done";
 
 export default function Onboarding() {
   const navigate = useNavigate();
