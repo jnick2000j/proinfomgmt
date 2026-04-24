@@ -43,6 +43,7 @@ interface TaskData {
   work_package_id: string | null;
   risk_id: string | null;
   issue_id: string | null;
+  feature_id?: string | null;
   completion_percentage?: number | null;
 }
 
