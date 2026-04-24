@@ -355,6 +355,36 @@ export default function Timesheets() {
     if (error) toast.error(error.message);
   };
 
+  const deleteSheet = async (sheet: Timesheet) => {
+    if (sheet.status !== "draft") {
+      toast.error("Only draft timesheets can be deleted");
+      return;
+    }
+    if (!window.confirm("Delete this draft timesheet and all its entries? This cannot be undone.")) {
+      return;
+    }
+    // Remove entries first (FK), then the sheet
+    const { error: entriesErr } = await supabase
+      .from("timesheet_entries")
+      .delete()
+      .eq("timesheet_id", sheet.id);
+    if (entriesErr) {
+      toast.error(entriesErr.message);
+      return;
+    }
+    const { error } = await supabase.from("timesheets").delete().eq("id", sheet.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setMySheets((s) => s.filter((x) => x.id !== sheet.id));
+    if (selectedSheet?.id === sheet.id) {
+      setEditorOpen(false);
+      setSelectedSheet(null);
+    }
+    toast.success("Draft timesheet deleted");
+  };
+
   const updateNotes = async (notes: string) => {
     if (!selectedSheet) return;
     setSelectedSheet({ ...selectedSheet, notes });
