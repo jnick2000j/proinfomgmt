@@ -338,7 +338,7 @@ export function AIDraftWizardDialog({
         reviewed_by: user?.id ?? null,
         reviewed_at: new Date().toISOString(),
         // Persist any user edits from the textarea.
-        draft_payload: { content: draft, conversation: messages },
+        draft_payload: { content: draft, conversation: messages.map(m => ({ role: m.role, content: m.content })) } as any,
       })
       .eq("id", auditId);
     if (error) {
@@ -402,7 +402,8 @@ export function AIDraftWizardDialog({
         <div className={`flex-1 grid ${inDraftMode ? "md:grid-cols-2" : "grid-cols-1"} gap-0 min-h-0 overflow-hidden border-t`}>
           {/* CHAT PANE */}
           <div className="flex flex-col min-h-0 border-r">
-            <ScrollArea className="flex-1 px-4 py-3" viewportRef={scrollRef as any}>
+            <ScrollArea className="flex-1 px-4 py-3">
+              <div ref={scrollRef as any}>
               <div className="space-y-3">
                 {messages.length === 0 && !streaming && (
                   <div className="text-sm text-muted-foreground italic py-8 text-center">
