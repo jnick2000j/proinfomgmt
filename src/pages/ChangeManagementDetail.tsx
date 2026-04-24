@@ -765,6 +765,40 @@ export default function ChangeManagementDetail() {
                                 {a.notes}
                               </p>
                             )}
+
+                            {(() => {
+                              const atts = attachmentsByActivity.get(a.id) ?? [];
+                              if (atts.length === 0) return null;
+                              return (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {atts.map((doc: any) => {
+                                    const isImg = (doc.mime_type ?? "").startsWith("image/");
+                                    const Icon = isImg ? ImageIcon : FileText;
+                                    const sizeLabel = doc.file_size
+                                      ? doc.file_size < 1024 * 1024
+                                        ? `${(doc.file_size / 1024).toFixed(0)} KB`
+                                        : `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB`
+                                      : "";
+                                    return (
+                                      <button
+                                        key={doc.id}
+                                        type="button"
+                                        onClick={() => downloadAttachment(doc)}
+                                        className="flex items-center gap-2 bg-muted/60 hover:bg-muted rounded-md px-2 py-1 text-xs transition-colors"
+                                        title={`Download ${doc.name}`}
+                                      >
+                                        <Icon className="h-3.5 w-3.5 text-primary" />
+                                        <span className="max-w-[180px] truncate">{doc.name}</span>
+                                        {sizeLabel && (
+                                          <span className="text-muted-foreground">{sizeLabel}</span>
+                                        )}
+                                        <Download className="h-3 w-3 text-muted-foreground" />
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       </Card>
