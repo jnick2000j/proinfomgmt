@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { ArrowLeft, CheckCircle2, XCircle, Plus, MessageSquare, ArrowRight, Wrench } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle, Plus, MessageSquare, ArrowRight, Wrench, Paperclip, X, Download, FileText, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
@@ -100,6 +100,9 @@ export default function ChangeManagementDetail() {
   // Progress / test result composer
   const [progressKind, setProgressKind] = useState<string>("progress_note");
   const [progressText, setProgressText] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadingAttachments, setUploadingAttachments] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: change, isLoading } = useQuery({
     queryKey: ["cm-request", id],
@@ -131,6 +134,32 @@ export default function ChangeManagementDetail() {
     },
     enabled: !!id,
   });
+
+  const activityIds = useMemo(() => (activity as any[]).map((a) => a.id), [activity]);
+
+  const { data: activityAttachments = [] } = useQuery({
+    queryKey: ["cm-activity-attachments", id, activityIds.length],
+    queryFn: async () => {
+      if (!activityIds.length) return [];
+      const { data } = await supabase
+        .from("documents")
+        .select("id, name, file_path, file_size, mime_type, entity_id, created_at")
+        .eq("entity_type", "change_activity")
+        .in("entity_id", activityIds);
+      return data ?? [];
+    },
+    enabled: !!id && activityIds.length > 0,
+  });
+
+  const attachmentsByActivity = useMemo(() => {
+    const map = new Map<string, any[]>();
+    for (const a of activityAttachments as any[]) {
+      const arr = map.get(a.entity_id) ?? [];
+      arr.push(a);
+      map.set(a.entity_id, arr);
+    }
+    return map;
+  }, [activityAttachments]);
 
   const { data: orgUsers = [] } = useQuery({
     queryKey: ["org-users-min", currentOrganization?.id],
@@ -232,17 +261,25 @@ export default function ChangeManagementDetail() {
     from_value?: any;
     to_value?: any;
     notes?: string | null;
-  }) => {
-    if (!change) return;
-    await supabase.from("change_management_activity").insert({
-      change_id: change.id,
-      organization_id: change.organization_id,
-      actor_user_id: user?.id ?? null,
-      event_type: payload.event_type,
-      from_value: payload.from_value ?? null,
-      to_value: payload.to_value ?? null,
-      notes: payload.notes ?? null,
-    });
+  }): Promise<string | null> => {
+    if (!change) return null;
+    const { data, error } = await supabase
+      .from("change_management_activity")
+      .insert({
+        change_id: change.id,
+        organization_id: change.organization_id,
+        actor_user_id: user?.id ?? null,
+        event_type: payload.event_type,
+        from_value: payload.from_value ?? null,
+        to_value: payload.to_value ?? null,
+        notes: payload.notes ?? null,
+      })
+      .select("id")
+      .single();
+    if (error) {
+      console.warn("activity insert failed", error);
+      return null;
+    }
     // Fire-and-forget email + in-app notification dispatch
     void fireActivityNotification(
       payload.event_type,
@@ -250,6 +287,7 @@ export default function ChangeManagementDetail() {
       payload.to_value ?? null,
       payload.notes ?? null,
     );
+    return data?.id ?? null;
   };
 
   const persistFieldChange = async (field: string, value: any, comment?: string | null) => {
@@ -298,19 +336,90 @@ export default function ChangeManagementDetail() {
     await persistFieldChange(field, to, comment);
   };
 
+  const handleAddFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const MAX = 25 * 1024 * 1024; // 25MB
+    const accepted: File[] = [];
+    for (const f of files) {
+      if (f.size > MAX) {
+        toast.error(`${f.name} is too large (25MB max)`);
+        continue;
+      }
+      accepted.push(f);
+    }
+    setPendingFiles((prev) => [...prev, ...accepted]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removePendingFile = (idx: number) => {
+    setPendingFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const uploadAttachmentsForActivity = async (activityId: string) => {
+    if (!change || !user || pendingFiles.length === 0) return;
+    for (const file of pendingFiles) {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `change_activity/${activityId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
+      const { error: upErr } = await supabase.storage.from("documents").upload(filePath, file);
+      if (upErr) {
+        toast.error(`Failed to upload ${file.name}`);
+        continue;
+      }
+      const { error: dbErr } = await supabase.from("documents").insert({
+        name: file.name,
+        file_path: filePath,
+        file_size: file.size,
+        mime_type: file.type,
+        entity_type: "change_activity",
+        entity_id: activityId,
+        uploaded_by: user.id,
+      });
+      if (dbErr) {
+        toast.error(`Failed to record ${file.name}`);
+      }
+    }
+  };
+
   const submitProgress = async () => {
     const required = requiresActivityComment(progressKind);
-    if (required && !progressText.trim()) {
+    const hasFiles = pendingFiles.length > 0;
+    if (required && !progressText.trim() && !hasFiles) {
       toast.error("A comment is required for this update type");
       return;
     }
-    await writeActivity({
-      event_type: progressKind,
-      notes: progressText.trim() || null,
-    });
-    setProgressText("");
-    toast.success("Comment posted");
-    qc.invalidateQueries({ queryKey: ["cm-activity", id] });
+    if (!progressText.trim() && !hasFiles) {
+      toast.error("Add a comment or attach a file before posting");
+      return;
+    }
+    setUploadingAttachments(true);
+    try {
+      const activityId = await writeActivity({
+        event_type: progressKind,
+        notes: progressText.trim() || null,
+      });
+      if (activityId && hasFiles) {
+        await uploadAttachmentsForActivity(activityId);
+      }
+      setProgressText("");
+      setPendingFiles([]);
+      toast.success(hasFiles ? "Update posted with attachments" : "Update posted");
+      qc.invalidateQueries({ queryKey: ["cm-activity", id] });
+      qc.invalidateQueries({ queryKey: ["cm-activity-attachments", id] });
+    } finally {
+      setUploadingAttachments(false);
+    }
+  };
+
+  const downloadAttachment = async (doc: { file_path: string; name: string }) => {
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(doc.file_path, 3600);
+    if (error || !data?.signedUrl) {
+      toast.error("Failed to generate download link");
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
   };
 
   const addApproval = async () => {
@@ -458,7 +567,10 @@ export default function ChangeManagementDetail() {
                 {canPostProgress && (() => {
                   const required = requiresActivityComment(progressKind);
                   const hasText = !!progressText.trim();
-                  const blocked = required && !hasText;
+                  const hasFiles = pendingFiles.length > 0;
+                  // When admin requires comment, accept either text OR attachments as evidence.
+                  const blocked = required && !hasText && !hasFiles;
+                  const emptyPost = !hasText && !hasFiles;
                   const kindLabel = PROGRESS_KINDS.find(k => k.key === progressKind)?.label ?? progressKind;
                   return (
                     <Card className={cn(
@@ -472,14 +584,14 @@ export default function ChangeManagementDetail() {
                         </div>
                         {required ? (
                           <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-xs">
-                            Comment required for {kindLabel}
+                            Comment or attachment required for {kindLabel}
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-xs">Comment optional</Badge>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Implementers, owners and requesters can record progress, test results or general notes against this change.
+                        Implementers, owners and requesters can record progress, test results or general notes against this change. Attach screenshots, logs or test reports as supporting evidence.
                       </p>
                       <div className="flex gap-2">
                         <Select value={progressKind} onValueChange={setProgressKind}>
@@ -497,7 +609,7 @@ export default function ChangeManagementDetail() {
                           {required && <span className="text-destructive font-semibold">*</span>}
                           {required && (
                             <span className="text-muted-foreground font-normal">
-                              (required by your organisation for {kindLabel.toLowerCase()})
+                              (required for {kindLabel.toLowerCase()} — text or an attachment)
                             </span>
                           )}
                         </Label>
@@ -508,7 +620,7 @@ export default function ChangeManagementDetail() {
                           className={cn(blocked && "border-destructive focus-visible:ring-destructive")}
                           placeholder={
                             required
-                              ? `A written comment is required for ${kindLabel.toLowerCase()}`
+                              ? `Describe ${kindLabel.toLowerCase()} or attach evidence below`
                               : "Describe progress, test outcomes, blockers, or context for the team… (optional)"
                           }
                           value={progressText}
@@ -516,18 +628,85 @@ export default function ChangeManagementDetail() {
                         />
                         {blocked && (
                           <p className="text-xs text-destructive">
-                            Add a comment before posting — your administrator requires written detail for this update type.
+                            Add a comment or attach a file before posting — your administrator requires evidence for this update type.
                           </p>
                         )}
                       </div>
+
+                      {/* Attachments picker */}
+                      <div className="space-y-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={handleAddFiles}
+                          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.log,.json,.zip"
+                        />
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingAttachments}
+                            className="gap-2"
+                          >
+                            <Paperclip className="h-4 w-4" />
+                            Attach files or screenshots
+                          </Button>
+                          {pendingFiles.length > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {pendingFiles.length} file{pendingFiles.length === 1 ? "" : "s"} ready
+                            </span>
+                          )}
+                        </div>
+                        {pendingFiles.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {pendingFiles.map((f, idx) => {
+                              const isImg = f.type.startsWith("image/");
+                              const Icon = isImg ? ImageIcon : FileText;
+                              return (
+                                <div
+                                  key={`${f.name}-${idx}`}
+                                  className="flex items-center gap-2 bg-muted/60 rounded-md pl-2 pr-1 py-1 text-xs"
+                                >
+                                  <Icon className="h-3.5 w-3.5 text-primary" />
+                                  <span className="max-w-[180px] truncate">{f.name}</span>
+                                  <span className="text-muted-foreground">
+                                    {(f.size / 1024).toFixed(0)} KB
+                                  </span>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5"
+                                    onClick={() => removePendingFile(idx)}
+                                    disabled={uploadingAttachments}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="flex justify-end">
                         <Button
                           size="sm"
                           onClick={submitProgress}
-                          disabled={blocked}
-                          title={blocked ? "Add a comment to post this update" : undefined}
+                          disabled={blocked || emptyPost || uploadingAttachments}
+                          title={
+                            blocked
+                              ? "Add a comment or attachment to post this update"
+                              : emptyPost
+                                ? "Add a comment or attachment"
+                                : undefined
+                          }
                         >
-                          Post update
+                          {uploadingAttachments ? "Posting…" : "Post update"}
                         </Button>
                       </div>
                     </Card>
@@ -586,6 +765,40 @@ export default function ChangeManagementDetail() {
                                 {a.notes}
                               </p>
                             )}
+
+                            {(() => {
+                              const atts = attachmentsByActivity.get(a.id) ?? [];
+                              if (atts.length === 0) return null;
+                              return (
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {atts.map((doc: any) => {
+                                    const isImg = (doc.mime_type ?? "").startsWith("image/");
+                                    const Icon = isImg ? ImageIcon : FileText;
+                                    const sizeLabel = doc.file_size
+                                      ? doc.file_size < 1024 * 1024
+                                        ? `${(doc.file_size / 1024).toFixed(0)} KB`
+                                        : `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB`
+                                      : "";
+                                    return (
+                                      <button
+                                        key={doc.id}
+                                        type="button"
+                                        onClick={() => downloadAttachment(doc)}
+                                        className="flex items-center gap-2 bg-muted/60 hover:bg-muted rounded-md px-2 py-1 text-xs transition-colors"
+                                        title={`Download ${doc.name}`}
+                                      >
+                                        <Icon className="h-3.5 w-3.5 text-primary" />
+                                        <span className="max-w-[180px] truncate">{doc.name}</span>
+                                        {sizeLabel && (
+                                          <span className="text-muted-foreground">{sizeLabel}</span>
+                                        )}
+                                        <Download className="h-3 w-3 text-muted-foreground" />
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       </Card>
