@@ -153,6 +153,7 @@ export default function Timesheets() {
   const [projects, setProjects] = useState<NamedRow[]>([]);
   const [products, setProducts] = useState<NamedRow[]>([]);
   const [tasksList, setTasksList] = useState<NamedRow[]>([]);
+  const [tickets, setTickets] = useState<NamedRow[]>([]);
   const [orgUsers, setOrgUsers] = useState<ProfileRow[]>([]);
 
   // Editor state
