@@ -409,8 +409,8 @@ const aiWizards: AIWizardSpec[] = [
   ]},
 ];
 
-const CREATE_CATEGORIES = ["all", "MSP", "PRINCE2", "Agile", "Product", "Governance", "Construction"] as const;
-const AI_CATEGORIES = ["all", "Document", "Strategy", "Governance", "Helper", "Change Mgmt", "Helpdesk", "Construction"] as const;
+const CREATE_CATEGORIES = ["all", "MSP", "PRINCE2", "Agile", "Product", "Governance", "Construction", "Pro Services"] as const;
+const AI_CATEGORIES = ["all", "Document", "Strategy", "Governance", "Helper", "Change Mgmt", "Helpdesk", "Construction", "Pro Services"] as const;
 
 export default function Wizards() {
   const [searchParams, setSearchParams] = useSearchParams();
