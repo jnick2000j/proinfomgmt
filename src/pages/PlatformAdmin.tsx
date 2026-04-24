@@ -185,6 +185,39 @@ export default function PlatformAdmin() {
     }
   };
 
+  const handleArchive = async (org: OrgOverview, archive: boolean) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase.rpc("archive_organization", {
+        _org_id: org.id,
+        _archive: archive,
+      });
+      if (error) throw error;
+      toast.success(archive ? `${org.name} archived` : `${org.name} restored`);
+      setArchiveTarget(null);
+      await fetchData();
+    } catch (e: any) {
+      toast.error(e.message ?? "Action failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async (org: OrgOverview) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase.rpc("delete_organization_cascade", { _org_id: org.id });
+      if (error) throw error;
+      toast.success(`${org.name} permanently deleted`);
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (e: any) {
+      toast.error(e.message ?? "Delete failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getStatusBadge = (status: string | null) => {
     if (!status) return <Badge variant="outline">No Plan</Badge>;
     const variants: Record<string, string> = {
