@@ -184,6 +184,47 @@ export default function Onboarding() {
           </Card>
         )}
 
+        {/* Step: Choose Industry Vertical */}
+        {step === "vertical" && (
+          <Card className="p-8">
+            <div className="text-center mb-6">
+              <Layers className="h-12 w-12 mx-auto text-primary mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Pick your industry</h2>
+              <p className="text-muted-foreground">
+                We'll tailor modules, terminology and dashboards for your sector. You can change this later.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                { id: "it_infrastructure" as Vertical, icon: Server, title: "IT & Infrastructure", desc: "ITSM, Helpdesk, Change Management, infra projects" },
+                { id: "software_saas" as Vertical, icon: Code2, title: "Software & SaaS", desc: "Agile, sprints, roadmap, feature pipeline" },
+                { id: "construction" as Vertical, icon: HardHat, title: "Construction & Engineering", desc: "RFIs, submittals, daily logs, punch lists" },
+                { id: "professional_services" as Vertical, icon: Briefcase, title: "Professional Services", desc: "Engagements, retainers, billable hours" },
+              ].map(({ id, icon: Icon, title, desc }) => (
+                <Card
+                  key={id}
+                  className={`p-4 cursor-pointer transition-all hover:border-primary text-left ${
+                    vertical === id ? "border-primary ring-2 ring-primary/20" : ""
+                  }`}
+                  onClick={() => setVertical(id)}
+                >
+                  <Icon className="h-6 w-6 text-primary mb-2" />
+                  <div className="font-semibold mb-1">{title}</div>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </Card>
+              ))}
+            </div>
+            <div className="flex justify-between mt-6">
+              <Button variant="outline" onClick={() => setStep("intent")} className="gap-2">
+                <ArrowLeft className="h-4 w-4" /> Back
+              </Button>
+              <Button onClick={() => setStep("org")} className="gap-2">
+                Continue <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Step: Create Organization */}
         {step === "org" && (
           <Card className="p-8 text-center">
