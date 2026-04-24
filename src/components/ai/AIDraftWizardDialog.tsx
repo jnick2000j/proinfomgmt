@@ -120,7 +120,10 @@ export function AIDraftWizardDialog({
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
       const el = scrollRef.current;
-      if (el) el.scrollTop = el.scrollHeight;
+      // Walk up to find the ScrollArea viewport.
+      const viewport = el?.closest("[data-radix-scroll-area-viewport]") as HTMLElement | null;
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
+      else if (el) el.scrollTop = el.scrollHeight;
     });
   };
 
