@@ -484,7 +484,6 @@ export default function ProgrammeDetails() {
               { value: "automations", label: "Automations", icon: Workflow },
               { value: "history", label: "Timeline", icon: History },
             ]}
-            />
           />
 
           {/* Linked Projects Tab */}

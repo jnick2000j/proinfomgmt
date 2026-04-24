@@ -551,7 +551,6 @@ export default function ProjectDetails() {
               { value: "automations", label: "Automations", icon: Workflow },
               { value: "history", label: "Status Timeline", icon: History },
             ]}
-            />
           />
 
           {/* Work Packages Tab */}

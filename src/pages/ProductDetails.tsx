@@ -473,7 +473,6 @@ export default function ProductDetails() {
               { value: "automations", label: "Automations", icon: Workflow },
               { value: "history", label: "Status Timeline", icon: History },
             ]}
-            />
           />
 
           {/* Features Tab */}
