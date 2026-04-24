@@ -330,7 +330,7 @@ export default function ChangeManagementDetail() {
     if (!pendingChange) return;
     const { field, to } = pendingChange;
     // Enforce admin "require comment" toggles
-    if (skipComment && requiresComment(field)) {
+    if (skipComment && requiresComment(field, to)) {
       toast.error("A comment is required for this change");
       return;
     }
