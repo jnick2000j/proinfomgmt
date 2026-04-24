@@ -1351,6 +1351,35 @@ const getCreatesEntity = (templateType: TemplateType): string | null => {
     case "sprint_retro":
     case "compliance_health_check":
       return null; // reference/guide wizards — no entity created
+    case "con_rfi_form":
+      return "rfi";
+    case "con_submittal_form":
+      return "submittal";
+    case "con_daily_log_form":
+      return "daily_log";
+    case "con_punch_item_form":
+      return "punch_item";
+    case "con_change_order_form":
+    case "ps_change_order_form":
+      return "change_request";
+    case "con_permit_to_work_form":
+    case "con_toolbox_talk_form":
+    case "con_ncr_form":
+    case "con_handover_checklist":
+      return "vertical_record";
+    case "ps_engagement_setup":
+      return "engagement";
+    case "ps_retainer_setup":
+      return "retainer";
+    case "ps_csat_capture":
+      return "csat";
+    case "ps_deliverable_form":
+      return "deliverable";
+    case "ps_sow_form":
+    case "ps_msa_summary":
+    case "ps_timesheet_entry":
+    case "ps_bid_no_bid":
+      return "vertical_record";
     default:
       return null;
   }
@@ -1368,6 +1397,15 @@ const getEntityLabel = (entityType: string | null): string => {
     case "benefit": return "Benefit";
     case "stakeholder": return "Stakeholder";
     case "change_request": return "Change Request";
+    case "rfi": return "RFI";
+    case "submittal": return "Submittal";
+    case "daily_log": return "Daily Log";
+    case "punch_item": return "Punch Item";
+    case "engagement": return "Engagement";
+    case "retainer": return "Retainer";
+    case "csat": return "CSAT Response";
+    case "deliverable": return "Deliverable";
+    case "vertical_record": return "Record";
     default: return "";
   }
 };
