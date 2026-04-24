@@ -40,10 +40,19 @@ const REQUIRE_ACTIVITY_FIELDS: Array<{ key: string; label: string; help: string 
 ];
 
 const REQUIRE_STATUS_FIELDS: Array<{ key: string; label: string; help: string }> = [
-  { key: "require_comment_on_status_scheduled", label: "Scheduled", help: "Require an update note when a change moves to Scheduled." },
-  { key: "require_comment_on_status_in_progress", label: "In progress", help: "Require an update note when implementation begins." },
-  { key: "require_comment_on_status_implemented", label: "Implemented", help: "Require an update note when the change is marked Implemented." },
-  { key: "require_comment_on_status_closed", label: "Closed", help: "Require a closing note when the change is Closed." },
+  { key: "require_comment_on_status_draft", label: "→ Draft", help: "Reverting a change back to draft." },
+  { key: "require_comment_on_status_submitted", label: "→ Submitted", help: "Submitting the change for review." },
+  { key: "require_comment_on_status_in_review", label: "→ In review", help: "Moving into technical / business review." },
+  { key: "require_comment_on_status_cab_review", label: "→ CAB review", help: "Escalating to the Change Advisory Board." },
+  { key: "require_comment_on_status_needs_information", label: "→ Needs information", help: "Sending the request back for more detail." },
+  { key: "require_comment_on_status_approved", label: "→ Approved", help: "Approving the change for scheduling." },
+  { key: "require_comment_on_status_rejected", label: "→ Rejected", help: "Rejecting the change request." },
+  { key: "require_comment_on_status_scheduled", label: "→ Scheduled", help: "Scheduling the change implementation window." },
+  { key: "require_comment_on_status_in_progress", label: "→ In progress", help: "Starting implementation of the change." },
+  { key: "require_comment_on_status_implemented", label: "→ Implemented", help: "Marking the change as implemented." },
+  { key: "require_comment_on_status_closed", label: "→ Closed", help: "Closing the change record after PIR." },
+  { key: "require_comment_on_status_cancelled", label: "→ Cancelled", help: "Cancelling the change request." },
+  { key: "require_comment_on_status_failed", label: "→ Failed", help: "Marking the change as failed." },
 ];
 
 const DEFAULTS: Record<string, boolean> = {
@@ -66,10 +75,19 @@ const DEFAULTS: Record<string, boolean> = {
   require_comment_on_test: true,
   require_comment_on_implementation: true,
   require_comment_on_comment: false,
+  require_comment_on_status_draft: false,
+  require_comment_on_status_submitted: false,
+  require_comment_on_status_in_review: false,
+  require_comment_on_status_cab_review: false,
+  require_comment_on_status_needs_information: true,
+  require_comment_on_status_approved: false,
+  require_comment_on_status_rejected: true,
   require_comment_on_status_scheduled: false,
   require_comment_on_status_in_progress: false,
   require_comment_on_status_implemented: false,
   require_comment_on_status_closed: false,
+  require_comment_on_status_cancelled: true,
+  require_comment_on_status_failed: true,
 };
 
 export function ChangeNotificationSettings() {
@@ -202,9 +220,9 @@ export function ChangeNotificationSettings() {
         <div className="flex items-start gap-3">
           <MessageSquareWarning className="h-5 w-5 text-primary mt-0.5" />
           <div>
-            <h3 className="font-semibold">Require an update note for specific status transitions</h3>
+            <h3 className="font-semibold">Require an explanatory comment on activity posts</h3>
             <p className="text-sm text-muted-foreground">
-              When enabled, users must post an update note when moving a change into one of these lifecycle states.
+              When enabled, the implementer or owner must include written detail when posting these activity types from the change record.
             </p>
           </div>
         </div>
@@ -212,7 +230,7 @@ export function ChangeNotificationSettings() {
         <Separator />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {REQUIRE_STATUS_FIELDS.map((f) => (
+          {REQUIRE_ACTIVITY_FIELDS.map((f) => (
             <div
               key={f.key}
               className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/20"
@@ -235,17 +253,17 @@ export function ChangeNotificationSettings() {
         <div className="flex items-start gap-3">
           <MessageSquareWarning className="h-5 w-5 text-primary mt-0.5" />
           <div>
-            <h3 className="font-semibold">Require an explanatory comment on activity posts</h3>
+            <h3 className="font-semibold">Require an explanatory comment on status transitions</h3>
             <p className="text-sm text-muted-foreground">
-              When enabled, the implementer or owner must include written detail when posting these activity types from the change record.
+              When enabled, users must enter a note before moving a Change Request into the selected status. Useful for recording why a change was rejected, cancelled, scheduled, etc.
             </p>
           </div>
         </div>
 
         <Separator />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {REQUIRE_ACTIVITY_FIELDS.map((f) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {REQUIRE_STATUS_FIELDS.map((f) => (
             <div
               key={f.key}
               className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/20"

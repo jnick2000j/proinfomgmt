@@ -194,14 +194,8 @@ export default function ChangeManagementDetail() {
   const requiresComment = (field: string, toValue?: any): boolean => {
     if (!notifSettings) return false;
     if (field === "status" && typeof toValue === "string") {
-      const perStatusKey: Record<string, string> = {
-        scheduled: "require_comment_on_status_scheduled",
-        in_progress: "require_comment_on_status_in_progress",
-        implemented: "require_comment_on_status_implemented",
-        closed: "require_comment_on_status_closed",
-      };
-      const perKey = perStatusKey[toValue];
-      if (perKey && (notifSettings as any)[perKey]) return true;
+      const perStatusKey = `require_comment_on_status_${toValue}`;
+      if ((notifSettings as any)[perStatusKey]) return true;
     }
     const key = REQUIRE_FIELD_MAP[field];
     return key ? !!(notifSettings as any)[key] : false;
@@ -896,26 +890,17 @@ export default function ChangeManagementDetail() {
             </DialogTitle>
             <DialogDescription>
               {pendingChange && requiresComment(pendingChange.field, pendingChange.to)
-                ? "An update note is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
+                ? "An explanatory comment is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
                 : "Add a short note explaining the reason for this change. It will be recorded on the activity timeline."}
             </DialogDescription>
           </DialogHeader>
           {pendingChange && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <Badge variant="outline">{formatVal(pendingChange.field, pendingChange.from)}</Badge>
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <Badge className={cn(
-                  pendingChange.field === "status" && STATUS_STYLES[pendingChange.to],
-                )}>
-                  {formatVal(pendingChange.field, pendingChange.to)}
-                </Badge>
-              </div>
+            <div className="space-y-2 py-2">
               <Textarea
                 rows={4}
                 placeholder={
                   requiresComment(pendingChange.field, pendingChange.to)
-                    ? "An update note is required — explain this change"
+                    ? "A comment is required — explain why this is changing"
                     : "Why is this changing? (optional but recommended)"
                 }
                 value={pendingComment}
