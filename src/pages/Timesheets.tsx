@@ -1020,6 +1020,11 @@ export default function Timesheets() {
                 <Button variant="outline" onClick={() => openEmail(selectedSheet)}>
                   <Mail className="h-4 w-4" /> Email
                 </Button>
+                {selectedSheet.status === "draft" && (
+                  <Button variant="destructive" onClick={() => deleteSheet(selectedSheet)}>
+                    <Trash2 className="h-4 w-4" /> Delete Draft
+                  </Button>
+                )}
                 {canEdit && (
                   <Button onClick={openSubmit}>
                     <Send className="h-4 w-4" /> Submit for Approval
