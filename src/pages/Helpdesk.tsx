@@ -58,8 +58,9 @@ export default function Helpdesk() {
   const { currentOrganization } = useOrganization();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("open_active");
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [slaFilter, setSlaFilter] = useState<string>("all");
   const [createOpen, setCreateOpen] = useState(false);
 
   const { data: tickets = [], refetch, isLoading } = useQuery({
@@ -71,7 +72,11 @@ export default function Helpdesk() {
         .select("*")
         .eq("organization_id", currentOrganization.id)
         .order("created_at", { ascending: false });
-      if (statusFilter !== "all") q = q.eq("status", statusFilter as any);
+      if (statusFilter === "open_active") {
+        q = q.in("status", ["new", "open", "pending", "on_hold"] as any);
+      } else if (statusFilter !== "all") {
+        q = q.eq("status", statusFilter as any);
+      }
       if (typeFilter !== "all") q = q.eq("ticket_type", typeFilter as any);
       const { data, error } = await q;
       if (error) throw error;
@@ -80,18 +85,49 @@ export default function Helpdesk() {
     enabled: !!currentOrganization?.id,
   });
 
-  const filtered = tickets.filter((t: any) =>
-    !search ||
-    t.subject?.toLowerCase().includes(search.toLowerCase()) ||
-    t.reference_number?.toLowerCase().includes(search.toLowerCase()) ||
-    t.reporter_email?.toLowerCase().includes(search.toLowerCase()),
-  );
+  // Compute SLA state per ticket from existing fields
+  const now = Date.now();
+  const slaStateOf = (t: any): "paused" | "breached" | "at_risk" | "on_track" | "none" => {
+    if (t.sla_breached || t.sla_response_breached || t.sla_resolution_breached) return "breached";
+    if (t.sla_paused_at) return "paused";
+    const due = t.sla_resolution_due_at ?? t.sla_response_due_at;
+    if (!due) return "none";
+    const dueMs = new Date(due).getTime();
+    if (dueMs < now) return "breached";
+    // At risk if within 25% of remaining window vs created window
+    const created = t.created_at ? new Date(t.created_at).getTime() : now;
+    const total = Math.max(1, dueMs - created);
+    const remaining = dueMs - now;
+    if (remaining / total <= 0.25) return "at_risk";
+    return "on_track";
+  };
+
+  const filtered = tickets.filter((t: any) => {
+    if (search) {
+      const s = search.toLowerCase();
+      if (
+        !t.subject?.toLowerCase().includes(s) &&
+        !t.reference_number?.toLowerCase().includes(s) &&
+        !t.reporter_email?.toLowerCase().includes(s)
+      ) return false;
+    }
+    if (slaFilter !== "all" && slaStateOf(t) !== slaFilter) return false;
+    return true;
+  });
 
   const stats = {
     open: tickets.filter((t: any) => ["new", "open", "pending"].includes(t.status)).length,
-    urgent: tickets.filter((t: any) => t.priority === "urgent" && t.status !== "closed").length,
+    urgent: tickets.filter((t: any) => t.priority === "urgent" && !["closed", "cancelled"].includes(t.status)).length,
     resolved: tickets.filter((t: any) => t.status === "resolved").length,
     total: tickets.length,
+  };
+
+  const SLA_BADGE: Record<string, { label: string; cls: string }> = {
+    breached: { label: "Breached", cls: "bg-destructive text-destructive-foreground" },
+    at_risk: { label: "At risk", cls: "bg-warning/20 text-warning" },
+    paused: { label: "Paused", cls: "bg-muted text-muted-foreground" },
+    on_track: { label: "On track", cls: "bg-success/10 text-success" },
+    none: { label: "—", cls: "bg-transparent text-muted-foreground" },
   };
 
   return (
@@ -131,10 +167,11 @@ export default function Helpdesk() {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-[170px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="open_active">Active (open)</SelectItem>
                   <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="new">New</SelectItem>
                   <SelectItem value="open">Open</SelectItem>
@@ -142,6 +179,7 @@ export default function Helpdesk() {
                   <SelectItem value="on_hold">On hold</SelectItem>
                   <SelectItem value="resolved">Resolved</SelectItem>
                   <SelectItem value="closed">Closed</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
@@ -155,6 +193,19 @@ export default function Helpdesk() {
                   <SelectItem value="service_request">Service Request</SelectItem>
                   <SelectItem value="question">Question</SelectItem>
                   <SelectItem value="problem">Problem</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={slaFilter} onValueChange={setSlaFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="SLA" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All SLA states</SelectItem>
+                  <SelectItem value="breached">Breached</SelectItem>
+                  <SelectItem value="at_risk">At risk</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="on_track">On track</SelectItem>
+                  <SelectItem value="none">No SLA</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -180,32 +231,44 @@ export default function Helpdesk() {
                   <TableHead>Type</TableHead>
                   <TableHead>Priority</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>SLA</TableHead>
                   <TableHead>Reporter</TableHead>
                   <TableHead>Created</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">Loading...</TableCell></TableRow>
                 ) : filtered.length === 0 ? (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No tickets found</TableCell></TableRow>
-                ) : filtered.map((t: any) => (
-                  <TableRow
-                    key={t.id}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/support/tickets/${t.id}`)}
-                  >
-                    <TableCell className="font-mono text-xs">{t.reference_number ?? "—"}</TableCell>
-                    <TableCell className="font-medium">{t.subject}</TableCell>
-                    <TableCell><Badge variant="outline">{TYPE_LABELS[t.ticket_type] ?? formatLabel(t.ticket_type)}</Badge></TableCell>
-                    <TableCell><Badge className={cn(PRIORITY_STYLES[t.priority])}>{formatLabel(t.priority)}</Badge></TableCell>
-                    <TableCell><Badge className={cn(STATUS_STYLES[t.status])}>{formatLabel(t.status)}</Badge></TableCell>
-                    <TableCell className="text-sm">{t.reporter_name || t.reporter_email || "—"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {t.created_at ? format(new Date(t.created_at), "MMM d, yyyy") : "—"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                  <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">No tickets found</TableCell></TableRow>
+                ) : filtered.map((t: any) => {
+                  const sla = slaStateOf(t);
+                  const slaCfg = SLA_BADGE[sla];
+                  return (
+                    <TableRow
+                      key={t.id}
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/support/tickets/${t.id}`)}
+                    >
+                      <TableCell className="font-mono text-xs">{t.reference_number ?? "—"}</TableCell>
+                      <TableCell className="font-medium">{t.subject}</TableCell>
+                      <TableCell><Badge variant="outline">{TYPE_LABELS[t.ticket_type] ?? formatLabel(t.ticket_type)}</Badge></TableCell>
+                      <TableCell><Badge className={cn(PRIORITY_STYLES[t.priority])}>{formatLabel(t.priority)}</Badge></TableCell>
+                      <TableCell><Badge className={cn(STATUS_STYLES[t.status])}>{formatLabel(t.status)}</Badge></TableCell>
+                      <TableCell>
+                        {sla === "none" ? (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        ) : (
+                          <Badge className={cn("text-xs", slaCfg.cls)}>{slaCfg.label}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">{t.reporter_name || t.reporter_email || "—"}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {t.created_at ? format(new Date(t.created_at), "MMM d, yyyy") : "—"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
