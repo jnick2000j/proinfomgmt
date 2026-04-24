@@ -299,10 +299,14 @@ export default function ChangeManagementDetail() {
   };
 
   const submitProgress = async () => {
-    if (!progressText.trim()) { toast.error("Add some detail first"); return; }
+    const required = requiresActivityComment(progressKind);
+    if (required && !progressText.trim()) {
+      toast.error("A comment is required for this update type");
+      return;
+    }
     await writeActivity({
       event_type: progressKind,
-      notes: progressText.trim(),
+      notes: progressText.trim() || null,
     });
     setProgressText("");
     toast.success("Comment posted");
