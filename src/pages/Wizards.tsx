@@ -56,7 +56,7 @@ interface AIWizardSpec {
   title: string;
   description: string;
   icon: React.ElementType;
-  category: "Document" | "Helper" | "Governance" | "Strategy" | "Change Mgmt" | "Helpdesk";
+  category: "Document" | "Helper" | "Governance" | "Strategy" | "Change Mgmt" | "Helpdesk" | "Construction";
   fields: WizardField[];
 }
 
