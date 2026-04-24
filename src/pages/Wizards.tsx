@@ -58,6 +58,7 @@ const createTemplates = [
   { type: "ps_timesheet_entry" as TemplateType, name: "Log Timesheet Entry", category: "Pro Services", icon: "⏱️", description: "Record billable / non-billable hours against an engagement with rate-card reference.", creates: "Timesheet" },
   { type: "ps_csat_capture" as TemplateType, name: "Capture CSAT / NPS", category: "Pro Services", icon: "😊", description: "Record CSAT (1-5) + NPS (0-10) plus what-went-well / what-to-improve from the client.", creates: "CSAT Response" },
   { type: "ps_bid_no_bid" as TemplateType, name: "Bid / No-Bid Decision", category: "Pro Services", icon: "⚖️", description: "Score strategic fit, win probability, delivery risk and team availability — recommend Bid / No-Bid.", creates: "Decision" },
+];
 
 // ---------- DRAFT wizards (AI-generated documents) ----------
 interface AIWizardSpec {
