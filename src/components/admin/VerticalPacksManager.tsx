@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Layers, Plus, Sparkles, Package, Trash2, Building2, Wand2, X } from "lucide-react";
+import { Layers, Plus, Sparkles, Package, Trash2, Wand2, X } from "lucide-react";
 import { toast } from "sonner";
 import { SEED_PACKS } from "@/lib/verticalSeedPacks";
 
@@ -149,59 +149,7 @@ function ManagePacksTab({ verticals, onChange }: { verticals: any[]; onChange: (
   );
 }
 
-/* ----------------------------------- Org assignment tab ----------------------------------- */
-
-function OrgAssignmentTab({ verticals }: { verticals: any[] }) {
-  const qc = useQueryClient();
-  const { data: orgs = [] } = useQuery({
-    queryKey: ["admin-orgs-verticals"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("organizations")
-        .select("id, name, slug, industry_vertical")
-        .order("name");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const updateVertical = useMutation({
-    mutationFn: async ({ orgId, verticalId }: { orgId: string; verticalId: string }) => {
-      const { error } = await supabase.from("organizations").update({ industry_vertical: verticalId }).eq("id", orgId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Vertical updated");
-      qc.invalidateQueries({ queryKey: ["admin-orgs-verticals"] });
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  return (
-    <Card className="divide-y">
-      {orgs.map((org: any) => (
-        <div key={org.id} className="flex items-center justify-between gap-4 p-4">
-          <div className="min-w-0">
-            <div className="font-medium truncate">{org.name}</div>
-            <div className="text-xs text-muted-foreground">{org.slug}</div>
-          </div>
-          <Select
-            value={org.industry_vertical || "technology"}
-            onValueChange={(v) => updateVertical.mutate({ orgId: org.id, verticalId: v })}
-          >
-            <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {verticals.map((v) => (
-                <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      ))}
-      {orgs.length === 0 && <div className="p-8 text-center text-muted-foreground">No organizations.</div>}
-    </Card>
-  );
-}
+/* Org → vertical assignment now lives as a per-row action under Platform Admin → Tenant Management. */
 
 /* ----------------------------------- Create vertical wizard ----------------------------------- */
 
