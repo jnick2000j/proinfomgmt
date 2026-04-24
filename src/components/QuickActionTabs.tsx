@@ -32,15 +32,15 @@ export function QuickActionTabs({ items, className }: QuickActionTabsProps) {
           key={value}
           value={value}
           className={cn(
-            "flex flex-col items-center justify-center gap-2 h-auto py-4 px-2",
+            "flex flex-row items-center justify-center gap-2 h-auto py-2.5 px-3",
             "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
             "transition-all hover:border-primary/40 hover:bg-accent hover:text-accent-foreground",
             "data-[state=active]:border-primary data-[state=active]:bg-primary/10",
             "data-[state=active]:text-primary data-[state=active]:shadow-md"
           )}
         >
-          <Icon className="h-5 w-5" />
-          <span className="text-xs font-medium text-center leading-tight">
+          <Icon className="h-4 w-4 shrink-0" />
+          <span className="text-xs font-medium leading-tight truncate">
             {label}
             {typeof count === "number" && (
               <span className="ml-1 text-muted-foreground">({count})</span>
