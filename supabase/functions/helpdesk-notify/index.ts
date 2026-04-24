@@ -15,7 +15,7 @@ const corsHeaders = {
 
 interface NotifyPayload {
   ticket_id: string;
-  notification_type: "reply" | "assigned" | "status_changed" | "sla_warning" | "created";
+  notification_type: "reply" | "assigned" | "status_changed" | "sla_warning" | "created" | "csat_survey";
   recipient_email?: string;
   metadata?: Record<string, any>;
 }
@@ -40,6 +40,10 @@ const TEMPLATES: Record<string, (ctx: any) => { subject: string; body: string }>
   sla_warning: (t) => ({
     subject: `[${t.reference_number}] SLA approaching`,
     body: `Ticket "${t.subject}" is approaching its SLA target. Please action.`,
+  }),
+  csat_survey: (t) => ({
+    subject: `[${t.reference_number}] How did we do?`,
+    body: `Hi ${t.reporter_name || "there"},\n\nYour ticket "${t.subject}" has been closed. We'd love to hear about your experience.\n\nPlease take a moment to rate the support you received:\n${t.survey_url || ""}\n\nThank you,\n— Support Team`,
   }),
 };
 
