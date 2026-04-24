@@ -492,6 +492,7 @@ export default function ProgrammeDetails() {
               { value: "team", label: "Team", icon: Users },
               { value: "updates", label: "Updates", icon: MessageSquarePlus },
               { value: "tickets", label: "Tickets", icon: LifeBuoy },
+              { value: "changes", label: "Changes", icon: GitPullRequest },
               { value: "automations", label: "Automations", icon: Workflow },
               { value: "history", label: "Timeline", icon: History },
             ]}
