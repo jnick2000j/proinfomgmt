@@ -16,6 +16,8 @@ import {
   ScrollText, RotateCcw, CheckCircle2, Eye,
   GitMerge, Zap, RefreshCw, ClipboardCheck, Activity, BookOpen,
   LifeBuoy, AlertTriangle, Wrench, Smile, Clock,
+  HardHat, FileCheck, ClipboardList, BadgeAlert, KeyRound, Power,
+  PenTool, FileSignature, CalendarRange, FileEdit,
 } from "lucide-react";
 
 // ---------- CREATE wizards (template-driven entity creation) ----------
