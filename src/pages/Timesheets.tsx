@@ -360,6 +360,67 @@ export default function Timesheets() {
     setEntries((es) => [...es, data as Entry]);
   };
 
+  // Open / create the current week's draft and append an entry pre-linked to a ticket.
+  const logTimeForTicket = async (ticketId: string) => {
+    if (!user || !currentOrganization) return;
+    const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const sunday = endOfWeek(new Date(), { weekStartsOn: 1 });
+    const period_start = format(monday, "yyyy-MM-dd");
+    const period_end = format(sunday, "yyyy-MM-dd");
+
+    let sheet = mySheets.find((s) => s.period_start === period_start) ?? null;
+    if (!sheet) {
+      const { data, error } = await supabase
+        .from("timesheets")
+        .insert({
+          organization_id: currentOrganization.id,
+          user_id: user.id,
+          period_start,
+          period_end,
+          status: "draft",
+        })
+        .select()
+        .single();
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      sheet = data as Timesheet;
+      setMySheets((s) => [sheet as Timesheet, ...s]);
+    }
+    if (sheet.status !== "draft") {
+      toast.error("This week's timesheet is no longer a draft");
+      await openEditor(sheet);
+      return;
+    }
+
+    // Load existing entries to compute sort order, then add a ticket-linked entry.
+    const { data: existing } = await supabase
+      .from("timesheet_entries")
+      .select("id")
+      .eq("timesheet_id", sheet.id);
+    const sortOrder = (existing?.length ?? 0);
+
+    const { data: newEntry, error: entryErr } = await supabase
+      .from("timesheet_entries")
+      .insert({
+        timesheet_id: sheet.id,
+        sort_order: sortOrder,
+        ticket_id: ticketId,
+      })
+      .select()
+      .single();
+    if (entryErr) {
+      toast.error(entryErr.message);
+      return;
+    }
+
+    setSelectedSheet(sheet);
+    await loadEntries(sheet.id);
+    setEditorOpen(true);
+    toast.success("Ticket added to this week's timesheet");
+  };
+
   const updateEntry = async (id: string, patch: Partial<Entry>) => {
     setEntries((es) => es.map((e) => (e.id === id ? { ...e, ...patch } : e)));
     const { error } = await supabase.from("timesheet_entries").update(patch).eq("id", id);
