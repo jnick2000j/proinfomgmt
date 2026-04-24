@@ -322,18 +322,28 @@ export default function PlatformAdmin() {
                         {new Date(org.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
-                          onClick={() => setSuspensionTarget(org)}
-                        >
-                          {org.is_suspended ? (
-                            <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
-                          ) : (
-                            <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
-                          )}
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setVerticalTarget(org)}
+                            title="Assign industry vertical"
+                          >
+                            <LayersIcon className="h-3.5 w-3.5 mr-1" /> Vertical
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
+                            onClick={() => setSuspensionTarget(org)}
+                          >
+                            {org.is_suspended ? (
+                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
+                            ) : (
+                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
+                            )}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
