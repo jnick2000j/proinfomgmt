@@ -203,6 +203,7 @@ export default function ProgrammeDetails() {
   const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("projects");
 
   const fetchProgramme = async () => {
     if (!programmeId) return;
@@ -375,6 +376,14 @@ export default function ProgrammeDetails() {
             Back to Programs
           </Button>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setActiveTab("tickets")}>
+              <LifeBuoy className="h-4 w-4 mr-2" />
+              Tickets
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setActiveTab("changes")}>
+              <GitPullRequest className="h-4 w-4 mr-2" />
+              Changes
+            </Button>
             <DocumentUpload
               entityType="program"
               entityId={programme.id}
@@ -468,7 +477,7 @@ export default function ProgrammeDetails() {
         </div>
 
         {/* Tabs for different sections */}
-        <Tabs defaultValue="projects" className="space-y-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <QuickActionTabs
             items={[
               { value: "projects", label: "Projects", icon: FolderKanban, count: projects.length },
