@@ -367,12 +367,27 @@ export default function Onboarding() {
             </div>
             <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
             <p className="text-muted-foreground mb-6">
-              Your organization is ready. Start creating programmes and projects.
+              Your organization is ready. Take a quick guided tour to set up terminology, modules and starter content — or jump straight in.
             </p>
-            <Button onClick={handleFinish} className="gap-2">
-              Go to Dashboard <ArrowRight className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2 justify-center flex-wrap">
+              <Button variant="outline" onClick={() => setShowOrgWizard(true)} className="gap-2">
+                <Rocket className="h-4 w-4" /> Run setup wizard
+              </Button>
+              <Button onClick={handleFinish} className="gap-2">
+                Go to Dashboard <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </Card>
+        )}
+
+        {orgId && (
+          <OrgOnboardingWizard
+            open={showOrgWizard}
+            onOpenChange={setShowOrgWizard}
+            organization={{ id: orgId, name: orgName, slug: "", industry_vertical: vertical }}
+            verticalId={vertical}
+            onSuccess={() => setShowOrgWizard(false)}
+          />
         )}
       </div>
     </div>
