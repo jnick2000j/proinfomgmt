@@ -55,6 +55,10 @@ const DEFAULTS: Record<string, boolean> = {
   require_comment_on_urgency: false,
   require_comment_on_impact: false,
   require_comment_on_owner: false,
+  require_comment_on_progress: true,
+  require_comment_on_test: true,
+  require_comment_on_implementation: true,
+  require_comment_on_comment: false,
 };
 
 export function ChangeNotificationSettings() {
