@@ -83,6 +83,7 @@ import AIWizards from "./pages/AIWizards";
 import AIAdvisor from "./pages/AIAdvisor";
 import AIInsights from "./pages/AIInsights";
 import Knowledgebase from "./pages/Knowledgebase";
+import Automations from "./pages/Automations";
 import KnowledgebaseArticle from "./pages/KnowledgebaseArticle";
 import NotFound from "./pages/NotFound";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
@@ -176,6 +177,7 @@ const App = () => (
             <Route path="/ai-insights" element={<ProtectedRoute><AIInsights /></ProtectedRoute>} />
             <Route path="/knowledgebase" element={<ProtectedRoute><Knowledgebase /></ProtectedRoute>} />
             <Route path="/knowledgebase/:id" element={<ProtectedRoute><KnowledgebaseArticle /></ProtectedRoute>} />
+            <Route path="/admin/automations" element={<ProtectedRoute><Automations /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           </PermissionsProvider>
