@@ -86,7 +86,7 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
       const { data: created, error } = await supabase.from("projects").insert({
         ...formData,
         programme_id: formData.programme_id || null,
-        organization_id: formData.organization_id || null,
+        organization_id: formData.organization_id,
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
         created_by: user.id,
