@@ -632,11 +632,11 @@ export default function Reports() {
           )}
 
           {analyticsScope === "helpdesk" && (
-            <HelpdeskAnalytics tickets={helpdeskTickets} />
+            <HelpdeskAnalytics tickets={helpdeskTickets as any} />
           )}
 
           {analyticsScope === "change" && (
-            <ChangeAnalytics changes={cmRequests} />
+            <ChangeAnalytics changes={cmRequests as any} />
           )}
         </TabsContent>
       </Tabs>
