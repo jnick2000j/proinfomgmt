@@ -53,6 +53,14 @@ const REQUIRE_FIELD_MAP: Record<string, string> = {
   owner_id: "require_comment_on_owner",
 };
 
+// Map activity event_type → admin "require comment on activity" setting column
+const REQUIRE_ACTIVITY_MAP: Record<string, string> = {
+  progress_note: "require_comment_on_progress",
+  test_result: "require_comment_on_test",
+  implementation_note: "require_comment_on_implementation",
+  comment: "require_comment_on_comment",
+};
+
 const FIELD_LABELS: Record<string, string> = {
   status: "Status",
   change_type: "Type",
@@ -158,6 +166,14 @@ export default function ChangeManagementDetail() {
     if (!notifSettings) return false;
     const key = REQUIRE_FIELD_MAP[field];
     return key ? !!(notifSettings as any)[key] : false;
+  };
+
+  const requiresActivityComment = (eventType: string): boolean => {
+    // Default to true if settings not yet loaded — safer to require detail.
+    const key = REQUIRE_ACTIVITY_MAP[eventType];
+    if (!key) return true;
+    if (!notifSettings) return true;
+    return !!(notifSettings as any)[key];
   };
 
   const usersById = useMemo(() => {
@@ -283,10 +299,14 @@ export default function ChangeManagementDetail() {
   };
 
   const submitProgress = async () => {
-    if (!progressText.trim()) { toast.error("Add some detail first"); return; }
+    const required = requiresActivityComment(progressKind);
+    if (required && !progressText.trim()) {
+      toast.error("A comment is required for this update type");
+      return;
+    }
     await writeActivity({
       event_type: progressKind,
-      notes: progressText.trim(),
+      notes: progressText.trim() || null,
     });
     setProgressText("");
     toast.success("Comment posted");
@@ -440,6 +460,9 @@ export default function ChangeManagementDetail() {
                     <div className="flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-primary" />
                       <h4 className="font-medium">Post an update</h4>
+                      {requiresActivityComment(progressKind) && (
+                        <Badge variant="outline" className="text-xs">Comment required</Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Implementers, owners and requesters can record progress, test results or general notes against this change.
@@ -456,17 +479,26 @@ export default function ChangeManagementDetail() {
                     </div>
                     <Textarea
                       rows={3}
-                      placeholder="Describe progress, test outcomes, blockers, or context for the team…"
+                      placeholder={
+                        requiresActivityComment(progressKind)
+                          ? "A written comment is required by your organisation for this update type"
+                          : "Describe progress, test outcomes, blockers, or context for the team… (optional)"
+                      }
                       value={progressText}
                       onChange={(e) => setProgressText(e.target.value)}
                     />
                     <div className="flex justify-end">
-                      <Button size="sm" onClick={submitProgress} disabled={!progressText.trim()}>
+                      <Button
+                        size="sm"
+                        onClick={submitProgress}
+                        disabled={requiresActivityComment(progressKind) && !progressText.trim()}
+                      >
                         Post update
                       </Button>
                     </div>
                   </Card>
                 )}
+
 
                 {activity.length === 0 && <p className="text-sm text-muted-foreground">No activity yet.</p>}
 
