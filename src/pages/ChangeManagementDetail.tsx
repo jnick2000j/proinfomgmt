@@ -605,7 +605,9 @@ export default function ChangeManagementDetail() {
               Change {pendingChange ? (FIELD_LABELS[pendingChange.field] ?? pendingChange.field) : ""}?
             </DialogTitle>
             <DialogDescription>
-              Add a short note explaining the reason for this change. It will be recorded on the activity timeline.
+              {pendingChange && requiresComment(pendingChange.field)
+                ? "An explanatory comment is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
+                : "Add a short note explaining the reason for this change. It will be recorded on the activity timeline."}
             </DialogDescription>
           </DialogHeader>
           {pendingChange && (
@@ -621,7 +623,11 @@ export default function ChangeManagementDetail() {
               </div>
               <Textarea
                 rows={4}
-                placeholder="Why is this changing? (optional but recommended)"
+                placeholder={
+                  requiresComment(pendingChange.field)
+                    ? "A comment is required — explain why this is changing"
+                    : "Why is this changing? (optional but recommended)"
+                }
                 value={pendingComment}
                 onChange={(e) => setPendingComment(e.target.value)}
               />
@@ -631,9 +637,11 @@ export default function ChangeManagementDetail() {
             <Button variant="ghost" onClick={() => { setPendingChange(null); setPendingComment(""); }}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => confirmPendingChange(true)}>
-              Save without comment
-            </Button>
+            {pendingChange && !requiresComment(pendingChange.field) && (
+              <Button variant="outline" onClick={() => confirmPendingChange(true)}>
+                Save without comment
+              </Button>
+            )}
             <Button onClick={() => confirmPendingChange(false)} disabled={!pendingComment.trim()}>
               Save with comment
             </Button>
