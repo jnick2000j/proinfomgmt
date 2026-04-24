@@ -406,13 +406,25 @@ export function OrgOverridesManager() {
                       onChange={(e) => setDraft({ ...draft, reason: e.target.value })}
                     />
                   </div>
-                  <div>
-                    <Label>Expires at (optional)</Label>
-                    <Input
-                      type="datetime-local"
-                      value={draft.expires_at ? new Date(draft.expires_at).toISOString().slice(0, 16) : ""}
-                      onChange={(e) => setDraft({ ...draft, expires_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label>Effective from (optional)</Label>
+                      <Input
+                        type="datetime-local"
+                        value={toLocalInput(draft.effective_from)}
+                        onChange={(e) => setDraft({ ...draft, effective_from: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Leave blank to apply immediately.</p>
+                    </div>
+                    <div>
+                      <Label>Expires at (optional)</Label>
+                      <Input
+                        type="datetime-local"
+                        value={toLocalInput(draft.expires_at)}
+                        onChange={(e) => setDraft({ ...draft, expires_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Leave blank for no expiry.</p>
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -429,24 +441,37 @@ export function OrgOverridesManager() {
                 <TableHead>Feature</TableHead>
                 <TableHead>Value</TableHead>
                 <TableHead>Reason</TableHead>
+                <TableHead>Effective from</TableHead>
                 <TableHead>Expires</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-6">Loading…</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-6">Loading…</TableCell></TableRow>
               ) : overrides.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">No overrides set</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-6 text-muted-foreground">No overrides set</TableCell></TableRow>
               ) : (
                 overrides.map((o) => (
                   <TableRow key={o.id}>
                     <TableCell className="font-medium">{orgName(o.organization_id)}</TableCell>
-                    <TableCell>{featureName(o.feature_key)}</TableCell>
+                    <TableCell>
+                      {featureName(o.feature_key)}
+                      {isScheduled(o) && <Badge variant="secondary" className="ml-2 text-xs">Scheduled</Badge>}
+                    </TableCell>
                     <TableCell><Badge variant="outline" className="font-mono text-xs">{JSON.stringify(o.override_value)}</Badge></TableCell>
                     <TableCell className="text-sm text-muted-foreground">{o.reason || "—"}</TableCell>
-                    <TableCell className="text-sm">{o.expires_at ? new Date(o.expires_at).toLocaleDateString() : "Never"}</TableCell>
+                    <TableCell className="text-sm">{o.effective_from ? new Date(o.effective_from).toLocaleString() : "Now"}</TableCell>
+                    <TableCell className="text-sm">{o.expires_at ? new Date(o.expires_at).toLocaleString() : "Never"}</TableCell>
                     <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => { setDraft(o); setOpen(true); }}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDelete(o.id)}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
@@ -458,6 +483,68 @@ export function OrgOverridesManager() {
           </Table>
         </TabsContent>
       </Tabs>
+
+      {/* Audit history dialog */}
+      <Dialog open={auditOpen} onOpenChange={setAuditOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Override audit history</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-3 mb-3">
+            <Label className="text-sm">Filter by org:</Label>
+            <Select value={auditFilterOrg} onValueChange={setAuditFilterOrg}>
+              <SelectTrigger className="w-64"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All organizations</SelectItem>
+                {orgs.map((o) => (<SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="overflow-auto flex-1">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Org</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Op</TableHead>
+                  <TableHead>Details</TableHead>
+                  <TableHead>Actor</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAudit.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-6 text-muted-foreground">No audit entries</TableCell></TableRow>
+                ) : filteredAudit.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell className="text-xs whitespace-nowrap">{new Date(a.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="text-sm">{orgName(a.organization_id)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {a.change_kind === "plan_assignment" ? "Plan" : "Feature"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={a.operation === "delete" ? "destructive" : a.operation === "insert" ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {a.operation}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs font-mono max-w-md">
+                      {a.feature_key && <div className="text-muted-foreground mb-1">{featureName(a.feature_key)}</div>}
+                      {a.before_value && <div><span className="text-destructive">−</span> {JSON.stringify(a.before_value)}</div>}
+                      {a.after_value && <div><span className="text-primary">+</span> {JSON.stringify(a.after_value)}</div>}
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{a.actor_email || "system"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
