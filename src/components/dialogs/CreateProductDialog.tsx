@@ -42,6 +42,7 @@ export function CreateProductDialog({ onSuccess }: CreateProductDialogProps) {
   const [programmes, setProgrammes] = useState<Program[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const { user } = useAuth();
+  const { currentOrganization } = useOrganization();
   const { canCreate, limits } = usePlanLimits();
 
   const handleOpen = (newOpen: boolean) => {
