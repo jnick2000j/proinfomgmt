@@ -229,6 +229,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       work_package_id: workPackageId || null,
       risk_id: riskId || null,
       issue_id: issueId || null,
+      feature_id: featureId || null,
     };
 
     if (status === "completed") {
