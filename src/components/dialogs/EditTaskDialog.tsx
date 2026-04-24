@@ -75,6 +75,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
   const [workPackageId, setWorkPackageId] = useState("");
   const [riskId, setRiskId] = useState("");
   const [issueId, setIssueId] = useState("");
+  const [featureId, setFeatureId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { data: sprints = [] } = useQuery({
