@@ -52,6 +52,7 @@ import { EditUserDialog } from "@/components/dialogs/EditUserDialog";
 import { CreateUserDialog } from "@/components/dialogs/CreateUserDialog";
 import { HelpdeskCatalogManager } from "@/components/admin/HelpdeskCatalogManager";
 import { SLAPoliciesManager } from "@/components/helpdesk/SLAPoliciesManager";
+import { CSATSurveyManager } from "@/components/admin/CSATSurveyManager";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -600,6 +601,7 @@ export default function AdminPanel() {
         <TabsContent value="helpdesk" className="space-y-6">
           <SLAPoliciesManager />
           <HelpdeskCatalogManager />
+          <CSATSurveyManager />
         </TabsContent>
       </Tabs>
     </AppLayout>

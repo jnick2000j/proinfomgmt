@@ -27,6 +27,7 @@ import { SLAStatus } from "@/components/helpdesk/SLAStatus";
 import { KBAssistant } from "@/components/kb/KBAssistant";
 import { KBInlineSuggestions } from "@/components/kb/KBInlineSuggestions";
 import { CatalogSummary } from "@/components/helpdesk/CatalogPicker";
+import { triggerCSATForClosedTicket } from "@/lib/csat";
 
 const STATUS_OPTIONS = ["new", "open", "pending", "on_hold", "resolved", "closed", "cancelled"];
 const PRIORITY_OPTIONS = ["low", "medium", "high", "urgent"];
@@ -138,6 +139,15 @@ export default function HelpdeskTicketDetail() {
       supabase.functions.invoke("helpdesk-notify", {
         body: { ticket_id: ticket.id, notification_type: "status_changed", metadata: { new_status: value } },
       }).catch(() => {});
+      if (value === "closed") {
+        triggerCSATForClosedTicket({
+          id: ticket.id,
+          organization_id: ticket.organization_id,
+          reporter_email: ticket.reporter_email,
+          reference_number: ticket.reference_number,
+          subject: ticket.subject,
+        }).catch(() => {});
+      }
     }
     toast.success("Updated");
     qc.invalidateQueries({ queryKey: ["helpdesk-ticket", id] });
