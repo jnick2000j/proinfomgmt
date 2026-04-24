@@ -55,6 +55,8 @@ import {
   ListTree,
   MessageSquarePlus,
   Trash2,
+  Copy,
+  Repeat,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -70,6 +72,7 @@ import { EntityUpdates } from "@/components/EntityUpdates";
 import { TaskAssignments } from "@/components/TaskAssignments";
 import { UpdateFrequencySettings } from "@/components/UpdateFrequencySettings";
 import { EditTaskDialog } from "@/components/dialogs/EditTaskDialog";
+import { RecurringTaskDialog } from "@/components/dialogs/RecurringTaskDialog";
 import { format } from "date-fns";
 
 type TaskStatus = "not_started" | "in_progress" | "on_hold" | "completed" | "cancelled";
@@ -126,6 +129,8 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const [editingTask, setEditingTask] = useState<any>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [recurringOpen, setRecurringOpen] = useState(false);
+  const [recurringSeed, setRecurringSeed] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -319,6 +324,40 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
       toast.error("Failed to delete task: " + error.message);
     },
   });
+
+  // Duplicate task mutation
+  const duplicateTask = useMutation({
+    mutationFn: async (task: Task) => {
+      const { error } = await supabase.from("tasks").insert({
+        name: `${task.name} (Copy)`,
+        description: task.description,
+        priority: task.priority,
+        status: "not_started" as const,
+        organization_id: task.organization_id,
+        created_by: user?.id,
+        project_id: task.project_id,
+        programme_id: task.programme_id,
+        product_id: task.product_id,
+        work_package_id: task.work_package_id,
+        assigned_to: task.assigned_to,
+        risk_id: task.risk_id,
+        issue_id: task.issue_id,
+        estimated_hours: task.estimated_hours,
+        planned_start: task.planned_start,
+        planned_end: task.planned_end,
+        completion_percentage: 0,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task duplicated");
+    },
+    onError: (error: any) => {
+      toast.error("Failed to duplicate task: " + error.message);
+    },
+  });
+
   const updateCompletion = useMutation({
     mutationFn: async ({ id, completion_percentage }: { id: string; completion_percentage: number }) => {
       const updateData: Record<string, unknown> = { completion_percentage };
@@ -467,6 +506,17 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
             </SelectContent>
           </Select>
         </div>
+
+        <Button
+          variant="outline"
+          onClick={() => {
+            setRecurringSeed(null);
+            setRecurringOpen(true);
+          }}
+        >
+          <Repeat className="h-4 w-4 mr-2" />
+          Recurring Tasks
+        </Button>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -788,6 +838,37 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
+                            onClick={() => duplicateTask.mutate(task)}
+                            title="Duplicate task"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setRecurringSeed({
+                                name: task.name,
+                                description: task.description,
+                                priority: task.priority,
+                                project_id: task.project_id,
+                                programme_id: task.programme_id,
+                                product_id: task.product_id,
+                                work_package_id: task.work_package_id,
+                                estimated_hours: task.estimated_hours,
+                                assigned_to: task.assigned_to,
+                              });
+                              setRecurringOpen(true);
+                            }}
+                            title="Create recurring tasks from this"
+                          >
+                            <Repeat className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => setTaskToDelete({ id: task.id, name: task.name })}
                             title="Delete task"
@@ -829,6 +910,13 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         onUpdate={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+      />
+
+      <RecurringTaskDialog
+        open={recurringOpen}
+        onOpenChange={setRecurringOpen}
+        seedTask={recurringSeed}
+        onCreated={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
       />
 
       <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
