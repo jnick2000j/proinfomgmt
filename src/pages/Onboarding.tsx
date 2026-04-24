@@ -20,8 +20,9 @@ export default function Onboarding() {
   const { user, userRole } = useAuth();
   const isPlatformAdmin = userRole === "admin";
   const initialIntent = (searchParams.get("plan_kind") as Intent | null) || null;
-  const [step, setStep] = useState<Step>(initialIntent ? "org" : "intent");
+  const [step, setStep] = useState<Step>(initialIntent ? "vertical" : "intent");
   const [intent, setIntent] = useState<Intent>(initialIntent || "ppm");
+  const [vertical, setVertical] = useState<Vertical>("it_infrastructure");
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState<string | null>(null);
