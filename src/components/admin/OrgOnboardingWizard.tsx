@@ -106,10 +106,15 @@ export function OrgOnboardingWizard({
         .order("sort_order"),
       organization || hideOrgPicker
         ? Promise.resolve({ data: organization ? [organization] : [], error: null })
-        : supabase
-            .from("user_organization_access")
-            .select("organization_id, access_level, organizations(id, name, slug, industry_vertical, is_archived)")
-            .eq("access_level", "admin"),
+        : isPlatformAdmin
+          ? supabase
+              .from("organizations")
+              .select("id, name, slug, industry_vertical, is_archived")
+              .order("name")
+          : supabase
+              .from("user_organization_access")
+              .select("organization_id, access_level, organizations(id, name, slug, industry_vertical, is_archived)")
+              .eq("access_level", "admin"),
     ]).then(([vRes, oRes]: any) => {
       const list: VerticalConfig[] = (vRes.data ?? []).map((v: any) => ({
         ...v,
