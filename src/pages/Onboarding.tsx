@@ -131,7 +131,7 @@ export default function Onboarding() {
         )}
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8 justify-center">
-          {(["intent", "org", "invite", "plan", "done"] as Step[]).map((s, i, arr) => (
+          {(["intent", "vertical", "org", "invite", "plan", "done"] as Step[]).map((s, i, arr) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step === s ? "bg-primary text-primary-foreground" :
@@ -177,7 +177,7 @@ export default function Onboarding() {
               ))}
             </div>
             <div className="flex justify-center mt-6">
-              <Button onClick={() => setStep("org")} className="gap-2">
+              <Button onClick={() => setStep("vertical")} className="gap-2">
                 Continue <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
