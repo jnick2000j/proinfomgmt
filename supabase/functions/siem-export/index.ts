@@ -107,8 +107,37 @@ Deno.serve(async (req) => {
       const body = formatEvents(events!, exp.format);
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (exp.auth_header_name && exp.auth_secret_name) {
+        if (!isAllowedSecretName(exp.auth_secret_name)) {
+          await admin.from("siem_export_log").insert({
+            exporter_id: exp.id,
+            organization_id: exp.organization_id,
+            event_count: 0,
+            status: "failure",
+            http_status: 0,
+            response_body: `Refused: secret name "${exp.auth_secret_name}" is not in the allowlist (must start with SIEM_).`,
+            duration_ms: 0,
+          });
+          results.push({ exporter_id: exp.id, status: "failure", events: 0, error: "secret_name_not_allowed" });
+          continue;
+        }
         const secret = Deno.env.get(exp.auth_secret_name);
         if (secret) headers[exp.auth_header_name] = secret;
+      }
+
+      // SSRF guard: block private/loopback/link-local destinations
+      const urlCheck = validateEndpointUrl(exp.endpoint_url);
+      if (!urlCheck.ok) {
+        await admin.from("siem_export_log").insert({
+          exporter_id: exp.id,
+          organization_id: exp.organization_id,
+          event_count: 0,
+          status: "failure",
+          http_status: 0,
+          response_body: `Refused endpoint: ${urlCheck.reason}`,
+          duration_ms: 0,
+        });
+        results.push({ exporter_id: exp.id, status: "failure", events: 0, error: urlCheck.reason });
+        continue;
       }
 
       const start = Date.now();
