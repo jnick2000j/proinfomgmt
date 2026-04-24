@@ -43,6 +43,7 @@ interface TaskData {
   work_package_id: string | null;
   risk_id: string | null;
   issue_id: string | null;
+  feature_id?: string | null;
   completion_percentage?: number | null;
 }
 
@@ -74,6 +75,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
   const [workPackageId, setWorkPackageId] = useState("");
   const [riskId, setRiskId] = useState("");
   const [issueId, setIssueId] = useState("");
+  const [featureId, setFeatureId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { data: sprints = [] } = useQuery({
@@ -142,6 +144,20 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
     enabled: open && !!projectId,
   });
 
+  const { data: featuresList = [] } = useQuery({
+    queryKey: ["features-for-task", productId],
+    queryFn: async () => {
+      if (!productId) return [];
+      const { data } = await supabase
+        .from("product_features")
+        .select("id, name, status")
+        .eq("product_id", productId)
+        .order("name");
+      return data || [];
+    },
+    enabled: open && !!productId,
+  });
+
   const { data: risks = [] } = useQuery({
     queryKey: ["risks-for-task", currentOrganization?.id],
     queryFn: async () => {
@@ -189,6 +205,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       setWorkPackageId(task.work_package_id || "");
       setRiskId((task as any).risk_id || "");
       setIssueId((task as any).issue_id || "");
+      setFeatureId((task as any).feature_id || "");
     }
   }, [task]);
 
@@ -212,6 +229,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       work_package_id: workPackageId || null,
       risk_id: riskId || null,
       issue_id: issueId || null,
+      feature_id: featureId || null,
     };
 
     if (status === "completed") {
@@ -351,7 +369,7 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
             </div>
             <div className="space-y-2">
               <Label>Product</Label>
-              <Select value={productId || "none"} onValueChange={(v) => setProductId(v === "none" ? "" : v)}>
+              <Select value={productId || "none"} onValueChange={(v) => { setProductId(v === "none" ? "" : v); setFeatureId(""); }}>
                 <SelectTrigger><SelectValue placeholder="No product" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No Product</SelectItem>
@@ -405,6 +423,24 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Feature</Label>
+            <Select
+              value={featureId || "none"}
+              onValueChange={(v) => setFeatureId(v === "none" ? "" : v)}
+              disabled={!productId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={productId ? "No feature" : "Select product first"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No Feature</SelectItem>
+                {featuresList.map((f: any) => (
+                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Sprint</Label>
