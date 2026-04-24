@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 import { usePlanLimits } from "@/hooks/usePlanLimits";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
