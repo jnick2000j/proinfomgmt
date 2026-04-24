@@ -191,7 +191,7 @@ export default function Onboarding() {
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               {[
-                { id: "ppm" as Intent, icon: Layers, title: "Full PPM", desc: "PRINCE2, MSP programmes, projects, products, agile" },
+                { id: "ppm" as Intent, icon: Layers, title: "Program, Product and/or Project Management", desc: "PRINCE2, MSP programmes, projects, products, agile" },
                 { id: "helpdesk" as Intent, icon: Headphones, title: "Helpdesk only", desc: "Tickets, SLA, customer portal, email intake" },
                 { id: "itsm" as Intent, icon: GitBranch, title: "ITSM", desc: "Helpdesk + Change Management, CAB workflow" },
               ].map(({ id, icon: Icon, title, desc }) => (
@@ -226,25 +226,30 @@ export default function Onboarding() {
                 We'll tailor modules, terminology and dashboards for your sector. You can change this later.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {[
-                { id: "technology" as Vertical, icon: Cpu, title: "Technology", desc: "IT, Infra, Software & SaaS — programmes, products, projects, sprints, ITSM, helpdesk" },
-                { id: "construction" as Vertical, icon: HardHat, title: "Construction & Engineering", desc: "RFIs, submittals, daily logs, punch lists" },
-                { id: "professional_services" as Vertical, icon: Briefcase, title: "Professional Services", desc: "Engagements, retainers, billable hours" },
-              ].map(({ id, icon: Icon, title, desc }) => (
-                <Card
-                  key={id}
-                  className={`p-4 cursor-pointer transition-all hover:border-primary text-left ${
-                    vertical === id ? "border-primary ring-2 ring-primary/20" : ""
-                  }`}
-                  onClick={() => setVertical(id)}
-                >
-                  <Icon className="h-6 w-6 text-primary mb-2" />
-                  <div className="font-semibold mb-1">{title}</div>
-                  <p className="text-xs text-muted-foreground">{desc}</p>
-                </Card>
-              ))}
-            </div>
+            {verticals.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">
+                No industry verticals are currently enabled. Please contact your platform administrator.
+              </p>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {verticals.map((v) => {
+                  const Icon = VERTICAL_ICONS[v.id] ?? Layers;
+                  return (
+                    <Card
+                      key={v.id}
+                      className={`p-4 cursor-pointer transition-all hover:border-primary text-left ${
+                        vertical === v.id ? "border-primary ring-2 ring-primary/20" : ""
+                      }`}
+                      onClick={() => setVertical(v.id)}
+                    >
+                      <Icon className="h-6 w-6 text-primary mb-2" />
+                      <div className="font-semibold mb-1">{v.name}</div>
+                      <p className="text-xs text-muted-foreground">{v.description ?? ""}</p>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
             <div className="flex justify-between mt-6">
               <Button variant="outline" onClick={() => setStep("intent")} className="gap-2">
                 <ArrowLeft className="h-4 w-4" /> Back
