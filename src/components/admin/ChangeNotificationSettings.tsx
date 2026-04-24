@@ -241,11 +241,6 @@ export function ChangeNotificationSettings() {
             </p>
           </div>
         </div>
-            <p className="text-sm text-muted-foreground">
-              When enabled, the implementer or owner must include written detail when posting these activity types from the change record.
-            </p>
-          </div>
-        </div>
 
         <Separator />
 
