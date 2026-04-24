@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { GitBranch, Sparkles, Lock, ListChecks, Inbox } from "lucide-react";
+import { GitBranch, Sparkles, Lock, ListChecks, Inbox, Settings as SettingsIcon } from "lucide-react";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { AIIntakeChat } from "@/components/intake/AIIntakeChat";
 import { useOrgAccessLevel } from "@/hooks/useOrgAccessLevel";
@@ -20,6 +20,7 @@ export default function ChangeControlPortal() {
             { key: "register", label: "Change Register", to: "/change-management", icon: ListChecks },
             { key: "portal", label: "Raise a change (AI)", to: "/change-management/portal", icon: Sparkles },
             { key: "mine", label: "My changes", to: "/change-management/my-changes", icon: Inbox },
+            { key: "settings", label: "Settings", to: "/change-management/settings", icon: SettingsIcon },
           ]}
         />
         <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">

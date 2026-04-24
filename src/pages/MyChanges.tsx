@@ -1,7 +1,7 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ListChecks, Sparkles, Inbox } from "lucide-react";
+import { ListChecks, Sparkles, Inbox, Settings as SettingsIcon } from "lucide-react";
 import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,6 +63,7 @@ export default function MyChanges() {
             { key: "register", label: "Change Register", to: "/change-management", icon: ListChecks },
             { key: "portal", label: "Raise a change (AI)", to: "/change-management/portal", icon: Sparkles },
             { key: "mine", label: "My changes", to: "/change-management/my-changes", icon: Inbox },
+            { key: "settings", label: "Settings", to: "/change-management/settings", icon: SettingsIcon },
           ]}
         />
 
