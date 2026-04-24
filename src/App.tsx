@@ -106,7 +106,7 @@ const App = () => (
             <Route path="/itsm-pricing" element={<ITSMPricing />} />
             <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route path="/checkout/return" element={<CheckoutReturn />} />
-            <Route path="/csat/:token" element={<CSATResponse />} />
+            
             <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
             <Route path="/billing/addons" element={<ProtectedRoute><AddonsCatalog /></ProtectedRoute>} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
