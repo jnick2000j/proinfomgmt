@@ -94,6 +94,19 @@ interface Dependency {
   description: string | null;
 }
 
+interface ProductTask {
+  id: string;
+  name: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  feature_id: string | null;
+  planned_start: string | null;
+  planned_end: string | null;
+  story_points: number | null;
+  completion_percentage: number | null;
+}
+
 interface StatusHistoryEntry {
   id: string;
   old_status: string | null;
