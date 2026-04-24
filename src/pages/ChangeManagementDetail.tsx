@@ -914,8 +914,8 @@ export default function ChangeManagementDetail() {
               <Textarea
                 rows={4}
                 placeholder={
-                  requiresComment(pendingChange.field)
-                    ? "A comment is required — explain why this is changing"
+                  requiresComment(pendingChange.field, pendingChange.to)
+                    ? "An update note is required — explain this change"
                     : "Why is this changing? (optional but recommended)"
                 }
                 value={pendingComment}
