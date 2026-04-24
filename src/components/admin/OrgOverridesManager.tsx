@@ -74,6 +74,7 @@ export function OrgOverridesManager() {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [subs, setSubs] = useState<OrgSub[]>([]);
+  const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [open, setOpen] = useState(false);
@@ -87,20 +88,25 @@ export function OrgOverridesManager() {
     current_period_end?: string | null;
   }>({});
 
+  const [auditOpen, setAuditOpen] = useState(false);
+  const [auditFilterOrg, setAuditFilterOrg] = useState<string>("all");
+
   const load = async () => {
     setLoading(true);
-    const [{ data: o }, { data: p }, { data: f }, { data: ov }, { data: s }] = await Promise.all([
+    const [{ data: o }, { data: p }, { data: f }, { data: ov }, { data: s }, { data: al }] = await Promise.all([
       supabase.from("organizations").select("id, name").order("name"),
       supabase.from("subscription_plans").select("id, name, price_monthly").order("price_monthly"),
       supabase.from("plan_features").select("feature_key, name, feature_type").eq("is_active", true).order("display_order"),
       supabase.from("organization_plan_overrides").select("*").order("created_at", { ascending: false }),
       supabase.from("organization_subscriptions").select("organization_id, plan_id, status, current_period_end, trial_ends_at"),
+      supabase.from("org_override_audit_log").select("*").order("created_at", { ascending: false }).limit(200),
     ]);
     setOrgs((o || []) as Org[]);
     setPlans((p || []) as Plan[]);
     setFeatures((f || []) as Feature[]);
     setOverrides((ov || []) as Override[]);
     setSubs((s || []) as OrgSub[]);
+    setAudit((al || []) as AuditEntry[]);
     setLoading(false);
   };
 
@@ -111,6 +117,8 @@ export function OrgOverridesManager() {
   const featureName = (key: string) => features.find((f) => f.feature_key === key)?.name || key;
   const featureType = (key: string) => features.find((f) => f.feature_key === key)?.feature_type || "boolean";
   const subFor = (orgId: string) => subs.find((s) => s.organization_id === orgId);
+  const isScheduled = (o: Override) => o.effective_from && new Date(o.effective_from) > new Date();
+  const filteredAudit = auditFilterOrg === "all" ? audit : audit.filter((a) => a.organization_id === auditFilterOrg);
 
   const handleSave = async () => {
     if (!draft.organization_id || !draft.feature_key) {
