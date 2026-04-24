@@ -39,7 +39,7 @@ export function HelpdeskSummary() {
           .from("helpdesk_tickets")
           .select("id", { count: "exact", head: true })
           .eq("organization_id", orgId)
-          .in("status", ["open", "in_progress", "pending"]),
+          .in("status", ["new", "open", "pending"]),
         supabase
           .from("helpdesk_tickets")
           .select("id", { count: "exact", head: true })
