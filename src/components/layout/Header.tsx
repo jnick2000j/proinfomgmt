@@ -128,7 +128,6 @@ export function Header({ title, subtitle }: HeaderProps) {
           <OrganizationSelector />
         </div>
         <RegionBadge />
-        <AICreditsMeter variant="compact" hideWhenEmpty />
 
         <ThemeToggle />
 
