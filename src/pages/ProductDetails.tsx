@@ -515,6 +515,7 @@ export default function ProductDetails() {
           <QuickActionTabs
             items={[
               { value: "features", label: "Features", icon: Lightbulb, count: features.length },
+              { value: "tasks", label: "Tasks", icon: ListTodo, count: tasks.length },
               { value: "roadmap", label: "Roadmap", icon: Calendar },
               { value: "metrics", label: "Metrics", icon: BarChart3 },
               { value: "dependencies", label: "Dependencies", icon: Link2, count: dependencies.length },
