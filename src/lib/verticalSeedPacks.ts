@@ -24,6 +24,72 @@ export interface SeedPack {
 
 export const SEED_PACKS: SeedPack[] = [
   {
+    id: "construction",
+    name: "Construction & Engineering",
+    description: "Site projects, RFIs, submittals, daily logs and punch lists",
+    icon: "HardHat",
+    enabled_modules: ["programmes", "projects", "tasks", "rfis", "submittals", "daily_logs", "punch_list", "risks", "issues", "reports", "team", "knowledgebase", "automations"],
+    terminology_overrides: { project: "Site Project", work_package: "Work Package", stakeholder: "Subcontractor" },
+    default_dashboards: ["site_progress", "open_rfis"],
+    ai_context_prompt: "You are assisting a Construction & Engineering team. Reference RFIs, submittals, daily logs, punch lists, site safety and subcontractor coordination.",
+    entities: [
+      {
+        slug: "rfis",
+        name: "RFI",
+        name_plural: "RFIs",
+        description: "Requests for Information raised on site",
+        icon: "MessageSquare",
+        fields: [
+          { key: "subject", label: "Subject", type: "text", required: true },
+          { key: "discipline", label: "Discipline", type: "select", options: ["architectural", "structural", "mep", "civil", "other"] },
+          { key: "due_date", label: "Response Due", type: "date" },
+          { key: "question", label: "Question", type: "textarea", required: true },
+        ],
+        default_status_options: ["open", "answered", "closed", "void"],
+      },
+      {
+        slug: "submittals",
+        name: "Submittal",
+        name_plural: "Submittals",
+        description: "Material, shop-drawing and product submittals for approval",
+        icon: "FileCheck",
+        fields: [
+          { key: "spec_section", label: "Spec Section", type: "text" },
+          { key: "submittal_type", label: "Type", type: "select", options: ["product_data", "shop_drawing", "sample", "mock_up"] },
+          { key: "revision", label: "Revision", type: "text" },
+        ],
+        default_status_options: ["pending", "approved", "approved_as_noted", "revise_resubmit", "rejected"],
+      },
+      {
+        slug: "daily-logs",
+        name: "Daily Log",
+        name_plural: "Daily Logs",
+        description: "Site superintendent daily reports — weather, manpower, deliveries",
+        icon: "ClipboardList",
+        fields: [
+          { key: "log_date", label: "Date", type: "date", required: true },
+          { key: "weather", label: "Weather", type: "text" },
+          { key: "manpower", label: "Manpower on site", type: "number" },
+          { key: "notes", label: "Notes", type: "textarea" },
+        ],
+        default_status_options: ["draft", "submitted", "reviewed"],
+      },
+      {
+        slug: "punch-list",
+        name: "Punch List Item",
+        name_plural: "Punch List",
+        description: "Snagging items captured during inspections and handover",
+        icon: "ListChecks",
+        fields: [
+          { key: "location", label: "Location / Room", type: "text", required: true },
+          { key: "trade", label: "Trade", type: "text" },
+          { key: "description", label: "Description", type: "textarea", required: true },
+        ],
+        default_status_options: ["open", "in_progress", "ready_for_review", "closed"],
+      },
+    ],
+  },
+  {
     id: "healthcare",
     name: "Healthcare",
     description: "Clinical projects, compliance and patient initiatives",
