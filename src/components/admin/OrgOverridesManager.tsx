@@ -139,6 +139,7 @@ export function OrgOverridesManager() {
         feature_key: draft.feature_key,
         override_value: value,
         reason: draft.reason || null,
+        effective_from: draft.effective_from || null,
         expires_at: draft.expires_at || null,
       },
       { onConflict: "organization_id,feature_key" },
