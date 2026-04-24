@@ -142,6 +142,7 @@ function statusBadge(status: Status) {
 export default function Timesheets() {
   const { user } = useAuth();
   const { currentOrganization } = useOrganization();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [tab, setTab] = useState("mine");
   const [loading, setLoading] = useState(false);
