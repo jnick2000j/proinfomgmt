@@ -378,7 +378,6 @@ export default function PlatformAdmin() {
 
         <TabsContent value="verticals" className="space-y-6">
           <VerticalPacksManager />
-          <OrgVerticalManager />
         </TabsContent>
 
         <TabsContent value="audit" className="space-y-4">
@@ -395,6 +394,13 @@ export default function PlatformAdmin() {
           onSuccess={() => { setSuspensionTarget(null); fetchData(); }}
         />
       )}
+
+      <OrgVerticalDialog
+        open={!!verticalTarget}
+        onOpenChange={(o) => !o && setVerticalTarget(null)}
+        organization={verticalTarget}
+        onSuccess={() => { setVerticalTarget(null); fetchData(); }}
+      />
     </AppLayout>
   );
 }
