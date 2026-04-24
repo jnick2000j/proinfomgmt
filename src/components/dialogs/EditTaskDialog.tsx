@@ -175,6 +175,8 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
       setDescription(task.description || "");
       setPriority(task.priority);
       setStatus(task.status);
+      setOriginalStatus(task.status);
+      setStatusChangeNote("");
       setPlannedStart(task.planned_start || "");
       setPlannedEnd(task.planned_end || "");
       setEstimatedHours(task.estimated_hours?.toString() || "");
