@@ -505,6 +505,8 @@ export default function Timesheets() {
         labelParts.push(`Product: ${products.find((p) => p.id === e.product_id)?.name ?? e.product_id}`);
       if (e.task_id)
         labelParts.push(`Task: ${tasksList.find((t) => t.id === e.task_id)?.name ?? e.task_id}`);
+      if (e.ticket_id)
+        labelParts.push(`Ticket: ${tickets.find((t) => t.id === e.ticket_id)?.name ?? e.ticket_id}`);
       return {
         label: labelParts.join(" · ") || "—",
         description: e.description,
