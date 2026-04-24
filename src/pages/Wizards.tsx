@@ -49,6 +49,16 @@ const createTemplates = [
   { type: "compliance_health_check" as TemplateType, name: "Punch / Snag Walkdown", category: "Construction", icon: "✅", description: "Plan inspection walkdowns, capture snags by location/trade and drive them to verified closure for handover.", creates: null },
   { type: "compliance_health_check" as TemplateType, name: "Change Order Workflow", category: "Construction", icon: "🔀", description: "Raise variations / compensation events with cost & time impact, contractual mechanism and approval routing.", creates: null },
   { type: "compliance_health_check" as TemplateType, name: "Commissioning & Handover", category: "Construction", icon: "🏁", description: "Plan Cx test packs, witness points, O&M manuals, as-builts, training and the H&S file for Practical Completion.", creates: null },
+  // ─── Professional Services & Consulting guides ───
+  { type: "compliance_health_check" as TemplateType, name: "Bid / No-Bid Decision", category: "Pro Services", icon: "🎯", description: "Walk through the qualification gate: strategic fit, win probability, margin, capacity and conflict checks.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "MSA → SOW → CO Workflow", category: "Pro Services", icon: "📜", description: "Set up the contracting cascade: Master Services Agreement, Statement of Work and Change Order routing.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Engagement Setup", category: "Pro Services", icon: "🤝", description: "Mobilise a new engagement: governance, RACI, ways-of-working, risk log, comms plan and 30-day plan.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Deliverable Acceptance", category: "Pro Services", icon: "📦", description: "Submit deliverables for formal acceptance with criteria mapping and deemed-acceptance windows.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Internal QA Review", category: "Pro Services", icon: "🔍", description: "Run a partner-quality QA review before client submission — protect firm reputation.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Resource Planning Cycle", category: "Pro Services", icon: "📅", description: "Weekly demand vs supply: staffing requests, bench, skills matrix, utilisation targets.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Time, WIP & Billing", category: "Pro Services", icon: "💷", description: "Time capture, WIP aging, write-offs, billing realisation and lock-up days.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "CSAT / NPS Programme", category: "Pro Services", icon: "❤️", description: "Run mid-engagement CSAT, end-of-engagement reviews and annual NPS with closed-loop follow-up.", creates: null },
+  { type: "compliance_health_check" as TemplateType, name: "Post-Engagement Review", category: "Pro Services", icon: "🧠", description: "Capture lessons, reusable assets, follow-on pipeline and case-study potential.", creates: null },
 ];
 
 // ---------- DRAFT wizards (AI-generated documents) ----------
