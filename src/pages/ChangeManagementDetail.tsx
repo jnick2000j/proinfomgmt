@@ -40,8 +40,18 @@ const STATUS_STYLES: Record<string, string> = {
   failed: "bg-destructive/10 text-destructive",
 };
 
-// Fields that should prompt the user for an explanatory comment when changed.
+// Default fields that prompt the user for an explanatory comment when changed.
+// (Always-on prompt — admin "require_comment_*" toggles in addition to this make it MANDATORY.)
 const COMMENT_FIELDS = new Set(["status", "change_type", "urgency", "impact", "owner_id"]);
+
+// Map field key → admin "require comment" setting column
+const REQUIRE_FIELD_MAP: Record<string, string> = {
+  status: "require_comment_on_status",
+  change_type: "require_comment_on_type",
+  urgency: "require_comment_on_urgency",
+  impact: "require_comment_on_impact",
+  owner_id: "require_comment_on_owner",
+};
 
 const FIELD_LABELS: Record<string, string> = {
   status: "Status",
@@ -130,6 +140,26 @@ export default function ChangeManagementDetail() {
     enabled: !!currentOrganization?.id,
   });
 
+  const { data: notifSettings } = useQuery({
+    queryKey: ["cm-notif-settings", currentOrganization?.id],
+    queryFn: async () => {
+      if (!currentOrganization?.id) return null;
+      const { data } = await supabase
+        .from("change_notification_settings")
+        .select("*")
+        .eq("organization_id", currentOrganization.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!currentOrganization?.id,
+  });
+
+  const requiresComment = (field: string): boolean => {
+    if (!notifSettings) return false;
+    const key = REQUIRE_FIELD_MAP[field];
+    return key ? !!(notifSettings as any)[key] : false;
+  };
+
   const usersById = useMemo(() => {
     const map = new Map<string, { name: string; email: string }>();
     for (const u of orgUsers as any[]) {
@@ -162,6 +192,25 @@ export default function ChangeManagementDetail() {
       change.requested_by === user.id
     );
 
+  const fireActivityNotification = async (event_type: string, from_value: any, to_value: any, notes: string | null) => {
+    if (!change) return;
+    try {
+      await supabase.functions.invoke("notify-cm-activity", {
+        body: {
+          change_id: change.id,
+          event_type,
+          from_value,
+          to_value,
+          notes,
+          action_url: `${window.location.origin}/change-management/${change.id}`,
+        },
+      });
+    } catch (e) {
+      // best-effort — never block on notification
+      console.warn("notify-cm-activity failed", e);
+    }
+  };
+
   const writeActivity = async (payload: {
     event_type: string;
     from_value?: any;
@@ -178,6 +227,13 @@ export default function ChangeManagementDetail() {
       to_value: payload.to_value ?? null,
       notes: payload.notes ?? null,
     });
+    // Fire-and-forget email + in-app notification dispatch
+    void fireActivityNotification(
+      payload.event_type,
+      payload.from_value ?? null,
+      payload.to_value ?? null,
+      payload.notes ?? null,
+    );
   };
 
   const persistFieldChange = async (field: string, value: any, comment?: string | null) => {
@@ -215,6 +271,11 @@ export default function ChangeManagementDetail() {
   const confirmPendingChange = async (skipComment: boolean) => {
     if (!pendingChange) return;
     const { field, to } = pendingChange;
+    // Enforce admin "require comment" toggles
+    if (skipComment && requiresComment(field)) {
+      toast.error("A comment is required for this change");
+      return;
+    }
     const comment = skipComment ? null : pendingComment;
     setPendingChange(null);
     setPendingComment("");
@@ -544,7 +605,9 @@ export default function ChangeManagementDetail() {
               Change {pendingChange ? (FIELD_LABELS[pendingChange.field] ?? pendingChange.field) : ""}?
             </DialogTitle>
             <DialogDescription>
-              Add a short note explaining the reason for this change. It will be recorded on the activity timeline.
+              {pendingChange && requiresComment(pendingChange.field)
+                ? "An explanatory comment is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
+                : "Add a short note explaining the reason for this change. It will be recorded on the activity timeline."}
             </DialogDescription>
           </DialogHeader>
           {pendingChange && (
@@ -560,7 +623,11 @@ export default function ChangeManagementDetail() {
               </div>
               <Textarea
                 rows={4}
-                placeholder="Why is this changing? (optional but recommended)"
+                placeholder={
+                  requiresComment(pendingChange.field)
+                    ? "A comment is required — explain why this is changing"
+                    : "Why is this changing? (optional but recommended)"
+                }
                 value={pendingComment}
                 onChange={(e) => setPendingComment(e.target.value)}
               />
@@ -570,9 +637,11 @@ export default function ChangeManagementDetail() {
             <Button variant="ghost" onClick={() => { setPendingChange(null); setPendingComment(""); }}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => confirmPendingChange(true)}>
-              Save without comment
-            </Button>
+            {pendingChange && !requiresComment(pendingChange.field) && (
+              <Button variant="outline" onClick={() => confirmPendingChange(true)}>
+                Save without comment
+              </Button>
+            )}
             <Button onClick={() => confirmPendingChange(false)} disabled={!pendingComment.trim()}>
               Save with comment
             </Button>
