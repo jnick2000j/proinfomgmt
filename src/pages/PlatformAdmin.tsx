@@ -23,6 +23,9 @@ import {
   Ban,
   RotateCcw,
   KeyRound,
+  Archive,
+  ArchiveRestore,
+  Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PlatformSSOQueue } from "@/components/sso/PlatformSSOQueue";
@@ -37,8 +40,19 @@ import { PlatformAIProviderSettings } from "@/components/admin/PlatformAIProvide
 import { AICreditPackManager } from "@/components/billing/AICreditPackManager";
 import { VerticalPacksManager } from "@/components/admin/VerticalPacksManager";
 import { OrgVerticalDialog } from "@/components/admin/OrgVerticalDialog";
-import { PSOnboardingWizard } from "@/components/admin/PSOnboardingWizard";
+import { OrgOnboardingWizard } from "@/components/admin/OrgOnboardingWizard";
 import { Layers as LayersIcon, Briefcase } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface PlatformStats {
   totalOrgs: number;
@@ -70,6 +84,7 @@ interface OrgOverview {
   license_deployment_mode: string | null;
   license_customer_reference: string | null;
   industry_vertical: string | null;
+  is_archived?: boolean;
 }
 
 export default function PlatformAdmin() {
@@ -81,7 +96,10 @@ export default function PlatformAdmin() {
   const [loading, setLoading] = useState(true);
   const [suspensionTarget, setSuspensionTarget] = useState<OrgOverview | null>(null);
   const [verticalTarget, setVerticalTarget] = useState<OrgOverview | null>(null);
-  const [psOnboardingOpen, setPsOnboardingOpen] = useState(false);
+  const [onboardingTarget, setOnboardingTarget] = useState<OrgOverview | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<OrgOverview | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<OrgOverview | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -92,7 +110,7 @@ export default function PlatformAdmin() {
     try {
       // Fetch counts in parallel
       const [orgsRes, usersRes, progsRes, projsRes, prodsRes, subsRes, licsRes] = await Promise.all([
-        supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason, industry_vertical"),
+        supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason, industry_vertical, is_archived"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("archived", false),
         supabase.from("programmes").select("id", { count: "exact", head: true }),
         supabase.from("projects").select("id", { count: "exact", head: true }),
@@ -154,6 +172,7 @@ export default function PlatformAdmin() {
             license_deployment_mode: lic?.deployment_mode ?? null,
             license_customer_reference: lic?.customer_reference ?? null,
             industry_vertical: (org as any).industry_vertical ?? null,
+            is_archived: !!(org as any).is_archived,
           };
         })
       );
@@ -163,6 +182,39 @@ export default function PlatformAdmin() {
       console.error("Error fetching platform data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleArchive = async (org: OrgOverview, archive: boolean) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase.rpc("archive_organization", {
+        _org_id: org.id,
+        _archive: archive,
+      });
+      if (error) throw error;
+      toast.success(archive ? `${org.name} archived` : `${org.name} restored`);
+      setArchiveTarget(null);
+      await fetchData();
+    } catch (e: any) {
+      toast.error(e.message ?? "Action failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async (org: OrgOverview) => {
+    setActionLoading(true);
+    try {
+      const { error } = await supabase.rpc("delete_organization_cascade", { _org_id: org.id });
+      if (error) throw error;
+      toast.success(`${org.name} permanently deleted`);
+      setDeleteTarget(null);
+      await fetchData();
+    } catch (e: any) {
+      toast.error(e.message ?? "Delete failed");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -280,7 +332,7 @@ export default function PlatformAdmin() {
                   </TableRow>
                 ) : (
                   orgs.map((org) => (
-                    <TableRow key={org.id} className={org.is_suspended ? "bg-destructive/5" : undefined}>
+                    <TableRow key={org.id} className={org.is_archived ? "opacity-60" : org.is_suspended ? "bg-destructive/5" : undefined}>
                       <TableCell>
                         <div>
                           <p className="font-medium">{org.name}</p>
@@ -323,8 +375,8 @@ export default function PlatformAdmin() {
                       <TableCell className="text-muted-foreground text-sm">
                         {new Date(org.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                       <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
                           <Button
                             size="sm"
                             variant="outline"
@@ -336,14 +388,43 @@ export default function PlatformAdmin() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => setOnboardingTarget(org)}
+                            title="Run onboarding wizard"
+                          >
+                            <Briefcase className="h-3.5 w-3.5 mr-1" /> Setup
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
                             onClick={() => setSuspensionTarget(org)}
                           >
                             {org.is_suspended ? (
-                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
+                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable</>
                             ) : (
-                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
+                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable</>
                             )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setArchiveTarget(org)}
+                            title={org.is_archived ? "Restore organization" : "Archive organization"}
+                          >
+                            {org.is_archived ? (
+                              <><ArchiveRestore className="h-3.5 w-3.5 mr-1" /> Restore</>
+                            ) : (
+                              <><Archive className="h-3.5 w-3.5 mr-1" /> Archive</>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeleteTarget(org)}
+                            title="Permanently delete organization and all its content"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                           </Button>
                         </div>
                       </TableCell>
@@ -382,13 +463,15 @@ export default function PlatformAdmin() {
           <div className="flex items-center justify-between gap-3 rounded-lg border bg-card p-4">
             <div>
               <h3 className="text-base font-semibold flex items-center gap-2">
-                <Briefcase className="h-4 w-4" /> Professional Services Onboarding
+                <Briefcase className="h-4 w-4" /> Organization Onboarding Wizard
               </h3>
               <p className="text-sm text-muted-foreground">
-                Configure an account for PS&amp;C — terminology, modules, dashboards and starter content.
+                Walk an account through vertical setup — terminology, modules, dashboards and starter content.
               </p>
             </div>
-            <Button onClick={() => setPsOnboardingOpen(true)}>Launch wizard</Button>
+            <Button onClick={() => setOnboardingTarget({ id: "", name: "", slug: "", created_at: "", is_suspended: false, suspension_kind: null, suspended_reason: null, user_count: 0, programme_count: 0, project_count: 0, product_count: 0, plan_name: null, sub_status: null, trial_ends_at: null, license_id: null, license_status: null, license_deployment_mode: null, license_customer_reference: null, industry_vertical: null })}>
+              Launch wizard
+            </Button>
           </div>
           <VerticalPacksManager />
         </TabsContent>
@@ -415,11 +498,61 @@ export default function PlatformAdmin() {
         onSuccess={() => { setVerticalTarget(null); fetchData(); }}
       />
 
-      <PSOnboardingWizard
-        open={psOnboardingOpen}
-        onOpenChange={setPsOnboardingOpen}
-        onSuccess={() => fetchData()}
+      <OrgOnboardingWizard
+        open={!!onboardingTarget}
+        onOpenChange={(o) => !o && setOnboardingTarget(null)}
+        organization={onboardingTarget && onboardingTarget.id ? { id: onboardingTarget.id, name: onboardingTarget.name, slug: onboardingTarget.slug, industry_vertical: onboardingTarget.industry_vertical } : null}
+        onSuccess={() => { setOnboardingTarget(null); fetchData(); }}
       />
+
+      <AlertDialog open={!!archiveTarget} onOpenChange={(o) => !o && setArchiveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {archiveTarget?.is_archived ? "Restore organization?" : "Archive organization?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {archiveTarget?.is_archived
+                ? `Restore "${archiveTarget?.name}" — members will regain access and the org will be removed from archived state.`
+                : `Archive "${archiveTarget?.name}" — the org and its data are preserved but hidden from active lists. You can restore it later.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={actionLoading}
+              onClick={(e) => { e.preventDefault(); if (archiveTarget) void handleArchive(archiveTarget, !archiveTarget.is_archived); }}
+            >
+              {archiveTarget?.is_archived ? "Restore" : "Archive"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete organization?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will <strong>permanently delete "{deleteTarget?.name}"</strong> and all its associated content
+              ({deleteTarget?.user_count} members, {deleteTarget?.programme_count} programmes,{" "}
+              {deleteTarget?.project_count} projects, {deleteTarget?.product_count} products and all related records).
+              <br /><br />
+              This action <strong>cannot be undone</strong>. Consider archiving instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={actionLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => { e.preventDefault(); if (deleteTarget) void handleDelete(deleteTarget); }}
+            >
+              Delete permanently
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
