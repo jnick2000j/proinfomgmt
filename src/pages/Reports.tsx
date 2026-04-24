@@ -413,6 +413,8 @@ export default function Reports() {
                 <SelectItem value="msp">MSP</SelectItem>
                 <SelectItem value="agile">Agile</SelectItem>
                 <SelectItem value="product">Product</SelectItem>
+                <SelectItem value="change">Change Mgmt</SelectItem>
+                <SelectItem value="helpdesk">Helpdesk</SelectItem>
                 <SelectItem value="general">General</SelectItem>
               </SelectContent>
             </Select>
