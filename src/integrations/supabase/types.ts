@@ -1570,6 +1570,10 @@ export type Database = {
           require_comment_on_owner: boolean
           require_comment_on_progress: boolean
           require_comment_on_status: boolean
+          require_comment_on_status_closed: boolean
+          require_comment_on_status_implemented: boolean
+          require_comment_on_status_in_progress: boolean
+          require_comment_on_status_scheduled: boolean
           require_comment_on_test: boolean
           require_comment_on_type: boolean
           require_comment_on_urgency: boolean
@@ -1596,6 +1600,10 @@ export type Database = {
           require_comment_on_owner?: boolean
           require_comment_on_progress?: boolean
           require_comment_on_status?: boolean
+          require_comment_on_status_closed?: boolean
+          require_comment_on_status_implemented?: boolean
+          require_comment_on_status_in_progress?: boolean
+          require_comment_on_status_scheduled?: boolean
           require_comment_on_test?: boolean
           require_comment_on_type?: boolean
           require_comment_on_urgency?: boolean
@@ -1622,6 +1630,10 @@ export type Database = {
           require_comment_on_owner?: boolean
           require_comment_on_progress?: boolean
           require_comment_on_status?: boolean
+          require_comment_on_status_closed?: boolean
+          require_comment_on_status_implemented?: boolean
+          require_comment_on_status_in_progress?: boolean
+          require_comment_on_status_scheduled?: boolean
           require_comment_on_test?: boolean
           require_comment_on_type?: boolean
           require_comment_on_urgency?: boolean

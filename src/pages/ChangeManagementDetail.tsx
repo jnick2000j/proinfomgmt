@@ -191,8 +191,18 @@ export default function ChangeManagementDetail() {
     enabled: !!currentOrganization?.id,
   });
 
-  const requiresComment = (field: string): boolean => {
+  const requiresComment = (field: string, toValue?: any): boolean => {
     if (!notifSettings) return false;
+    if (field === "status" && typeof toValue === "string") {
+      const perStatusKey: Record<string, string> = {
+        scheduled: "require_comment_on_status_scheduled",
+        in_progress: "require_comment_on_status_in_progress",
+        implemented: "require_comment_on_status_implemented",
+        closed: "require_comment_on_status_closed",
+      };
+      const perKey = perStatusKey[toValue];
+      if (perKey && (notifSettings as any)[perKey]) return true;
+    }
     const key = REQUIRE_FIELD_MAP[field];
     return key ? !!(notifSettings as any)[key] : false;
   };
@@ -326,7 +336,7 @@ export default function ChangeManagementDetail() {
     if (!pendingChange) return;
     const { field, to } = pendingChange;
     // Enforce admin "require comment" toggles
-    if (skipComment && requiresComment(field)) {
+    if (skipComment && requiresComment(field, to)) {
       toast.error("A comment is required for this change");
       return;
     }
@@ -885,8 +895,8 @@ export default function ChangeManagementDetail() {
               Change {pendingChange ? (FIELD_LABELS[pendingChange.field] ?? pendingChange.field) : ""}?
             </DialogTitle>
             <DialogDescription>
-              {pendingChange && requiresComment(pendingChange.field)
-                ? "An explanatory comment is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
+              {pendingChange && requiresComment(pendingChange.field, pendingChange.to)
+                ? "An update note is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
                 : "Add a short note explaining the reason for this change. It will be recorded on the activity timeline."}
             </DialogDescription>
           </DialogHeader>
@@ -904,8 +914,8 @@ export default function ChangeManagementDetail() {
               <Textarea
                 rows={4}
                 placeholder={
-                  requiresComment(pendingChange.field)
-                    ? "A comment is required — explain why this is changing"
+                  requiresComment(pendingChange.field, pendingChange.to)
+                    ? "An update note is required — explain this change"
                     : "Why is this changing? (optional but recommended)"
                 }
                 value={pendingComment}
@@ -917,7 +927,7 @@ export default function ChangeManagementDetail() {
             <Button variant="ghost" onClick={() => { setPendingChange(null); setPendingComment(""); }}>
               Cancel
             </Button>
-            {pendingChange && !requiresComment(pendingChange.field) && (
+            {pendingChange && !requiresComment(pendingChange.field, pendingChange.to) && (
               <Button variant="outline" onClick={() => confirmPendingChange(true)}>
                 Save without comment
               </Button>

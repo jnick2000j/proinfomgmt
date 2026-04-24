@@ -39,6 +39,13 @@ const REQUIRE_ACTIVITY_FIELDS: Array<{ key: string; label: string; help: string 
   { key: "require_comment_on_comment", label: "General comments", help: "Free-form discussion comments must include text." },
 ];
 
+const REQUIRE_STATUS_FIELDS: Array<{ key: string; label: string; help: string }> = [
+  { key: "require_comment_on_status_scheduled", label: "Scheduled", help: "Require an update note when a change moves to Scheduled." },
+  { key: "require_comment_on_status_in_progress", label: "In progress", help: "Require an update note when implementation begins." },
+  { key: "require_comment_on_status_implemented", label: "Implemented", help: "Require an update note when the change is marked Implemented." },
+  { key: "require_comment_on_status_closed", label: "Closed", help: "Require a closing note when the change is Closed." },
+];
+
 const DEFAULTS: Record<string, boolean> = {
   notify_on_status_change: true,
   notify_on_type_change: false,
@@ -59,6 +66,10 @@ const DEFAULTS: Record<string, boolean> = {
   require_comment_on_test: true,
   require_comment_on_implementation: true,
   require_comment_on_comment: false,
+  require_comment_on_status_scheduled: false,
+  require_comment_on_status_in_progress: false,
+  require_comment_on_status_implemented: false,
+  require_comment_on_status_closed: false,
 };
 
 export function ChangeNotificationSettings() {
@@ -177,6 +188,39 @@ export function ChangeNotificationSettings() {
               className="flex items-center justify-between gap-4 p-3 rounded-md border bg-muted/20"
             >
               <Label htmlFor={f.key} className="font-medium">{f.label}</Label>
+              <Switch
+                id={f.key}
+                checked={values[f.key]}
+                onCheckedChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))}
+              />
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-6 space-y-4">
+        <div className="flex items-start gap-3">
+          <MessageSquareWarning className="h-5 w-5 text-primary mt-0.5" />
+          <div>
+            <h3 className="font-semibold">Require an update note for specific status transitions</h3>
+            <p className="text-sm text-muted-foreground">
+              When enabled, users must post an update note when moving a change into one of these lifecycle states.
+            </p>
+          </div>
+        </div>
+
+        <Separator />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {REQUIRE_STATUS_FIELDS.map((f) => (
+            <div
+              key={f.key}
+              className="flex items-start justify-between gap-4 p-3 rounded-md border bg-muted/20"
+            >
+              <div className="space-y-0.5">
+                <Label htmlFor={f.key} className="font-medium">{f.label}</Label>
+                <p className="text-xs text-muted-foreground">{f.help}</p>
+              </div>
               <Switch
                 id={f.key}
                 checked={values[f.key]}
