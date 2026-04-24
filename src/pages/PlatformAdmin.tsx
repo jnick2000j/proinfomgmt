@@ -375,8 +375,8 @@ export default function PlatformAdmin() {
                       <TableCell className="text-muted-foreground text-sm">
                         {new Date(org.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                       <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2 flex-wrap">
                           <Button
                             size="sm"
                             variant="outline"
@@ -388,14 +388,43 @@ export default function PlatformAdmin() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => setOnboardingTarget(org)}
+                            title="Run onboarding wizard"
+                          >
+                            <Briefcase className="h-3.5 w-3.5 mr-1" /> Setup
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
                             onClick={() => setSuspensionTarget(org)}
                           >
                             {org.is_suspended ? (
-                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
+                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable</>
                             ) : (
-                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
+                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable</>
                             )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setArchiveTarget(org)}
+                            title={org.is_archived ? "Restore organization" : "Archive organization"}
+                          >
+                            {org.is_archived ? (
+                              <><ArchiveRestore className="h-3.5 w-3.5 mr-1" /> Restore</>
+                            ) : (
+                              <><Archive className="h-3.5 w-3.5 mr-1" /> Archive</>
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => setDeleteTarget(org)}
+                            title="Permanently delete organization and all its content"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                           </Button>
                         </div>
                       </TableCell>
