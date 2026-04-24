@@ -460,6 +460,9 @@ export default function ChangeManagementDetail() {
                     <div className="flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-primary" />
                       <h4 className="font-medium">Post an update</h4>
+                      {requiresActivityComment(progressKind) && (
+                        <Badge variant="outline" className="text-xs">Comment required</Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Implementers, owners and requesters can record progress, test results or general notes against this change.
@@ -476,17 +479,26 @@ export default function ChangeManagementDetail() {
                     </div>
                     <Textarea
                       rows={3}
-                      placeholder="Describe progress, test outcomes, blockers, or context for the team…"
+                      placeholder={
+                        requiresActivityComment(progressKind)
+                          ? "A written comment is required by your organisation for this update type"
+                          : "Describe progress, test outcomes, blockers, or context for the team… (optional)"
+                      }
                       value={progressText}
                       onChange={(e) => setProgressText(e.target.value)}
                     />
                     <div className="flex justify-end">
-                      <Button size="sm" onClick={submitProgress} disabled={!progressText.trim()}>
+                      <Button
+                        size="sm"
+                        onClick={submitProgress}
+                        disabled={requiresActivityComment(progressKind) && !progressText.trim()}
+                      >
                         Post update
                       </Button>
                     </div>
                   </Card>
                 )}
+
 
                 {activity.length === 0 && <p className="text-sm text-muted-foreground">No activity yet.</p>}
 
