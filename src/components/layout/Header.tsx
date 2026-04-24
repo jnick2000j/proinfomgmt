@@ -132,7 +132,7 @@ export function Header({ title, subtitle }: HeaderProps) {
         </div>
         <RegionBadge />
 
-        <ThemeToggle />
+        
 
         <Button
           variant="outline"
