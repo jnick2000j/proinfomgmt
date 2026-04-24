@@ -30,7 +30,6 @@ import {
   LifeBuoy,
   Workflow,
   GitPullRequest,
-  Clock,
 } from "lucide-react";
 import { AutomationsTab } from "@/components/automations/AutomationsTab";
 import { EntityTicketsCard } from "@/components/helpdesk/EntityTicketsCard";
