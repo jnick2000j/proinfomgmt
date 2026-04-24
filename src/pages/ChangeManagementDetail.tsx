@@ -168,6 +168,14 @@ export default function ChangeManagementDetail() {
     return key ? !!(notifSettings as any)[key] : false;
   };
 
+  const requiresActivityComment = (eventType: string): boolean => {
+    // Default to true if settings not yet loaded — safer to require detail.
+    const key = REQUIRE_ACTIVITY_MAP[eventType];
+    if (!key) return true;
+    if (!notifSettings) return true;
+    return !!(notifSettings as any)[key];
+  };
+
   const usersById = useMemo(() => {
     const map = new Map<string, { name: string; email: string }>();
     for (const u of orgUsers as any[]) {
