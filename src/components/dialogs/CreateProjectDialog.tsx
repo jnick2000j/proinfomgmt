@@ -66,9 +66,20 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
     if (open) fetchData();
   }, [open]);
 
+  // Pre-fill organization with the current active organization when dialog opens
+  useEffect(() => {
+    if (open && currentOrganization?.id && !formData.organization_id) {
+      setFormData((f) => ({ ...f, organization_id: currentOrganization.id }));
+    }
+  }, [open, currentOrganization?.id]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!formData.organization_id) {
+      toast.error("Please select an organization");
+      return;
+    }
 
     setLoading(true);
     try {
