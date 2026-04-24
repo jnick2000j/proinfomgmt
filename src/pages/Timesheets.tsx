@@ -355,6 +355,36 @@ export default function Timesheets() {
     if (error) toast.error(error.message);
   };
 
+  const deleteSheet = async (sheet: Timesheet) => {
+    if (sheet.status !== "draft") {
+      toast.error("Only draft timesheets can be deleted");
+      return;
+    }
+    if (!window.confirm("Delete this draft timesheet and all its entries? This cannot be undone.")) {
+      return;
+    }
+    // Remove entries first (FK), then the sheet
+    const { error: entriesErr } = await supabase
+      .from("timesheet_entries")
+      .delete()
+      .eq("timesheet_id", sheet.id);
+    if (entriesErr) {
+      toast.error(entriesErr.message);
+      return;
+    }
+    const { error } = await supabase.from("timesheets").delete().eq("id", sheet.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setMySheets((s) => s.filter((x) => x.id !== sheet.id));
+    if (selectedSheet?.id === sheet.id) {
+      setEditorOpen(false);
+      setSelectedSheet(null);
+    }
+    toast.success("Draft timesheet deleted");
+  };
+
   const updateNotes = async (notes: string) => {
     if (!selectedSheet) return;
     setSelectedSheet({ ...selectedSheet, notes });
@@ -643,6 +673,16 @@ export default function Timesheets() {
                           <Button size="sm" variant="ghost" onClick={() => openEmail(s)}>
                             <Mail className="h-3.5 w-3.5" />
                           </Button>
+                          {s.status === "draft" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => deleteSheet(s)}
+                              title="Delete draft"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
@@ -980,6 +1020,11 @@ export default function Timesheets() {
                 <Button variant="outline" onClick={() => openEmail(selectedSheet)}>
                   <Mail className="h-4 w-4" /> Email
                 </Button>
+                {selectedSheet.status === "draft" && (
+                  <Button variant="destructive" onClick={() => deleteSheet(selectedSheet)}>
+                    <Trash2 className="h-4 w-4" /> Delete Draft
+                  </Button>
+                )}
                 {canEdit && (
                   <Button onClick={openSubmit}>
                     <Send className="h-4 w-4" /> Submit for Approval
