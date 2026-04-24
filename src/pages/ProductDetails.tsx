@@ -34,9 +34,11 @@ import {
   Users,
   LifeBuoy,
   Workflow,
+  GitPullRequest,
 } from "lucide-react";
 import { AutomationsTab } from "@/components/automations/AutomationsTab";
 import { EntityTicketsCard } from "@/components/helpdesk/EntityTicketsCard";
+import { EntityChangesCard } from "@/components/changeMgmt/EntityChangesCard";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { EntityStatusActions } from "@/components/EntityStatusActions";
