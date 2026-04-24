@@ -210,6 +210,32 @@ export default function ProductDetails() {
     setFeatures(data || []);
   };
 
+  const fetchTasks = async () => {
+    if (!productId) return;
+
+    // Tasks linked directly to product OR to any feature of this product
+    const { data: featRows } = await supabase
+      .from("product_features")
+      .select("id")
+      .eq("product_id", productId);
+    const featureIdList = (featRows || []).map((f) => f.id);
+
+    const orParts = [`product_id.eq.${productId}`];
+    if (featureIdList.length > 0) {
+      orParts.push(`feature_id.in.(${featureIdList.join(",")})`);
+    }
+
+    const { data } = await supabase
+      .from("tasks")
+      .select(
+        "id, name, description, status, priority, feature_id, planned_start, planned_end, story_points, completion_percentage",
+      )
+      .or(orParts.join(","))
+      .order("created_at", { ascending: false });
+
+    setTasks((data || []) as ProductTask[]);
+  };
+
   const fetchDependencies = async () => {
     if (!productId) return;
     
