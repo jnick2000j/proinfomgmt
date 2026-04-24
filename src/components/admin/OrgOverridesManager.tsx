@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, History } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -42,6 +42,7 @@ interface Override {
   feature_key: string;
   override_value: any;
   reason: string | null;
+  effective_from: string | null;
   expires_at: string | null;
 }
 interface OrgSub {
@@ -51,6 +52,21 @@ interface OrgSub {
   current_period_end: string | null;
   trial_ends_at: string | null;
 }
+interface AuditEntry {
+  id: string;
+  organization_id: string;
+  change_kind: string;
+  operation: string;
+  feature_key: string | null;
+  before_value: any;
+  after_value: any;
+  actor_email: string | null;
+  reason: string | null;
+  created_at: string;
+}
+
+const toLocalInput = (iso: string | null | undefined) =>
+  iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
 
 export function OrgOverridesManager() {
   const [orgs, setOrgs] = useState<Org[]>([]);
