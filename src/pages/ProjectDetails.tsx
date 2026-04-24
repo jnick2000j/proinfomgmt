@@ -429,6 +429,14 @@ export default function ProjectDetails() {
             Back to Projects
           </Button>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/timesheets?projectId=${project.id}`)}
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              Log Time
+            </Button>
             <DocumentUpload
               entityType="project"
               entityId={project.id}

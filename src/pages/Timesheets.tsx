@@ -285,16 +285,26 @@ export default function Timesheets() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, currentOrganization?.id]);
 
-  // If navigated here with ?ticketId=, auto-create/open this week and add the ticket entry.
+  // If navigated here with a link query param, auto-create/open this week and add the entry.
   useEffect(() => {
     const tid = searchParams.get("ticketId");
-    if (!tid) return;
+    const taskId = searchParams.get("taskId");
+    const projectId = searchParams.get("projectId");
+    const programmeId = searchParams.get("programmeId");
+    const productId = searchParams.get("productId");
+    if (!tid && !taskId && !projectId && !programmeId && !productId) return;
     if (!user || !currentOrganization) return;
-    // Wait until lookups have loaded so logTimeForTicket sees mySheets.
+    // Wait until lookups have loaded so logTimeFor sees mySheets.
     if (loading) return;
-    logTimeForTicket(tid).finally(() => {
+    logTimeFor({
+      ticket_id: tid,
+      task_id: taskId,
+      project_id: projectId,
+      programme_id: programmeId,
+      product_id: productId,
+    }).finally(() => {
       const next = new URLSearchParams(searchParams);
-      next.delete("ticketId");
+      ["ticketId", "taskId", "projectId", "programmeId", "productId"].forEach((k) => next.delete(k));
       setSearchParams(next, { replace: true });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -375,8 +385,14 @@ export default function Timesheets() {
     setEntries((es) => [...es, data as Entry]);
   };
 
-  // Open / create the current week's draft and append an entry pre-linked to a ticket.
-  const logTimeForTicket = async (ticketId: string) => {
+  // Open / create the current week's draft and append an entry pre-linked to the given entity.
+  const logTimeFor = async (link: {
+    ticket_id?: string | null;
+    task_id?: string | null;
+    project_id?: string | null;
+    programme_id?: string | null;
+    product_id?: string | null;
+  }) => {
     if (!user || !currentOrganization) return;
     const monday = startOfWeek(new Date(), { weekStartsOn: 1 });
     const sunday = endOfWeek(new Date(), { weekStartsOn: 1 });
@@ -409,19 +425,23 @@ export default function Timesheets() {
       return;
     }
 
-    // Load existing entries to compute sort order, then add a ticket-linked entry.
+    // Load existing entries to compute sort order, then add the linked entry.
     const { data: existing } = await supabase
       .from("timesheet_entries")
       .select("id")
       .eq("timesheet_id", sheet.id);
     const sortOrder = (existing?.length ?? 0);
 
-    const { data: newEntry, error: entryErr } = await supabase
+    const { error: entryErr } = await supabase
       .from("timesheet_entries")
       .insert({
         timesheet_id: sheet.id,
         sort_order: sortOrder,
-        ticket_id: ticketId,
+        ticket_id: link.ticket_id ?? null,
+        task_id: link.task_id ?? null,
+        project_id: link.project_id ?? null,
+        programme_id: link.programme_id ?? null,
+        product_id: link.product_id ?? null,
       })
       .select()
       .single();
@@ -433,7 +453,7 @@ export default function Timesheets() {
     setSelectedSheet(sheet);
     await loadEntries(sheet.id);
     setEditorOpen(true);
-    toast.success("Ticket added to this week's timesheet");
+    toast.success("Added to this week's timesheet");
   };
 
   const updateEntry = async (id: string, patch: Partial<Entry>) => {
