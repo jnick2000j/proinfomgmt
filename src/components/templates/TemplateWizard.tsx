@@ -30,7 +30,27 @@ export type TemplateType =
   | "stakeholder_engagement"
   | "change_request_form"
   | "sprint_retro"
-  | "compliance_health_check";
+  | "compliance_health_check"
+  // Construction & Engineering templates
+  | "con_rfi_form"
+  | "con_submittal_form"
+  | "con_daily_log_form"
+  | "con_punch_item_form"
+  | "con_change_order_form"
+  | "con_permit_to_work_form"
+  | "con_toolbox_talk_form"
+  | "con_ncr_form"
+  | "con_handover_checklist"
+  // Professional Services & Consulting templates
+  | "ps_engagement_setup"
+  | "ps_sow_form"
+  | "ps_msa_summary"
+  | "ps_change_order_form"
+  | "ps_deliverable_form"
+  | "ps_retainer_setup"
+  | "ps_timesheet_entry"
+  | "ps_csat_capture"
+  | "ps_bid_no_bid";
 
 interface WizardStep {
   title: string;
