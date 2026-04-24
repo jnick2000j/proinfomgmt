@@ -927,7 +927,7 @@ export default function ChangeManagementDetail() {
             <Button variant="ghost" onClick={() => { setPendingChange(null); setPendingComment(""); }}>
               Cancel
             </Button>
-            {pendingChange && !requiresComment(pendingChange.field) && (
+            {pendingChange && !requiresComment(pendingChange.field, pendingChange.to) && (
               <Button variant="outline" onClick={() => confirmPendingChange(true)}>
                 Save without comment
               </Button>
