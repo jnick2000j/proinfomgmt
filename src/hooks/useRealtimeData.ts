@@ -4,8 +4,16 @@ import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 type TableName = "programmes" | "projects" | "risks" | "issues" | "benefits" | "weekly_reports";
 
-export function useRealtimeData<T extends { id: string }>(
+/**
+ * Subscribe to realtime row changes for a table, scoped to a single organization.
+ *
+ * The channel topic embeds the organization id (e.g. `projects-changes:<org_id>`)
+ * so the realtime RLS policy can verify the subscriber belongs to that org and
+ * prevent cross-tenant data leakage.
+ */
+export function useRealtimeData<T extends { id: string; organization_id?: string }>(
   tableName: TableName,
+  organizationId: string | null | undefined,
   initialData: T[] = []
 ) {
   const [data, setData] = useState<T[]>(initialData);
@@ -15,18 +23,19 @@ export function useRealtimeData<T extends { id: string }>(
   }, [initialData]);
 
   useEffect(() => {
+    if (!organizationId) return;
+
     const channel = supabase
-      .channel(`${tableName}-changes`)
+      .channel(`${tableName}-changes:${organizationId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: tableName,
+          filter: `organization_id=eq.${organizationId}`,
         },
         (payload: RealtimePostgresChangesPayload<T>) => {
-          console.log(`Realtime ${tableName} update:`, payload);
-
           if (payload.eventType === "INSERT") {
             setData((prev) => [...prev, payload.new as T]);
           } else if (payload.eventType === "UPDATE") {
@@ -47,7 +56,7 @@ export function useRealtimeData<T extends { id: string }>(
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tableName]);
+  }, [tableName, organizationId]);
 
   return { data, setData };
 }
