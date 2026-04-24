@@ -285,6 +285,21 @@ export default function Timesheets() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, currentOrganization?.id]);
 
+  // If navigated here with ?ticketId=, auto-create/open this week and add the ticket entry.
+  useEffect(() => {
+    const tid = searchParams.get("ticketId");
+    if (!tid) return;
+    if (!user || !currentOrganization) return;
+    // Wait until lookups have loaded so logTimeForTicket sees mySheets.
+    if (loading) return;
+    logTimeForTicket(tid).finally(() => {
+      const next = new URLSearchParams(searchParams);
+      next.delete("ticketId");
+      setSearchParams(next, { replace: true });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, user?.id, currentOrganization?.id, loading]);
+
   const loadEntries = async (sheetId: string) => {
     const { data, error } = await supabase
       .from("timesheet_entries")
