@@ -36,7 +36,8 @@ import { SuspensionHistory } from "@/components/admin/SuspensionHistory";
 import { PlatformAIProviderSettings } from "@/components/admin/PlatformAIProviderSettings";
 import { AICreditPackManager } from "@/components/billing/AICreditPackManager";
 import { VerticalPacksManager } from "@/components/admin/VerticalPacksManager";
-import { OrgVerticalManager } from "@/components/admin/OrgVerticalManager";
+import { OrgVerticalDialog } from "@/components/admin/OrgVerticalDialog";
+import { Layers as LayersIcon } from "lucide-react";
 
 interface PlatformStats {
   totalOrgs: number;
@@ -67,6 +68,7 @@ interface OrgOverview {
   license_status: string | null;
   license_deployment_mode: string | null;
   license_customer_reference: string | null;
+  industry_vertical: string | null;
 }
 
 export default function PlatformAdmin() {
@@ -77,6 +79,7 @@ export default function PlatformAdmin() {
   const [orgs, setOrgs] = useState<OrgOverview[]>([]);
   const [loading, setLoading] = useState(true);
   const [suspensionTarget, setSuspensionTarget] = useState<OrgOverview | null>(null);
+  const [verticalTarget, setVerticalTarget] = useState<OrgOverview | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -87,7 +90,7 @@ export default function PlatformAdmin() {
     try {
       // Fetch counts in parallel
       const [orgsRes, usersRes, progsRes, projsRes, prodsRes, subsRes, licsRes] = await Promise.all([
-        supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason"),
+        supabase.from("organizations").select("id, name, slug, created_at, is_suspended, suspension_kind, suspended_reason, industry_vertical"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("archived", false),
         supabase.from("programmes").select("id", { count: "exact", head: true }),
         supabase.from("projects").select("id", { count: "exact", head: true }),
@@ -148,6 +151,7 @@ export default function PlatformAdmin() {
             license_status: lic?.status ?? null,
             license_deployment_mode: lic?.deployment_mode ?? null,
             license_customer_reference: lic?.customer_reference ?? null,
+            industry_vertical: (org as any).industry_vertical ?? null,
           };
         })
       );
@@ -318,18 +322,28 @@ export default function PlatformAdmin() {
                         {new Date(org.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
-                          onClick={() => setSuspensionTarget(org)}
-                        >
-                          {org.is_suspended ? (
-                            <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
-                          ) : (
-                            <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
-                          )}
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setVerticalTarget(org)}
+                            title="Assign industry vertical"
+                          >
+                            <LayersIcon className="h-3.5 w-3.5 mr-1" /> Vertical
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className={org.is_suspended ? "" : "text-destructive hover:text-destructive"}
+                            onClick={() => setSuspensionTarget(org)}
+                          >
+                            {org.is_suspended ? (
+                              <><RotateCcw className="h-3.5 w-3.5 mr-1" /> Enable Access</>
+                            ) : (
+                              <><Ban className="h-3.5 w-3.5 mr-1" /> Disable Access</>
+                            )}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -364,7 +378,6 @@ export default function PlatformAdmin() {
 
         <TabsContent value="verticals" className="space-y-6">
           <VerticalPacksManager />
-          <OrgVerticalManager />
         </TabsContent>
 
         <TabsContent value="audit" className="space-y-4">
@@ -381,6 +394,13 @@ export default function PlatformAdmin() {
           onSuccess={() => { setSuspensionTarget(null); fetchData(); }}
         />
       )}
+
+      <OrgVerticalDialog
+        open={!!verticalTarget}
+        onOpenChange={(o) => !o && setVerticalTarget(null)}
+        organization={verticalTarget}
+        onSuccess={() => { setVerticalTarget(null); fetchData(); }}
+      />
     </AppLayout>
   );
 }
