@@ -100,6 +100,9 @@ export default function ChangeManagementDetail() {
   // Progress / test result composer
   const [progressKind, setProgressKind] = useState<string>("progress_note");
   const [progressText, setProgressText] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploadingAttachments, setUploadingAttachments] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: change, isLoading } = useQuery({
     queryKey: ["cm-request", id],
