@@ -150,6 +150,8 @@ export function Header({ title, subtitle }: HeaderProps) {
 
         <AskSupportDialog open={supportOpen} onOpenChange={setSupportOpen} />
 
+        <NotificationBell />
+
         {/* Quick link to Support inside menu too */}
 
         {/* User Menu Dropdown */}
