@@ -285,16 +285,26 @@ export default function Timesheets() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, currentOrganization?.id]);
 
-  // If navigated here with ?ticketId=, auto-create/open this week and add the ticket entry.
+  // If navigated here with a link query param, auto-create/open this week and add the entry.
   useEffect(() => {
     const tid = searchParams.get("ticketId");
-    if (!tid) return;
+    const taskId = searchParams.get("taskId");
+    const projectId = searchParams.get("projectId");
+    const programmeId = searchParams.get("programmeId");
+    const productId = searchParams.get("productId");
+    if (!tid && !taskId && !projectId && !programmeId && !productId) return;
     if (!user || !currentOrganization) return;
-    // Wait until lookups have loaded so logTimeForTicket sees mySheets.
+    // Wait until lookups have loaded so logTimeFor sees mySheets.
     if (loading) return;
-    logTimeForTicket(tid).finally(() => {
+    logTimeFor({
+      ticket_id: tid,
+      task_id: taskId,
+      project_id: projectId,
+      programme_id: programmeId,
+      product_id: productId,
+    }).finally(() => {
       const next = new URLSearchParams(searchParams);
-      next.delete("ticketId");
+      ["ticketId", "taskId", "projectId", "programmeId", "productId"].forEach((k) => next.delete(k));
       setSearchParams(next, { replace: true });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
