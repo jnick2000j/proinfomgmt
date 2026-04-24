@@ -109,25 +109,26 @@ function displayName(profile: ProfileLite | null | undefined, fallback = "A team
 
 async function resolveEntityName(admin: ReturnType<typeof createClient>, payload: Payload): Promise<string | null> {
   if (payload.task_name) return payload.task_name;
-  if (payload.entity_type && payload.entity_id) {
-    const tableByType: Record<string, string> = {
-      programme: "programmes",
-      project: "projects",
-      product: "products",
-      stage_gate: "stage_gates",
-      change_request: "change_requests",
-      milestone: "milestones",
-      exception: "exceptions",
-      quality_review: "quality_reviews",
-    };
-    const table = tableByType[payload.entity_type];
-    if (table) {
-      const { data } = await admin.from(table as any).select("name, title, subject, reference_number").eq("id", payload.entity_id).maybeSingle();
-      const record = data as Record<string, string | null> | null;
-      return record?.name || record?.title || record?.subject || record?.reference_number || null;
-    }
-  }
-  return null;
+  if (!payload.entity_type || !payload.entity_id) return null;
+
+  const queryByType: Record<string, { table: string; select: string; fields: string[] }> = {
+    programme: { table: "programmes", select: "name", fields: ["name"] },
+    project: { table: "projects", select: "name", fields: ["name"] },
+    product: { table: "products", select: "name", fields: ["name"] },
+    stage_gate: { table: "stage_gates", select: "name", fields: ["name"] },
+    change_request: { table: "change_requests", select: "title,reference_number", fields: ["title", "reference_number"] },
+    milestone: { table: "milestones", select: "name", fields: ["name"] },
+    exception: { table: "exceptions", select: "title,reference_number", fields: ["title", "reference_number"] },
+    quality_review: { table: "quality_reviews", select: "title,reference_number", fields: ["title", "reference_number"] },
+    helpdesk_ticket: { table: "helpdesk_tickets", select: "subject,reference_number", fields: ["subject", "reference_number"] },
+  };
+
+  const config = queryByType[payload.entity_type];
+  if (!config) return null;
+
+  const { data } = await admin.from(config.table as any).select(config.select).eq("id", payload.entity_id).maybeSingle();
+  const record = data as Record<string, string | null> | null;
+  return config.fields.map((field) => record?.[field]).find((value): value is string => !!value) ?? null;
 }
 
 async function buildNotification(admin: ReturnType<typeof createClient>, payload: Payload, recipientId: string) {
