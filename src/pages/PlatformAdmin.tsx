@@ -37,7 +37,8 @@ import { PlatformAIProviderSettings } from "@/components/admin/PlatformAIProvide
 import { AICreditPackManager } from "@/components/billing/AICreditPackManager";
 import { VerticalPacksManager } from "@/components/admin/VerticalPacksManager";
 import { OrgVerticalDialog } from "@/components/admin/OrgVerticalDialog";
-import { Layers as LayersIcon } from "lucide-react";
+import { PSOnboardingWizard } from "@/components/admin/PSOnboardingWizard";
+import { Layers as LayersIcon, Briefcase } from "lucide-react";
 
 interface PlatformStats {
   totalOrgs: number;
