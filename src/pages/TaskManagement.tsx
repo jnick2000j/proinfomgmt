@@ -838,6 +838,37 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8"
+                            onClick={() => duplicateTask.mutate(task)}
+                            title="Duplicate task"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setRecurringSeed({
+                                name: task.name,
+                                description: task.description,
+                                priority: task.priority,
+                                project_id: task.project_id,
+                                programme_id: task.programme_id,
+                                product_id: task.product_id,
+                                work_package_id: task.work_package_id,
+                                estimated_hours: task.estimated_hours,
+                                assigned_to: task.assigned_to,
+                              });
+                              setRecurringOpen(true);
+                            }}
+                            title="Create recurring tasks from this"
+                          >
+                            <Repeat className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => setTaskToDelete({ id: task.id, name: task.name })}
                             title="Delete task"
