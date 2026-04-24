@@ -308,6 +308,19 @@ export function EditTaskDialog({ task, open, onOpenChange, onUpdate }: EditTaskD
               />
             </div>
           </div>
+          {status !== originalStatus && (
+            <div className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+              <Label className="text-xs">
+                Comment for status change ({originalStatus.replace(/_/g, " ")} → {status.replace(/_/g, " ")})
+              </Label>
+              <Textarea
+                value={statusChangeNote}
+                onChange={(e) => setStatusChangeNote(e.target.value)}
+                placeholder="Optional — why is the status changing?"
+                rows={2}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Program</Label>
