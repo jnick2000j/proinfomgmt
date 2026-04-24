@@ -39,6 +39,13 @@ const REQUIRE_ACTIVITY_FIELDS: Array<{ key: string; label: string; help: string 
   { key: "require_comment_on_comment", label: "General comments", help: "Free-form discussion comments must include text." },
 ];
 
+const REQUIRE_STATUS_FIELDS: Array<{ key: string; label: string; help: string }> = [
+  { key: "require_comment_on_status_scheduled", label: "Scheduled", help: "Require an update note when a change moves to Scheduled." },
+  { key: "require_comment_on_status_in_progress", label: "In progress", help: "Require an update note when implementation begins." },
+  { key: "require_comment_on_status_implemented", label: "Implemented", help: "Require an update note when the change is marked Implemented." },
+  { key: "require_comment_on_status_closed", label: "Closed", help: "Require a closing note when the change is Closed." },
+];
+
 const DEFAULTS: Record<string, boolean> = {
   notify_on_status_change: true,
   notify_on_type_change: false,
@@ -59,6 +66,10 @@ const DEFAULTS: Record<string, boolean> = {
   require_comment_on_test: true,
   require_comment_on_implementation: true,
   require_comment_on_comment: false,
+  require_comment_on_status_scheduled: false,
+  require_comment_on_status_in_progress: false,
+  require_comment_on_status_implemented: false,
+  require_comment_on_status_closed: false,
 };
 
 export function ChangeNotificationSettings() {
