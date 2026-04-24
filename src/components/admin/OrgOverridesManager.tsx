@@ -198,11 +198,16 @@ export function OrgOverridesManager() {
 
   return (
     <Card className="p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Per-organization overrides</h3>
-        <p className="text-sm text-muted-foreground">
-          Override a plan or specific features for an organization (enterprise deals, comps, beta access).
-        </p>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-semibold">Per-organization overrides</h3>
+          <p className="text-sm text-muted-foreground">
+            Override a plan or specific features for an organization (enterprise deals, comps, beta access).
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setAuditOpen(true)}>
+          <History className="h-4 w-4 mr-2" />Audit history
+        </Button>
       </div>
 
       <Tabs defaultValue="plans" className="w-full">
