@@ -1564,9 +1564,13 @@ export type Database = {
           notify_on_type_change: boolean
           notify_on_urgency_change: boolean
           organization_id: string
+          require_comment_on_comment: boolean
           require_comment_on_impact: boolean
+          require_comment_on_implementation: boolean
           require_comment_on_owner: boolean
+          require_comment_on_progress: boolean
           require_comment_on_status: boolean
+          require_comment_on_test: boolean
           require_comment_on_type: boolean
           require_comment_on_urgency: boolean
           updated_at: string
@@ -1586,9 +1590,13 @@ export type Database = {
           notify_on_type_change?: boolean
           notify_on_urgency_change?: boolean
           organization_id: string
+          require_comment_on_comment?: boolean
           require_comment_on_impact?: boolean
+          require_comment_on_implementation?: boolean
           require_comment_on_owner?: boolean
+          require_comment_on_progress?: boolean
           require_comment_on_status?: boolean
+          require_comment_on_test?: boolean
           require_comment_on_type?: boolean
           require_comment_on_urgency?: boolean
           updated_at?: string
@@ -1608,9 +1616,13 @@ export type Database = {
           notify_on_type_change?: boolean
           notify_on_urgency_change?: boolean
           organization_id?: string
+          require_comment_on_comment?: boolean
           require_comment_on_impact?: boolean
+          require_comment_on_implementation?: boolean
           require_comment_on_owner?: boolean
+          require_comment_on_progress?: boolean
           require_comment_on_status?: boolean
+          require_comment_on_test?: boolean
           require_comment_on_type?: boolean
           require_comment_on_urgency?: boolean
           updated_at?: string
