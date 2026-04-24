@@ -1,18 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers, HardHat, Briefcase, Cpu } from "lucide-react";
+import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Headphones, GitBranch, Layers, HardHat, Briefcase, Cpu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { OrgOnboardingWizard } from "@/components/admin/OrgOnboardingWizard";
 
 type Intent = "ppm" | "helpdesk" | "itsm";
-type Vertical = "technology" | "construction" | "professional_services";
 type Step = "intent" | "vertical" | "org" | "invite" | "plan" | "done";
+
+interface VerticalOpt {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+const VERTICAL_ICONS: Record<string, any> = {
+  technology: Cpu,
+  construction: HardHat,
+  professional_services: Briefcase,
+};
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -22,13 +34,33 @@ export default function Onboarding() {
   const initialIntent = (searchParams.get("plan_kind") as Intent | null) || null;
   const [step, setStep] = useState<Step>(initialIntent ? "vertical" : "intent");
   const [intent, setIntent] = useState<Intent>(initialIntent || "ppm");
-  const [vertical, setVertical] = useState<Vertical>("technology");
+  const [verticals, setVerticals] = useState<VerticalOpt[]>([]);
+  const [vertical, setVertical] = useState<string>("technology");
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState<string | null>(null);
   const [inviteEmails, setInviteEmails] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [plans, setPlans] = useState<any[]>([]);
+  const [showOrgWizard, setShowOrgWizard] = useState(false);
+
+  // Load only enabled verticals so the user can't pick a disabled industry.
+  useEffect(() => {
+    supabase
+      .from("industry_verticals")
+      .select("id, name, description, is_active, sort_order")
+      .eq("is_active", true)
+      .order("sort_order")
+      .then(({ data }) => {
+        const list = (data ?? []).map((v: any) => ({ id: v.id, name: v.name, description: v.description }));
+        setVerticals(list);
+        if (list.length && !list.find((v) => v.id === vertical)) {
+          setVertical(list[0].id);
+        }
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const generateSlug = (name: string) =>
     name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
