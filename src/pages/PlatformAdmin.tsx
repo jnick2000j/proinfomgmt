@@ -84,6 +84,7 @@ interface OrgOverview {
   license_deployment_mode: string | null;
   license_customer_reference: string | null;
   industry_vertical: string | null;
+  is_archived?: boolean;
 }
 
 export default function PlatformAdmin() {
@@ -95,7 +96,10 @@ export default function PlatformAdmin() {
   const [loading, setLoading] = useState(true);
   const [suspensionTarget, setSuspensionTarget] = useState<OrgOverview | null>(null);
   const [verticalTarget, setVerticalTarget] = useState<OrgOverview | null>(null);
-  const [psOnboardingOpen, setPsOnboardingOpen] = useState(false);
+  const [onboardingTarget, setOnboardingTarget] = useState<OrgOverview | null>(null);
+  const [archiveTarget, setArchiveTarget] = useState<OrgOverview | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<OrgOverview | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
