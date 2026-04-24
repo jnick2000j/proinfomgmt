@@ -23,8 +23,11 @@ import {
   LifeBuoy,
   GitBranch,
   Workflow,
+  HardHat,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useVertical } from "@/hooks/useVertical";
 
 interface NavItem {
   label: string;
@@ -37,6 +40,7 @@ interface NavItem {
 export function Sidebar() {
   const location = useLocation();
   const { user, userRole } = useAuth();
+  const { hasModule, term } = useVertical();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [hasStakeholderAccess, setHasStakeholderAccess] = useState(false);
 
@@ -72,26 +76,47 @@ export function Sidebar() {
     refetchInterval: 30000,
   });
 
-  const navigation: NavItem[] = [
+  const allNavigation: (NavItem & { module?: string })[] = [
     { label: "Dashboard", icon: LayoutDashboard, href: "/" },
     { label: "Ask the TaskMaster", icon: Search, href: "/search" },
     { label: "Notifications", icon: Bell, href: "/notifications", badge: unreadCount },
-    { label: "Programs", icon: Layers, href: "/programmes" },
-    { label: "Projects", icon: FolderKanban, href: "/projects" },
-    { label: "Products", icon: Package, href: "/products" },
-    { label: "Tasks", icon: ListTodo, href: "/tasks" },
-    { label: "Timesheets", icon: Clock, href: "/timesheets" },
+    { label: term("programme", "Programmes"), icon: Layers, href: "/programmes", module: "programmes" },
+    { label: term("project", "Projects"), icon: FolderKanban, href: "/projects", module: "projects" },
+    { label: "Products", icon: Package, href: "/products", module: "products" },
+    { label: "Tasks", icon: ListTodo, href: "/tasks", module: "tasks" },
+    { label: "Timesheets", icon: Clock, href: "/timesheets", module: "timesheets" },
     { label: "Governance", icon: Shield, href: "/prince2" },
-    { label: "Change Management", icon: GitBranch, href: "/change-management" },
+    { label: "Change Management", icon: GitBranch, href: "/change-management", module: "change_management" },
     {
       label: "Helpdesk",
       icon: LifeBuoy,
+      module: "helpdesk",
       children: [
         { label: "Tickets", href: "/support" },
         { label: "Workflows", href: "/support/workflows" },
       ],
     },
-    { label: "Knowledgebase", icon: BookOpen, href: "/knowledgebase" },
+    {
+      label: "Construction",
+      icon: HardHat,
+      module: "rfis",
+      children: [
+        { label: "RFIs", href: "/construction/rfis" },
+        { label: "Submittals", href: "/construction/submittals" },
+        { label: "Daily Logs", href: "/construction/daily-logs" },
+        { label: "Punch List", href: "/construction/punch-list" },
+      ],
+    },
+    {
+      label: "Client Services",
+      icon: Briefcase,
+      module: "engagements",
+      children: [
+        { label: "Engagements", href: "/services/engagements" },
+        { label: "Retainers", href: "/services/retainers" },
+      ],
+    },
+    { label: "Knowledgebase", icon: BookOpen, href: "/knowledgebase", module: "knowledgebase" },
     { label: "Registers", icon: ClipboardList, href: "/registers" },
     {
       label: "Reporting",
@@ -113,8 +138,11 @@ export function Sidebar() {
         { label: "AI Approvals", href: "/ai-approvals" },
       ],
     },
-    { label: "Automations", icon: Workflow, href: "/admin/automations" },
+    { label: "Automations", icon: Workflow, href: "/admin/automations", module: "automations" },
   ];
+
+  // Filter navigation by vertical's enabled modules. Items without a `module` key always show.
+  const navigation = allNavigation.filter((item) => !item.module || hasModule(item.module));
 
   const toggleExpand = (label: string) => {
     setExpandedItems((prev) =>

@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers } from "lucide-react";
+import { Building2, Users, Rocket, Check, ArrowRight, ArrowLeft, Mail, Headphones, GitBranch, Layers, HardHat, Briefcase, Server, Code2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 type Intent = "ppm" | "helpdesk" | "itsm";
-type Step = "intent" | "org" | "invite" | "plan" | "done";
+type Vertical = "it_infrastructure" | "software_saas" | "construction" | "professional_services";
+type Step = "intent" | "vertical" | "org" | "invite" | "plan" | "done";
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -19,8 +20,9 @@ export default function Onboarding() {
   const { user, userRole } = useAuth();
   const isPlatformAdmin = userRole === "admin";
   const initialIntent = (searchParams.get("plan_kind") as Intent | null) || null;
-  const [step, setStep] = useState<Step>(initialIntent ? "org" : "intent");
+  const [step, setStep] = useState<Step>(initialIntent ? "vertical" : "intent");
   const [intent, setIntent] = useState<Intent>(initialIntent || "ppm");
+  const [vertical, setVertical] = useState<Vertical>("it_infrastructure");
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export default function Onboarding() {
     try {
       const { data: org, error: orgError } = await supabase
         .from("organizations")
-        .insert({ name: orgName.trim(), slug: generateSlug(orgName), created_by: user.id })
+        .insert({ name: orgName.trim(), slug: generateSlug(orgName), created_by: user.id, industry_vertical: vertical })
         .select()
         .single();
 
@@ -129,7 +131,7 @@ export default function Onboarding() {
         )}
         {/* Progress */}
         <div className="flex items-center gap-2 mb-8 justify-center">
-          {(["intent", "org", "invite", "plan", "done"] as Step[]).map((s, i, arr) => (
+          {(["intent", "vertical", "org", "invite", "plan", "done"] as Step[]).map((s, i, arr) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium ${
                 step === s ? "bg-primary text-primary-foreground" :
@@ -175,6 +177,47 @@ export default function Onboarding() {
               ))}
             </div>
             <div className="flex justify-center mt-6">
+              <Button onClick={() => setStep("vertical")} className="gap-2">
+                Continue <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Step: Choose Industry Vertical */}
+        {step === "vertical" && (
+          <Card className="p-8">
+            <div className="text-center mb-6">
+              <Layers className="h-12 w-12 mx-auto text-primary mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Pick your industry</h2>
+              <p className="text-muted-foreground">
+                We'll tailor modules, terminology and dashboards for your sector. You can change this later.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {[
+                { id: "it_infrastructure" as Vertical, icon: Server, title: "IT & Infrastructure", desc: "ITSM, Helpdesk, Change Management, infra projects" },
+                { id: "software_saas" as Vertical, icon: Code2, title: "Software & SaaS", desc: "Agile, sprints, roadmap, feature pipeline" },
+                { id: "construction" as Vertical, icon: HardHat, title: "Construction & Engineering", desc: "RFIs, submittals, daily logs, punch lists" },
+                { id: "professional_services" as Vertical, icon: Briefcase, title: "Professional Services", desc: "Engagements, retainers, billable hours" },
+              ].map(({ id, icon: Icon, title, desc }) => (
+                <Card
+                  key={id}
+                  className={`p-4 cursor-pointer transition-all hover:border-primary text-left ${
+                    vertical === id ? "border-primary ring-2 ring-primary/20" : ""
+                  }`}
+                  onClick={() => setVertical(id)}
+                >
+                  <Icon className="h-6 w-6 text-primary mb-2" />
+                  <div className="font-semibold mb-1">{title}</div>
+                  <p className="text-xs text-muted-foreground">{desc}</p>
+                </Card>
+              ))}
+            </div>
+            <div className="flex justify-between mt-6">
+              <Button variant="outline" onClick={() => setStep("intent")} className="gap-2">
+                <ArrowLeft className="h-4 w-4" /> Back
+              </Button>
               <Button onClick={() => setStep("org")} className="gap-2">
                 Continue <ArrowRight className="h-4 w-4" />
               </Button>
