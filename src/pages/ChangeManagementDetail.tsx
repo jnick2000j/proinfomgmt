@@ -892,7 +892,11 @@ export default function ChangeManagementDetail() {
               {pendingChange && requiresComment(pendingChange.field, pendingChange.to)
                 ? "An explanatory comment is required for this change. It will be recorded on the activity timeline and emailed to stakeholders."
                 : "Add a short note explaining the reason for this change. It will be recorded on the activity timeline."}
-...
+            </DialogDescription>
+          </DialogHeader>
+          {pendingChange && (
+            <div className="space-y-2 py-2">
+              <Textarea
                 rows={4}
                 placeholder={
                   requiresComment(pendingChange.field, pendingChange.to)
@@ -908,7 +912,7 @@ export default function ChangeManagementDetail() {
             <Button variant="ghost" onClick={() => { setPendingChange(null); setPendingComment(""); }}>
               Cancel
             </Button>
-            {pendingChange && !requiresComment(pendingChange.field) && (
+            {pendingChange && !requiresComment(pendingChange.field, pendingChange.to) && (
               <Button variant="outline" onClick={() => confirmPendingChange(true)}>
                 Save without comment
               </Button>
