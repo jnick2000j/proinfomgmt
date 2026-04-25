@@ -13,8 +13,10 @@ Operator guide for self-hosted TaskMaster installations.
 7. [AI provider configuration](./ai-provider.md) — Ollama, OpenAI, Azure, Anthropic, embedding models
 8. [SMTP configuration](./smtp.md) — required for invites, notifications, MFA, helpdesk
 9. [Features overview](./features.md) — every shipped module + the edge functions / cron jobs that back it
-10. [Scaling & HA](./scaling-ha.md) — going beyond 2,000 users, multi-host topologies, Patroni, multi-AZ
-11. [Troubleshooting](./troubleshooting.md) — common errors and fixes
+10. [Large deployment (A1 vs A2)](./large-deployment.md) — step-by-step `.env` + compose-file checklist for both Large variants
+11. [Backup runbook (A1 / A2)](./backup-runbook.md) — exact `pg_dump` / `pg_restore` commands, S3 versioning, restore drills
+12. [Scaling & HA](./scaling-ha.md) — going beyond 2,000 users, multi-host topologies, Patroni, multi-AZ
+13. [Troubleshooting](./troubleshooting.md) — common errors and fixes
 
 ### For release engineers (not operators)
 

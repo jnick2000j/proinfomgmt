@@ -76,6 +76,37 @@ In both A1 and A2:
 
 ### 2.2 Topology B — Split DB + horizontally scaled app tier (2k–10k users)
 
+> **Walk-through: why local-FS uploads break on multiple app hosts**
+>
+> See the rendered diagram (Multi_Host_Uploads_Topology) for the
+> visual; below is the failure mode in words.
+>
+> 1. Topology B has ≥ 2 app hosts behind an L7 load balancer. Each app
+>    host runs its **own** `storage` container with its **own**
+>    `storage-data` Docker volume on its **own** local disk.
+> 2. **Upload path** — User A uploads `avatar.png`. The LB routes the
+>    POST to **App Host 1**. The `storage` container on Host 1 writes
+>    the bytes to its local `storage-data` volume and inserts a row in
+>    `storage.objects` with key `avatars/avatar.png`. The DB is shared
+>    so every host *sees the row*.
+> 3. **Download path (next request)** — User B (or even User A on a
+>    new TCP connection) GETs `avatar.png`. The LB round-robins this
+>    request to **App Host 2**. Host 2 looks up the object in the
+>    shared DB, finds the row, and asks its **local** `storage-data`
+>    volume for the bytes — which **don't exist there**.
+> 4. **Result** — `404 Not Found`, intermittently, depending on which
+>    host the LB picks. From the user's perspective the app
+>    "randomly loses files." This is the single most common
+>    misconfiguration when going from Topology A to B.
+>
+> **The fix** is `STORAGE_DRIVER=s3` (where "S3" = any S3-compatible
+> store: AWS S3, MinIO, Ceph, etc.). All `storage` containers point at
+> the same bucket; the local `storage-data` volume is no longer used.
+> Every host now reads and writes the same backing store, so uploads
+> are visible to all hosts immediately. See §4.3 for the full backend
+> matrix and migration steps.
+
+
 ```
                        ┌────────────────────┐
                        │  App host 1        │  web · kong · auth ·
