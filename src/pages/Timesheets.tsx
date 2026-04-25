@@ -57,6 +57,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useOrgAccessLevel } from "@/hooks/useOrgAccessLevel";
 import { toast } from "sonner";
 import { buildTimesheetPdf, type TimesheetEntryRow } from "@/lib/timesheetPdf";
 
@@ -142,6 +143,8 @@ function statusBadge(status: Status) {
 export default function Timesheets() {
   const { user } = useAuth();
   const { currentOrganization } = useOrganization();
+  const { accessLevel } = useOrgAccessLevel();
+  const isOrgManager = accessLevel === "admin" || accessLevel === "manager";
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [tab, setTab] = useState("mine");
@@ -157,6 +160,10 @@ export default function Timesheets() {
   const [tasksList, setTasksList] = useState<NamedRow[]>([]);
   const [tickets, setTickets] = useState<NamedRow[]>([]);
   const [orgUsers, setOrgUsers] = useState<ProfileRow[]>([]);
+
+  // Time-logging restriction (org setting + user's allowed task ids)
+  const [restrictTimeLogging, setRestrictTimeLogging] = useState(false);
+  const [allowedTaskIds, setAllowedTaskIds] = useState<Set<string>>(new Set());
 
   // Editor state
   const [selectedSheet, setSelectedSheet] = useState<Timesheet | null>(null);
@@ -188,11 +195,27 @@ export default function Timesheets() {
     return m;
   }, [orgUsers]);
 
+  // Whether the current user is allowed to log time on a given task id.
+  // Admins/managers always allowed; otherwise only when the org setting is off
+  // or the task is in the user's allowed set.
+  const canLogOnTaskId = (taskId: string | null | undefined) => {
+    if (!taskId) return true;
+    if (isOrgManager) return true;
+    if (!restrictTimeLogging) return true;
+    return allowedTaskIds.has(taskId);
+  };
+
+  // Tasks the user is allowed to pick in the entry editor.
+  const selectableTasks = useMemo(() => {
+    if (isOrgManager || !restrictTimeLogging) return tasksList;
+    return tasksList.filter((t) => allowedTaskIds.has(t.id));
+  }, [tasksList, isOrgManager, restrictTimeLogging, allowedTaskIds]);
+
   const fetchAll = async () => {
     if (!user || !currentOrganization) return;
     setLoading(true);
     try {
-      const [mineRes, approvalsRes, progRes, projRes, prodRes, taskRes, ticketRes, profRes, accessRes] =
+      const [mineRes, approvalsRes, progRes, projRes, prodRes, taskRes, ticketRes, profRes, accessRes, orgRes, myAssignRes] =
         await Promise.all([
           supabase
             .from("timesheets")
@@ -227,7 +250,7 @@ export default function Timesheets() {
             .order("name"),
           supabase
             .from("tasks")
-            .select("id, name")
+            .select("id, name, assigned_to")
             .eq("organization_id", currentOrganization.id)
             .order("name"),
           supabase
@@ -242,6 +265,15 @@ export default function Timesheets() {
             .from("user_organization_access")
             .select("user_id")
             .eq("organization_id", currentOrganization.id),
+          supabase
+            .from("organizations")
+            .select("restrict_time_logging_to_assigned_tasks")
+            .eq("id", currentOrganization.id)
+            .maybeSingle(),
+          supabase
+            .from("task_assignments")
+            .select("task_id")
+            .eq("user_id", user.id),
         ]);
 
       if (mineRes.error) throw mineRes.error;
@@ -252,12 +284,9 @@ export default function Timesheets() {
       setProgrammes((progRes.data || []) as NamedRow[]);
       setProjects((projRes.data || []) as NamedRow[]);
       setProducts((prodRes.data || []) as NamedRow[]);
-      setTasksList(
-        ((taskRes.data || []) as Array<{ id: string; name: string }>).map((t) => ({
-          id: t.id,
-          name: t.name,
-        })),
-      );
+      const taskRows =
+        (taskRes.data || []) as Array<{ id: string; name: string; assigned_to: string | null }>;
+      setTasksList(taskRows.map((t) => ({ id: t.id, name: t.name })));
       setTickets(
         ((ticketRes.data || []) as Array<{ id: string; subject: string; reference_number: string | null }>).map((t) => ({
           id: t.id,
@@ -272,6 +301,22 @@ export default function Timesheets() {
         orgUserIds.has(p.user_id),
       );
       setOrgUsers(profiles);
+
+      // Time-logging restriction
+      setRestrictTimeLogging(
+        !!(orgRes.data as { restrict_time_logging_to_assigned_tasks?: boolean } | null)
+          ?.restrict_time_logging_to_assigned_tasks,
+      );
+      const allowed = new Set<string>();
+      // Tasks where the user is the primary assignee
+      taskRows.forEach((t) => {
+        if (t.assigned_to && t.assigned_to === user.id) allowed.add(t.id);
+      });
+      // Tasks where the user appears in task_assignments
+      ((myAssignRes.data || []) as Array<{ task_id: string }>).forEach((r) => {
+        allowed.add(r.task_id);
+      });
+      setAllowedTaskIds(allowed);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load timesheets");
@@ -296,6 +341,15 @@ export default function Timesheets() {
     if (!user || !currentOrganization) return;
     // Wait until lookups have loaded so logTimeFor sees mySheets.
     if (loading) return;
+    // Authorization check: if a taskId is provided via URL, ensure the user
+    // is allowed to log time on it. This protects against URL-tampering.
+    if (taskId && !canLogOnTaskId(taskId)) {
+      toast.error("You're not allowed to log time on this task");
+      const next = new URLSearchParams(searchParams);
+      ["ticketId", "taskId", "projectId", "programmeId", "productId"].forEach((k) => next.delete(k));
+      setSearchParams(next, { replace: true });
+      return;
+    }
     logTimeFor({
       ticket_id: tid,
       task_id: taskId,
@@ -374,7 +428,7 @@ export default function Timesheets() {
         programme_id: !projects[0] ? programmes[0]?.id ?? null : null,
         product_id: !projects[0] && !programmes[0] ? products[0]?.id ?? null : null,
         task_id:
-          !projects[0] && !programmes[0] && !products[0] ? tasksList[0]?.id ?? null : null,
+          !projects[0] && !programmes[0] && !products[0] ? selectableTasks[0]?.id ?? null : null,
       })
       .select()
       .single();
@@ -980,7 +1034,7 @@ export default function Timesheets() {
                                           ? products[0]?.id
                                           : v === "ticket"
                                             ? tickets[0]?.id
-                                            : tasksList[0]?.id;
+                                            : selectableTasks[0]?.id;
                                   if (v === "programme") patch.programme_id = first ?? null;
                                   if (v === "project") patch.project_id = first ?? null;
                                   if (v === "product") patch.product_id = first ?? null;
@@ -1032,7 +1086,7 @@ export default function Timesheets() {
                                         ? products
                                         : linkType === "ticket"
                                           ? tickets
-                                          : tasksList
+                                          : selectableTasks
                                   ).map((row) => (
                                     <SelectItem key={row.id} value={row.id}>
                                       {row.name}
