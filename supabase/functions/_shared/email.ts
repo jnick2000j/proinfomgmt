@@ -96,7 +96,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
           filename: a.filename,
           content: a.content,
           encoding: "base64",
-          contentType: a.contentType,
+          contentType: a.contentType ?? "application/octet-stream",
         })),
       });
       await client.close();

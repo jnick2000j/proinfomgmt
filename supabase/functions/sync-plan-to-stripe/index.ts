@@ -150,7 +150,7 @@ serve(async (req) => {
             limit: 100,
           });
           for (const s of subs.data) {
-            const item = s.items.data.find((i) => i.price.id === oldPrice.id);
+            const item = s.items.data.find((i: { price: { id: string }; id: string }) => i.price.id === oldPrice.id);
             if (!item) continue;
             await stripe.subscriptions.update(s.id, {
               items: [{ id: item.id, price: newPrice.id }],
