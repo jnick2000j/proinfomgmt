@@ -890,15 +890,17 @@ export default function TaskManagement({ embedded }: { embedded?: boolean }) {
                           >
                             <Repeat className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => navigate(`/timesheets?taskId=${task.id}`)}
-                            title="Log time on this task"
-                          >
-                            <Clock className="h-4 w-4" />
-                          </Button>
+                          {canLogTimeOnTask(task) && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => navigate(`/timesheets?taskId=${task.id}`)}
+                              title="Log time on this task"
+                            >
+                              <Clock className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
