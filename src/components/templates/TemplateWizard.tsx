@@ -41,6 +41,16 @@ export type TemplateType =
   | "con_toolbox_talk_form"
   | "con_ncr_form"
   | "con_handover_checklist"
+  // Construction: Bid / RFP / Pursuit Lifecycle
+  | "con_opportunity_form"
+  | "con_rfp_intake_form"
+  | "con_bid_no_bid_form"
+  | "con_pqq_form"
+  | "con_bid_form"
+  | "con_award_form"
+  | "con_winloss_form"
+  | "con_lifecycle_phase_form"
+  | "con_precon_item_form"
   // Professional Services & Consulting templates
   | "ps_engagement_setup"
   | "ps_sow_form"
@@ -1366,6 +1376,15 @@ const getCreatesEntity = (templateType: TemplateType): string | null => {
     case "con_toolbox_talk_form":
     case "con_ncr_form":
     case "con_handover_checklist":
+    case "con_opportunity_form":
+    case "con_rfp_intake_form":
+    case "con_bid_no_bid_form":
+    case "con_pqq_form":
+    case "con_bid_form":
+    case "con_award_form":
+    case "con_winloss_form":
+    case "con_lifecycle_phase_form":
+    case "con_precon_item_form":
       return "vertical_record";
     case "ps_engagement_setup":
       return "engagement";
@@ -1839,6 +1858,15 @@ export function TemplateWizard({ open, onOpenChange, templateType, templateName 
           con_toolbox_talk_form: "toolbox_talks",
           con_ncr_form: "quality_ncrs",
           con_handover_checklist: "handover",
+          con_opportunity_form: "opportunities",
+          con_rfp_intake_form: "rfps",
+          con_bid_no_bid_form: "bid-no-go-decisions",
+          con_pqq_form: "qualifications-prequals",
+          con_bid_form: "bids",
+          con_award_form: "award-contracts",
+          con_winloss_form: "win-loss-reviews",
+          con_lifecycle_phase_form: "project-lifecycle-phases",
+          con_precon_item_form: "preconstruction-checklist",
           ps_sow_form: "sow",
           ps_msa_summary: "msa",
           ps_timesheet_entry: "timesheets",
