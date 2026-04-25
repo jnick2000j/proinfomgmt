@@ -56,6 +56,36 @@ This restores the most recent pre-upgrade DB snapshot and re-pins the previous
 last upgrade. Any data created since the upgrade will be lost — restore from
 a full backup if you need a different point in time.
 
+## Rolling upgrades (multi-host / HA topologies)
+
+If you are running Topology B or C (see [scaling-ha.md](./scaling-ha.md)),
+the upgrade flow uses the same bundle but is applied differently to
+avoid downtime:
+
+1. **DB migrations first**, against the Postgres primary, from any one
+   app host:
+   ```bash
+   ./scripts/pimp-cli migrate v1.4.0
+   ```
+   Migrations are written to be backward-compatible with the previous
+   app version (the N / N-1 rule), so existing app hosts keep serving
+   traffic during and after migration.
+
+2. **Drain & upgrade each app host**, one at a time:
+   ```bash
+   # On the LB: mark host out of rotation
+   # On the host:
+   ./scripts/pimp-cli upgrade v1.4.0 --skip-migrate --skip-backup
+   # Wait for /healthz to return 200, then re-add to LB
+   ```
+
+3. **Repeat** for each app host. With ≥ 2 app hosts behind the LB this
+   yields a zero-downtime upgrade.
+
+4. For Patroni-managed Postgres major-version upgrades, follow the
+   Patroni rolling upgrade procedure (replicas first, then a controlled
+   switchover) — never run `pg_upgrade` against the primary directly.
+
 ## Skipping versions
 
 A bundle's `manifest.json` declares `min_previous_version`. If your installed

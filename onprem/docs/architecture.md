@@ -1,8 +1,15 @@
 # Architecture
 
-TaskMaster on-prem runs as a single `docker compose` stack on one host.
-All components are containerized and require no external dependencies
-beyond Postgres (which we bundle) and an SMTP relay (which you provide).
+TaskMaster on-prem runs as a single `docker compose` stack on one host
+**by default** — sized for up to ~2,000 concurrent users. All components
+are containerized and require no external dependencies beyond Postgres
+(which we bundle) and an SMTP relay (which you provide).
+
+For larger deployments, the same containers can be split across multiple
+hosts with a dedicated Postgres VM (or Patroni cluster), shared S3
+storage, and a load-balanced app tier. See [scaling-ha.md](./scaling-ha.md)
+for the reference topologies (single host → split tier → full HA),
+per-component HA guidance, and the go-live checklist.
 
 ## Services
 
@@ -84,4 +91,18 @@ Cron is configured inside the `edge` container (see `supabase/config.toml`):
 | Hourly   | `check-notifications`, `check-update-reminders`     |
 | Weekly   | `summarize-weekly-report` → `send-weekly-report`    |
 
-See [features.md](./features.md) for the per-module operator notes.
+See [features.md](./features.md) for the per-module operator notes
+and [scaling-ha.md](./scaling-ha.md) for multi-host and HA topologies.
+
+## Scaling summary
+
+| Component   | Stateless? | How to scale horizontally                          |
+|-------------|------------|----------------------------------------------------|
+| `web`       | yes        | N replicas behind L7 LB                            |
+| `kong`      | yes        | N replicas behind L7 LB                            |
+| `auth`      | yes        | N replicas; shares DB                              |
+| `edge`      | yes        | N replicas; CPU-bound; tune `EDGE_REPLICAS`        |
+| `realtime`  | per-conn   | N replicas + **sticky sessions** on the LB        |
+| `storage`   | yes (S3)   | N replicas **only when** `STORAGE_DRIVER=s3`       |
+| `db`        | no         | Move to dedicated VM; add read replicas; Patroni   |
+| `ollama`    | yes (GPU)  | N GPU hosts behind LB; pre-pull identical models   |
