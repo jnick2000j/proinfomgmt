@@ -127,7 +127,7 @@ export default function VerticalEntityRegister() {
       };
       const { data, error } = await supabase
         .from("projects")
-        .insert(insert)
+        .insert(insert as any)
         .select("id")
         .single();
       if (error) throw error;
