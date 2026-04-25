@@ -41,7 +41,6 @@ export default function VerticalEntityRegister() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<{ title: string; status: string; data: Record<string, any> }>({ title: "", status: "open", data: {} });
-  const [promoteRecord, setPromoteRecord] = useState<any | null>(null);
   const promotionConfig = slug ? PROMOTABLE_TO_PROJECT[slug] : undefined;
 
   const { data: entity, isLoading: entityLoading } = useQuery({
