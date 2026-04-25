@@ -83,16 +83,34 @@ You should see green `[ ok ]` lines for OS detection, package install,
 Docker, kernel tuning, user creation, and firewall rules. The script
 ends with a "Next steps" block.
 
-### Step 3 — Place TLS certificates
+### Step 3 — Provision TLS certificates
+
+Use the `provision-tls.sh` helper. Pick **one** of three modes:
 
 ```bash
-sudo mkdir -p /opt/taskmaster/tls
-# Let's Encrypt example:
-sudo certbot certonly --standalone -d $DOMAIN
-sudo cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /opt/taskmaster/tls/
-sudo cp /etc/letsencrypt/live/$DOMAIN/privkey.pem   /opt/taskmaster/tls/
-sudo chown -R taskmaster:taskmaster /opt/taskmaster/tls
+# (A) Public domain, internet-reachable on port 80 — Let's Encrypt + auto-renew
+sudo ./scripts/provision-tls.sh --mode letsencrypt \
+    --domain $DOMAIN --email ops@example.com --renew
+
+# (B) Air-gapped or internal-only — generate a local CA + leaf cert
+sudo ./scripts/provision-tls.sh --mode self-signed --domain $DOMAIN
+
+# (C) Bring your own enterprise PKI / wildcard cert
+sudo ./scripts/provision-tls.sh --mode byo --domain $DOMAIN \
+    --cert /tmp/wildcard.example.com.pem \
+    --key  /tmp/wildcard.example.com.key
 ```
+
+The script writes `tls/fullchain.pem` + `tls/privkey.pem`, sets the right
+permissions, updates `DOMAIN`/`PUBLIC_URL`/`TLS_*` in `.env`, and reloads
+the `web` container if it's running. For self-signed mode, it also prints
+the CA path (`tls/ca.crt`) and the exact OS-trust import commands —
+distribute that CA to clients (browser, MDM, GPO) or they'll see an
+"untrusted" warning.
+
+For Let's Encrypt, `--renew` installs a deploy hook that automatically
+copies renewed certs into `tls/` and HUPs the web container — no manual
+intervention needed every 90 days.
 
 ### Step 4 — Configure `.env`
 
