@@ -7,12 +7,6 @@
 > `edge` or `web` container. The question at each tier is only whether
 > that container runs on the **same VM** as the rest of the stack, or
 > on its **own VM**.
-
-> **Container layout (always true):** Postgres runs in its **own
-> container** (`db` service in `docker-compose.yml`) — never inside the
-> `edge` or `web` container. The question at each tier is only whether
-> that container runs on the **same VM** as the rest of the stack, or
-> on its **own VM**.
 >
 > **"S3" below = any S3-compatible object store** (AWS S3, on-prem
 > **MinIO**, Ceph RGW, Wasabi, etc.). AWS itself is never required.
