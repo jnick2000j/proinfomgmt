@@ -199,7 +199,7 @@ export default function Timesheets() {
     if (!user || !currentOrganization) return;
     setLoading(true);
     try {
-      const [mineRes, approvalsRes, progRes, projRes, prodRes, taskRes, ticketRes, profRes, accessRes] =
+      const [mineRes, approvalsRes, progRes, projRes, prodRes, taskRes, ticketRes, profRes, accessRes, orgRes, myAssignRes] =
         await Promise.all([
           supabase
             .from("timesheets")
