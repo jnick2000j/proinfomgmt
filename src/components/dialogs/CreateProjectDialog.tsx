@@ -50,6 +50,11 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
     priority: "medium",
     health: "green",
     methodology: "PRINCE2",
+    project_kind: "standard",
+    client_name: "",
+    contract_value: "",
+    contract_currency: "USD",
+    contract_form: "",
     start_date: "",
     end_date: "",
   });
@@ -84,7 +89,17 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
     setLoading(true);
     try {
       const { data: created, error } = await supabase.from("projects").insert({
-        ...formData,
+        name: formData.name,
+        description: formData.description || null,
+        stage: formData.stage,
+        priority: formData.priority,
+        health: formData.health,
+        methodology: formData.methodology,
+        project_kind: formData.project_kind,
+        client_name: formData.client_name || null,
+        contract_value: formData.contract_value ? Number(formData.contract_value) : null,
+        contract_currency: formData.contract_currency || null,
+        contract_form: formData.contract_form || null,
         programme_id: formData.programme_id || null,
         organization_id: formData.organization_id,
         start_date: formData.start_date || null,
@@ -118,6 +133,11 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
         priority: "medium",
         health: "green",
         methodology: "PRINCE2",
+        project_kind: "standard",
+        client_name: "",
+        contract_value: "",
+        contract_currency: "USD",
+        contract_form: "",
         start_date: "",
         end_date: "",
       });
