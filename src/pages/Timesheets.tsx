@@ -428,7 +428,7 @@ export default function Timesheets() {
         programme_id: !projects[0] ? programmes[0]?.id ?? null : null,
         product_id: !projects[0] && !programmes[0] ? products[0]?.id ?? null : null,
         task_id:
-          !projects[0] && !programmes[0] && !products[0] ? tasksList[0]?.id ?? null : null,
+          !projects[0] && !programmes[0] && !products[0] ? selectableTasks[0]?.id ?? null : null,
       })
       .select()
       .single();
