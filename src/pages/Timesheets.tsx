@@ -143,6 +143,8 @@ function statusBadge(status: Status) {
 export default function Timesheets() {
   const { user } = useAuth();
   const { currentOrganization } = useOrganization();
+  const { accessLevel } = useOrgAccessLevel();
+  const isOrgManager = accessLevel === "admin" || accessLevel === "manager";
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [tab, setTab] = useState("mine");
@@ -158,6 +160,10 @@ export default function Timesheets() {
   const [tasksList, setTasksList] = useState<NamedRow[]>([]);
   const [tickets, setTickets] = useState<NamedRow[]>([]);
   const [orgUsers, setOrgUsers] = useState<ProfileRow[]>([]);
+
+  // Time-logging restriction (org setting + user's allowed task ids)
+  const [restrictTimeLogging, setRestrictTimeLogging] = useState(false);
+  const [allowedTaskIds, setAllowedTaskIds] = useState<Set<string>>(new Set());
 
   // Editor state
   const [selectedSheet, setSelectedSheet] = useState<Timesheet | null>(null);
