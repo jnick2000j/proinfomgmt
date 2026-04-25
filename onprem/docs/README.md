@@ -13,7 +13,8 @@ Operator guide for self-hosted TaskMaster installations.
 7. [AI provider configuration](./ai-provider.md) — Ollama, OpenAI, Azure, Anthropic, embedding models
 8. [SMTP configuration](./smtp.md) — required for invites, notifications, MFA, helpdesk
 9. [Features overview](./features.md) — every shipped module + the edge functions / cron jobs that back it
-10. [Troubleshooting](./troubleshooting.md) — common errors and fixes
+10. [Scaling & HA](./scaling-ha.md) — going beyond 2,000 users, multi-host topologies, Patroni, multi-AZ
+11. [Troubleshooting](./troubleshooting.md) — common errors and fixes
 
 End-user documentation (PRINCE2 / MSP / Agile / ITIL templates and the
 "Ask the Task Master" AI assistant) ships *inside* the application — open
