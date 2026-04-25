@@ -16,6 +16,14 @@ Operator guide for self-hosted TaskMaster installations.
 10. [Scaling & HA](./scaling-ha.md) — going beyond 2,000 users, multi-host topologies, Patroni, multi-AZ
 11. [Troubleshooting](./troubleshooting.md) — common errors and fixes
 
+### For release engineers (not operators)
+
+If you are **building** the install / upgrade bundles (rather than
+consuming them), see [`onprem/release/RELEASING.md`](../release/RELEASING.md).
+It covers signing-key setup, `bump-version.sh`, `build-bundle.sh`, the
+GitHub Actions release workflow, local test builds (`SKIP_IMAGES=1`),
+hotfix flow, and signing-key rotation.
+
 End-user documentation (PRINCE2 / MSP / Agile / ITIL templates and the
 "Ask the Task Master" AI assistant) ships *inside* the application — open
 **Documentation** in the sidebar.
