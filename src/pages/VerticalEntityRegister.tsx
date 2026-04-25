@@ -249,8 +249,22 @@ export default function VerticalEntityRegister() {
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground shrink-0">
-                  {format(new Date(r.created_at), "MMM d, yyyy")}
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="text-xs text-muted-foreground">
+                    {format(new Date(r.created_at), "MMM d, yyyy")}
+                  </div>
+                  {promotionConfig && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={() => promote.mutate(r)}
+                      disabled={promote.isPending}
+                    >
+                      <Rocket className="h-3.5 w-3.5" />
+                      {promotionConfig.label}
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>
