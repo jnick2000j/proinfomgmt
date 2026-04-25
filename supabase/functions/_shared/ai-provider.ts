@@ -46,7 +46,8 @@ export interface ChatMessage {
 }
 
 export interface CallAIOptions {
-  supabase: SupabaseClient;
+  // deno-lint-ignore no-explicit-any
+  supabase: SupabaseClient | any;
   organizationId?: string | null;
   model?: string;            // fallback if provider has no default
   messages: ChatMessage[];
