@@ -268,12 +268,9 @@ export default function Timesheets() {
       setProgrammes((progRes.data || []) as NamedRow[]);
       setProjects((projRes.data || []) as NamedRow[]);
       setProducts((prodRes.data || []) as NamedRow[]);
-      setTasksList(
-        ((taskRes.data || []) as Array<{ id: string; name: string }>).map((t) => ({
-          id: t.id,
-          name: t.name,
-        })),
-      );
+      const taskRows =
+        (taskRes.data || []) as Array<{ id: string; name: string; assigned_to: string | null }>;
+      setTasksList(taskRows.map((t) => ({ id: t.id, name: t.name })));
       setTickets(
         ((ticketRes.data || []) as Array<{ id: string; subject: string; reference_number: string | null }>).map((t) => ({
           id: t.id,
@@ -288,6 +285,22 @@ export default function Timesheets() {
         orgUserIds.has(p.user_id),
       );
       setOrgUsers(profiles);
+
+      // Time-logging restriction
+      setRestrictTimeLogging(
+        !!(orgRes.data as { restrict_time_logging_to_assigned_tasks?: boolean } | null)
+          ?.restrict_time_logging_to_assigned_tasks,
+      );
+      const allowed = new Set<string>();
+      // Tasks where the user is the primary assignee
+      taskRows.forEach((t) => {
+        if (t.assigned_to && t.assigned_to === user.id) allowed.add(t.id);
+      });
+      // Tasks where the user appears in task_assignments
+      ((myAssignRes.data || []) as Array<{ task_id: string }>).forEach((r) => {
+        allowed.add(r.task_id);
+      });
+      setAllowedTaskIds(allowed);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load timesheets");
