@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
 import { usePlanLimits } from "@/hooks/usePlanLimits";
+import { useVertical } from "@/hooks/useVertical";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 import { dispatchAutomation } from "@/lib/automations";
@@ -30,6 +31,8 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
   const { user } = useAuth();
   const { currentOrganization } = useOrganization();
   const { canCreate, limits } = usePlanLimits();
+  const { hasModule } = useVertical();
+  const isConstruction = hasModule("rfis");
   const [programmes, setProgrammes] = useState<{ id: string; name: string }[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
 
@@ -50,6 +53,11 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
     priority: "medium",
     health: "green",
     methodology: "PRINCE2",
+    project_kind: "standard",
+    client_name: "",
+    contract_value: "",
+    contract_currency: "USD",
+    contract_form: "",
     start_date: "",
     end_date: "",
   });
@@ -84,7 +92,17 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
     setLoading(true);
     try {
       const { data: created, error } = await supabase.from("projects").insert({
-        ...formData,
+        name: formData.name,
+        description: formData.description || null,
+        stage: formData.stage,
+        priority: formData.priority,
+        health: formData.health,
+        methodology: formData.methodology,
+        project_kind: formData.project_kind,
+        client_name: formData.client_name || null,
+        contract_value: formData.contract_value ? Number(formData.contract_value) : null,
+        contract_currency: formData.contract_currency || null,
+        contract_form: formData.contract_form || null,
         programme_id: formData.programme_id || null,
         organization_id: formData.organization_id,
         start_date: formData.start_date || null,
@@ -118,6 +136,11 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
         priority: "medium",
         health: "green",
         methodology: "PRINCE2",
+        project_kind: "standard",
+        client_name: "",
+        contract_value: "",
+        contract_currency: "USD",
+        contract_form: "",
         start_date: "",
         end_date: "",
       });
@@ -244,9 +267,82 @@ export function CreateProjectDialog({ onSuccess }: CreateProjectDialogProps) {
                   <SelectItem value="Agile">Agile</SelectItem>
                   <SelectItem value="Hybrid">Hybrid</SelectItem>
                   <SelectItem value="Waterfall">Waterfall</SelectItem>
+                  {isConstruction && <SelectItem value="Construction">Construction</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
+            {isConstruction && (
+              <div>
+                <Label htmlFor="project_kind">Project Type</Label>
+                <Select value={formData.project_kind} onValueChange={(v) => setFormData({ ...formData, project_kind: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="pursuit">Pursuit / Capture</SelectItem>
+                    <SelectItem value="bid">Live Bid</SelectItem>
+                    <SelectItem value="preconstruction">Preconstruction</SelectItem>
+                    <SelectItem value="construction">Construction Delivery</SelectItem>
+                    <SelectItem value="closeout">Closeout / DLP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {isConstruction && formData.project_kind !== "standard" && (
+              <>
+                <div>
+                  <Label htmlFor="client_name">Client / Owner</Label>
+                  <Input
+                    id="client_name"
+                    value={formData.client_name}
+                    onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+                    placeholder="e.g. Acme Developments"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="contract_form">Contract Form</Label>
+                  <Select value={formData.contract_form || "none"} onValueChange={(v) => setFormData({ ...formData, contract_form: v === "none" ? "" : v })}>
+                    <SelectTrigger><SelectValue placeholder="Select form" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Not selected</SelectItem>
+                      <SelectItem value="nec4_eccs_optionA">NEC4 ECC Option A</SelectItem>
+                      <SelectItem value="nec4_eccs_optionC">NEC4 ECC Option C</SelectItem>
+                      <SelectItem value="jct_d_and_b_2024">JCT D&B 2024</SelectItem>
+                      <SelectItem value="jct_standard_2024">JCT Standard 2024</SelectItem>
+                      <SelectItem value="fidic_red_book">FIDIC Red Book</SelectItem>
+                      <SelectItem value="fidic_yellow_book">FIDIC Yellow Book</SelectItem>
+                      <SelectItem value="aia_a101">AIA A101</SelectItem>
+                      <SelectItem value="aia_a102_cm_at_risk">AIA A102 CM-at-Risk</SelectItem>
+                      <SelectItem value="consensusdocs_500">ConsensusDocs 500</SelectItem>
+                      <SelectItem value="bespoke">Bespoke</SelectItem>
+                      <SelectItem value="framework_call_off">Framework Call-off</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="contract_value">Contract Value</Label>
+                  <Input
+                    id="contract_value"
+                    type="number"
+                    value={formData.contract_value}
+                    onChange={(e) => setFormData({ ...formData, contract_value: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="contract_currency">Currency</Label>
+                  <Select value={formData.contract_currency} onValueChange={(v) => setFormData({ ...formData, contract_currency: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="GBP">GBP</SelectItem>
+                      <SelectItem value="EUR">EUR</SelectItem>
+                      <SelectItem value="AUD">AUD</SelectItem>
+                      <SelectItem value="CAD">CAD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
             <div>
               <Label htmlFor="start_date">Start Date</Label>
               <Input

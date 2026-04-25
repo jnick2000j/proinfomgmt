@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -13,9 +13,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+
+// Slugs of pursuit-lifecycle entities that can be promoted into a delivery project.
+const PROMOTABLE_TO_PROJECT: Record<string, { kind: string; label: string; sourceField: "source_bid_id" | "source_rfp_id" | "source_opportunity_id" | "source_award_id" }> = {
+  bids:               { kind: "preconstruction", label: "Promote to Delivery Project", sourceField: "source_bid_id" },
+  "award-contracts":  { kind: "preconstruction", label: "Promote to Delivery Project", sourceField: "source_award_id" },
+  rfps:               { kind: "bid",             label: "Open as Live Bid Project",   sourceField: "source_rfp_id" },
+  opportunities:      { kind: "pursuit",         label: "Open as Pursuit Project",    sourceField: "source_opportunity_id" },
+};
 
 interface FieldDef {
   key: string;
@@ -27,11 +35,13 @@ interface FieldDef {
 
 export default function VerticalEntityRegister() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<{ title: string; status: string; data: Record<string, any> }>({ title: "", status: "open", data: {} });
+  const promotionConfig = slug ? PROMOTABLE_TO_PROJECT[slug] : undefined;
 
   const { data: entity, isLoading: entityLoading } = useQuery({
     queryKey: ["vertical-entity", slug],
@@ -83,6 +93,48 @@ export default function VerticalEntityRegister() {
       qc.invalidateQueries({ queryKey: ["entity-records"] });
       setOpen(false);
       setForm({ title: "", status: entity?.default_status_options?.[0] ?? "open", data: {} });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  // Promote a pursuit-lifecycle record (Bid / Award / RFP / Opportunity)
+  // into a first-class delivery project, threading the source record id back.
+  const promote = useMutation({
+    mutationFn: async (record: any) => {
+      if (!promotionConfig || !currentOrganization?.id || !user) throw new Error("Missing context");
+      const d = (record.data || {}) as Record<string, any>;
+      const projectName =
+        d.opportunity_name || d.title || record.title || `${promotionConfig.kind} project`;
+      const insert: Record<string, any> = {
+        name: projectName,
+        description: `Promoted from ${slug?.replace(/-/g, " ")} ${record.record_number}`,
+        organization_id: currentOrganization.id,
+        stage: "initiating",
+        priority: "medium",
+        health: "green",
+        methodology: "Construction",
+        project_kind: promotionConfig.kind,
+        client_name: d.client_name || null,
+        contract_value: d.proposed_contract_value ?? d.contract_value ?? d.estimated_value ?? null,
+        contract_currency: d.currency || null,
+        contract_form: d.contract_form || null,
+        start_date: d.start_on_site || d.target_award_date || null,
+        end_date: d.completion_date || null,
+        created_by: user.id,
+        manager_id: user.id,
+        [promotionConfig.sourceField]: record.id,
+      };
+      const { data, error } = await supabase
+        .from("projects")
+        .insert(insert as any)
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: (projectId) => {
+      toast.success("Project created from pursuit record");
+      navigate(`/projects/${projectId}`);
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -196,8 +248,22 @@ export default function VerticalEntityRegister() {
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground shrink-0">
-                  {format(new Date(r.created_at), "MMM d, yyyy")}
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <div className="text-xs text-muted-foreground">
+                    {format(new Date(r.created_at), "MMM d, yyyy")}
+                  </div>
+                  {promotionConfig && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={() => promote.mutate(r)}
+                      disabled={promote.isPending}
+                    >
+                      <Rocket className="h-3.5 w-3.5" />
+                      {promotionConfig.label}
+                    </Button>
+                  )}
                 </div>
               </div>
             </Card>

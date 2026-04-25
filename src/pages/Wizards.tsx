@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useVertical } from "@/hooks/useVertical";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -523,8 +524,16 @@ const aiWizards: AIWizardSpec[] = [
   ]},
 ];
 
-const CREATE_CATEGORIES = ["all", "MSP", "PRINCE2", "Agile", "Product", "Governance", "Construction", "Pro Services"] as const;
-const AI_CATEGORIES = ["all", "Document", "Strategy", "Governance", "Helper", "Change Mgmt", "Helpdesk", "Construction", "Pro Services"] as const;
+// Categories that should be hidden when their underlying vertical isn't active.
+// Maps category label → vertical "module" key that must be present in `enabled_modules`.
+const VERTICAL_GATED_CATEGORIES: Record<string, string> = {
+  Construction: "rfis",        // Construction & Engineering vertical
+  Helpdesk: "helpdesk",        // ITSM / Helpdesk vertical
+  "Pro Services": "engagements", // Professional Services vertical
+};
+
+const ALL_CREATE_CATEGORIES = ["all", "MSP", "PRINCE2", "Agile", "Product", "Governance", "Construction", "Pro Services"] as const;
+const ALL_AI_CATEGORIES = ["all", "Document", "Strategy", "Governance", "Helper", "Change Mgmt", "Helpdesk", "Construction", "Pro Services"] as const;
 
 export default function Wizards() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -539,20 +548,39 @@ export default function Wizards() {
   const [searchQuery, setSearchQuery] = useState("");
   const [createCategory, setCreateCategory] = useState<string>("all");
   const [aiCategory, setAiCategory] = useState<string>("all");
+  const { hasModule } = useVertical();
+
+  const isCategoryAllowed = (cat: string) => {
+    const requiredModule = VERTICAL_GATED_CATEGORIES[cat];
+    if (!requiredModule) return true;            // ungated category — always allowed
+    return hasModule(requiredModule);
+  };
+
+  // Hide category chips that don't apply to the active vertical
+  const CREATE_CATEGORIES = useMemo(
+    () => ALL_CREATE_CATEGORIES.filter((c) => c === "all" || isCategoryAllowed(c)),
+    [hasModule]
+  );
+  const AI_CATEGORIES = useMemo(
+    () => ALL_AI_CATEGORIES.filter((c) => c === "all" || isCategoryAllowed(c)),
+    [hasModule]
+  );
 
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardType, setWizardType] = useState<TemplateType>("programme_mandate");
   const [wizardName, setWizardName] = useState("");
 
   const filteredCreate = useMemo(() => createTemplates
+    .filter(t => isCategoryAllowed(t.category))
     .filter(t => createCategory === "all" || t.category === createCategory)
     .filter(t => !searchQuery || t.name.toLowerCase().includes(searchQuery.toLowerCase()) || t.description.toLowerCase().includes(searchQuery.toLowerCase())),
-    [createCategory, searchQuery]);
+    [createCategory, searchQuery, hasModule]);
 
   const filteredAi = useMemo(() => aiWizards
+    .filter(w => isCategoryAllowed(w.category as string))
     .filter(w => aiCategory === "all" || w.category === aiCategory)
     .filter(w => !searchQuery || w.title.toLowerCase().includes(searchQuery.toLowerCase()) || w.description.toLowerCase().includes(searchQuery.toLowerCase())),
-    [aiCategory, searchQuery]);
+    [aiCategory, searchQuery, hasModule]);
 
   return (
     <AppLayout title="Wizards" subtitle="Create entities from templates or draft documents with AI — every AI draft is reviewed in AI Approvals before publishing.">
