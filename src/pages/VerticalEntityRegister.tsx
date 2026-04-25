@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -13,9 +13,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+
+// Slugs of pursuit-lifecycle entities that can be promoted into a delivery project.
+const PROMOTABLE_TO_PROJECT: Record<string, { kind: string; label: string; sourceField: "source_bid_id" | "source_rfp_id" | "source_opportunity_id" | "source_award_id" }> = {
+  bids:               { kind: "preconstruction", label: "Promote to Delivery Project", sourceField: "source_bid_id" },
+  "award-contracts":  { kind: "preconstruction", label: "Promote to Delivery Project", sourceField: "source_award_id" },
+  rfps:               { kind: "bid",             label: "Open as Live Bid Project",   sourceField: "source_rfp_id" },
+  opportunities:      { kind: "pursuit",         label: "Open as Pursuit Project",    sourceField: "source_opportunity_id" },
+};
 
 interface FieldDef {
   key: string;
@@ -27,11 +35,14 @@ interface FieldDef {
 
 export default function VerticalEntityRegister() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<{ title: string; status: string; data: Record<string, any> }>({ title: "", status: "open", data: {} });
+  const [promoteRecord, setPromoteRecord] = useState<any | null>(null);
+  const promotionConfig = slug ? PROMOTABLE_TO_PROJECT[slug] : undefined;
 
   const { data: entity, isLoading: entityLoading } = useQuery({
     queryKey: ["vertical-entity", slug],
