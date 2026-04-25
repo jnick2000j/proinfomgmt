@@ -1,0 +1,155 @@
+# ============================================================================
+# TaskMaster on-prem — Single-node MinIO (S3-compatible object storage)
+#
+# Use for: small/medium clusters or single-VM Large deployments that need
+# S3 semantics (multi-host uploads, presigned URLs, lifecycle rules) but
+# don't yet need a 4-node distributed cluster.
+#
+# Run alongside the main stack:
+#   docker compose -f docker-compose.yml -f docker-compose.minio.yml up -d
+#
+# After first boot, the `minio-bootstrap` job:
+#   1. Creates the `taskmaster-uploads` bucket
+#   2. Creates a least-privilege service account for the app
+#   3. Writes a versioning + 30-day noncurrent-version lifecycle policy
+#   4. Blocks public access (bucket is private; app issues presigned URLs)
+#
+# Then point the app at MinIO by setting these in `.env`:
+#   STORAGE_DRIVER=s3
+#   S3_BUCKET=taskmaster-uploads
+#   S3_REGION=us-east-1
+#   S3_ENDPOINT=http://minio:9000
+#   S3_FORCE_PATH_STYLE=true
+#   S3_ACCESS_KEY=<value printed by the bootstrap job>
+#   S3_SECRET_KEY=<value printed by the bootstrap job>
+# ============================================================================
+
+services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-10-13T13-34-11Z
+    container_name: taskmaster-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD must be set in .env}
+      MINIO_BROWSER_REDIRECT_URL: ${MINIO_CONSOLE_URL:-http://localhost:9001}
+      MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://minio:9000}
+    volumes:
+      - minio-data:/data
+    ports:
+      # 9000 = S3 API   9001 = web console
+      # In production, reverse-proxy these behind TLS instead of exposing.
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskmaster
+
+  # One-shot bootstrap: create bucket, service account, policy, lifecycle.
+  # Idempotent — safe to re-run.
+  minio-bootstrap:
+    image: quay.io/minio/mc:RELEASE.2024-10-08T09-37-26Z
+    container_name: taskmaster-minio-bootstrap
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      BUCKET: ${S3_BUCKET:-taskmaster-uploads}
+      APP_ACCESS_KEY: ${S3_ACCESS_KEY:?Set S3_ACCESS_KEY in .env (20+ chars, alphanum)}
+      APP_SECRET_KEY: ${S3_SECRET_KEY:?Set S3_SECRET_KEY in .env (40+ chars)}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        set -eu
+
+        echo ">> waiting for MinIO..."
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" >/dev/null 2>&1; do
+          sleep 2
+        done
+
+        echo ">> ensuring bucket: $$BUCKET"
+        mc mb --ignore-existing "local/$$BUCKET"
+
+        echo ">> blocking public access"
+        mc anonymous set none "local/$$BUCKET"
+
+        echo ">> enabling versioning (recovery from accidental deletes)"
+        mc version enable "local/$$BUCKET"
+
+        echo ">> lifecycle: expire noncurrent versions after 30d, abort stale multipart after 7d"
+        cat >/tmp/lifecycle.json <<JSON
+        {
+          "Rules": [
+            {
+              "ID": "expire-noncurrent-30d",
+              "Status": "Enabled",
+              "Filter": { "Prefix": "" },
+              "NoncurrentVersionExpiration": { "NoncurrentDays": 30 }
+            },
+            {
+              "ID": "abort-incomplete-multipart-7d",
+              "Status": "Enabled",
+              "Filter": { "Prefix": "" },
+              "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 }
+            }
+          ]
+        }
+        JSON
+        mc ilm import "local/$$BUCKET" </tmp/lifecycle.json
+
+        echo ">> writing least-privilege policy: taskmaster-app"
+        cat >/tmp/policy.json <<JSON
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Sid": "ListOwnBucket",
+              "Effect": "Allow",
+              "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
+              "Resource": ["arn:aws:s3:::$$BUCKET"]
+            },
+            {
+              "Sid": "RWObjectsInOwnBucket",
+              "Effect": "Allow",
+              "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:AbortMultipartUpload",
+                "s3:ListMultipartUploadParts"
+              ],
+              "Resource": ["arn:aws:s3:::$$BUCKET/*"]
+            }
+          ]
+        }
+        JSON
+        mc admin policy create local taskmaster-app /tmp/policy.json || \
+          mc admin policy add local taskmaster-app /tmp/policy.json
+
+        echo ">> creating service account for the app"
+        if ! mc admin user info local "$$APP_ACCESS_KEY" >/dev/null 2>&1; then
+          mc admin user add local "$$APP_ACCESS_KEY" "$$APP_SECRET_KEY"
+        fi
+        mc admin policy attach local taskmaster-app --user "$$APP_ACCESS_KEY" || true
+
+        echo ">> done. bucket=$$BUCKET access_key=$$APP_ACCESS_KEY"
+    networks:
+      - taskmaster
+    restart: "no"
+
+volumes:
+  minio-data:
+    driver: local
+
+networks:
+  taskmaster:
+    external: true
+    name: taskmaster_default
