@@ -83,16 +83,34 @@ You should see green `[ ok ]` lines for OS detection, package install,
 Docker, kernel tuning, user creation, and firewall rules. The script
 ends with a "Next steps" block.
 
-### Step 3 — Place TLS certificates
+### Step 3 — Provision TLS certificates
+
+Use the `provision-tls.sh` helper. Pick **one** of three modes:
 
 ```bash
-sudo mkdir -p /opt/taskmaster/tls
-# Let's Encrypt example:
-sudo certbot certonly --standalone -d $DOMAIN
-sudo cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /opt/taskmaster/tls/
-sudo cp /etc/letsencrypt/live/$DOMAIN/privkey.pem   /opt/taskmaster/tls/
-sudo chown -R taskmaster:taskmaster /opt/taskmaster/tls
+# (A) Public domain, internet-reachable on port 80 — Let's Encrypt + auto-renew
+sudo ./scripts/provision-tls.sh --mode letsencrypt \
+    --domain $DOMAIN --email ops@example.com --renew
+
+# (B) Air-gapped or internal-only — generate a local CA + leaf cert
+sudo ./scripts/provision-tls.sh --mode self-signed --domain $DOMAIN
+
+# (C) Bring your own enterprise PKI / wildcard cert
+sudo ./scripts/provision-tls.sh --mode byo --domain $DOMAIN \
+    --cert /tmp/wildcard.example.com.pem \
+    --key  /tmp/wildcard.example.com.key
 ```
+
+The script writes `tls/fullchain.pem` + `tls/privkey.pem`, sets the right
+permissions, updates `DOMAIN`/`PUBLIC_URL`/`TLS_*` in `.env`, and reloads
+the `web` container if it's running. For self-signed mode, it also prints
+the CA path (`tls/ca.crt`) and the exact OS-trust import commands —
+distribute that CA to clients (browser, MDM, GPO) or they'll see an
+"untrusted" warning.
+
+For Let's Encrypt, `--renew` installs a deploy hook that automatically
+copies renewed certs into `tls/` and HUPs the web container — no manual
+intervention needed every 90 days.
 
 ### Step 4 — Configure `.env`
 
@@ -250,7 +268,41 @@ S3_SECRET_KEY=<from bootstrap output>
 SMTP_HOST=...
 ```
 
-### Step 5 — Bring up the app stack on each web node
+### Step 5 — Provision TLS on each web node
+
+Run `provision-tls.sh` on **each** app/web node. Use the same `--domain`
+everywhere; if individual nodes also have their own internal hostnames,
+add them as `--san`.
+
+```bash
+# Public Let's Encrypt (each node temporarily binds :80 for the challenge)
+sudo ./scripts/provision-tls.sh --mode letsencrypt \
+    --domain taskmaster.example.com --email ops@example.com --renew
+
+# OR — TLS terminated at LB, internal traffic uses self-signed
+sudo ./scripts/provision-tls.sh --mode self-signed \
+    --domain taskmaster.example.com \
+    --san app1.internal --san app2.internal
+
+# OR — enterprise wildcard cert distributed to each node
+sudo ./scripts/provision-tls.sh --mode byo \
+    --domain taskmaster.example.com \
+    --cert /opt/secrets/wildcard.pem --key /opt/secrets/wildcard.key
+```
+
+> **TLS-terminating load balancer?** If your L7 LB (HAProxy, Nginx,
+> AWS ALB, F5) terminates TLS and re-encrypts to the backends, run
+> `--mode self-signed` on each web node and import the generated
+> `tls/ca.crt` into the LB's trust store. The public cert lives only
+> on the LB.
+
+> **MinIO TLS (storage node).** The storage role doesn't run the web
+> container, but MinIO itself needs a cert when used over HTTPS. Run
+> the same script on the storage VM — it produces certs in `./tls/`,
+> which `docker-compose.minio.yml` mounts at `/root/.minio/certs/`.
+> See [minio-cluster.md](./minio-cluster.md#tls).
+
+### Step 6 — Bring up the app stack on each web node
 
 ```bash
 cd /opt/taskmaster
@@ -261,7 +313,7 @@ docker compose -f docker-compose.yml --profile=app-only up -d
 The `app-only` profile excludes the `db` service (which now lives on
 `db.internal`) and the local-FS storage volume.
 
-### Step 6 — Front them with a load balancer
+### Step 7 — Front them with a load balancer
 
 Point your L4 or L7 LB at port 443 of each web node. Health-check path
 is `/functions/v1/health` (returns `{ok: true}` when the node can reach
@@ -305,6 +357,9 @@ script — that IP must be included.
 | MinIO uploads fail with `403 Forbidden` | Bootstrap policy not attached | Check `docker logs minio-bootstrap` |
 | `chronyd` shows large offset | NTP blocked outbound | Allow UDP 123 outbound or point chrony at an internal NTP |
 | `install.sh` warns "<4GB RAM" | Under-provisioned VM | Resize before installing |
+| Browser shows "NET::ERR_CERT_AUTHORITY_INVALID" | Self-signed CA not imported on client | Distribute `tls/ca.crt` to the OS/browser trust store (see script output) |
+| `certbot: port 80 already in use` | Web container is bound to :80 | Script auto-stops it; if it fails, run `docker compose stop web` first |
+| Cert expired / not auto-renewing | `--renew` was not passed | Re-run `provision-tls.sh --mode letsencrypt … --renew` |
 
 ---
 
