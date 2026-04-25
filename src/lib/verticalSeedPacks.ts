@@ -35,7 +35,13 @@ export const SEED_PACKS: SeedPack[] = [
       "change_orders", "variations", "potential_change_items", "claims",
       "purchase_orders", "subcontracts", "procurement", "deliveries", "materials",
       "boq", "cost_codes", "valuations", "payment_applications", "retentions",
-      "estimates", "tenders", "bids",
+      // Pursuit / preconstruction lifecycle
+      "opportunities", "rfps", "rfqs", "itts", "bids", "proposals",
+      "bid_no_go_decisions", "qualifications_prequals", "bid_clarifications",
+      "estimates", "takeoffs", "tenders", "schedule_of_values",
+      "award_log", "letters_of_intent", "contract_register",
+      // Project lifecycle phases (preconstruction → closeout)
+      "project_lifecycle_phases", "preconstruction_checklist",
       "method_statements", "ra_ms", "permits_to_work", "toolbox_talks",
       "incidents_hse", "near_misses", "safety_observations", "audits",
       "quality_ncrs", "itp", "test_packs", "punch_walkdowns",
