@@ -57,6 +57,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useOrgAccessLevel } from "@/hooks/useOrgAccessLevel";
 import { toast } from "sonner";
 import { buildTimesheetPdf, type TimesheetEntryRow } from "@/lib/timesheetPdf";
 
