@@ -122,8 +122,29 @@ const statusConfig: Record<TaskStatus, { label: string; icon: React.ElementType;
 export default function TaskManagement({ embedded }: { embedded?: boolean }) {
   const { currentOrganization } = useOrganization();
   const { user } = useAuth();
+  const { accessLevel } = useOrgAccessLevel();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isOrgManager = accessLevel === "admin" || accessLevel === "manager";
+
+  // Tasks the current user is explicitly assigned to via task_assignments
+  const { data: myAssignedTaskIds = new Set<string>() } = useQuery({
+    queryKey: ["my-task-assignments", user?.id, currentOrganization?.id],
+    enabled: !!user?.id && !!currentOrganization?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("task_assignments")
+        .select("task_id")
+        .eq("user_id", user!.id);
+      return new Set<string>((data || []).map((r: any) => r.task_id));
+    },
+  });
+
+  const canLogTimeOnTask = (task: Task) =>
+    isOrgManager ||
+    task.assigned_to === user?.id ||
+    myAssignedTaskIds.has(task.id);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
