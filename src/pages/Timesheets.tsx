@@ -1034,7 +1034,7 @@ export default function Timesheets() {
                                           ? products[0]?.id
                                           : v === "ticket"
                                             ? tickets[0]?.id
-                                            : tasksList[0]?.id;
+                                            : selectableTasks[0]?.id;
                                   if (v === "programme") patch.programme_id = first ?? null;
                                   if (v === "project") patch.project_id = first ?? null;
                                   if (v === "product") patch.product_id = first ?? null;
@@ -1086,7 +1086,7 @@ export default function Timesheets() {
                                         ? products
                                         : linkType === "ticket"
                                           ? tickets
-                                          : tasksList
+                                          : selectableTasks
                                   ).map((row) => (
                                     <SelectItem key={row.id} value={row.id}>
                                       {row.name}
