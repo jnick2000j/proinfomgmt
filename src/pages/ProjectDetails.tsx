@@ -30,7 +30,12 @@ import {
   LifeBuoy,
   Workflow,
   GitPullRequest,
+  HardHat,
+  Network,
 } from "lucide-react";
+import { ConstructionTab } from "@/components/projects/ConstructionTab";
+import { ProjectTraceability } from "@/components/projects/ProjectTraceability";
+import { useVertical } from "@/hooks/useVertical";
 import { AutomationsTab } from "@/components/automations/AutomationsTab";
 import { EntityTicketsCard } from "@/components/helpdesk/EntityTicketsCard";
 import { EntityChangesCard } from "@/components/changeMgmt/EntityChangesCard";
@@ -62,6 +67,10 @@ interface Project {
   programme_id: string | null;
   manager_id: string | null;
   created_at: string;
+  source_opportunity_id?: string | null;
+  source_rfp_id?: string | null;
+  source_bid_id?: string | null;
+  source_award_id?: string | null;
 }
 
 interface WorkPackage {
@@ -205,6 +214,9 @@ export default function ProjectDetails() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const projectId = searchParams.get("id");
+
+  const { vertical } = useVertical();
+  const isConstruction = vertical?.id === "construction";
 
   const [project, setProject] = useState<Project | null>(null);
   const [programName, setProgrammeName] = useState<string | null>(null);
@@ -555,6 +567,8 @@ export default function ProjectDetails() {
               { value: "products", label: "Products", icon: Layers, count: products.length },
               { value: "risks", label: "Risks", icon: AlertTriangle, count: risks.length },
               { value: "issues", label: "Issues", icon: AlertCircle, count: issues.length },
+              ...(isConstruction ? [{ value: "construction", label: "Construction", icon: HardHat }] : []),
+              { value: "traceability", label: "Traceability", icon: Network },
               { value: "brief", label: "Project Brief", icon: FileText },
               { value: "team", label: "Team", icon: Users },
               { value: "updates", label: "Updates", icon: MessageSquarePlus },
@@ -564,6 +578,17 @@ export default function ProjectDetails() {
               { value: "history", label: "Status Timeline", icon: History },
             ]}
           />
+
+          {isConstruction && project.organization_id && (
+            <TabsContent value="construction">
+              <ConstructionTab projectId={project.id} organizationId={project.organization_id} />
+            </TabsContent>
+          )}
+
+          <TabsContent value="traceability">
+            <ProjectTraceability project={project as any} />
+          </TabsContent>
+
 
           {/* Work Packages Tab */}
           <TabsContent value="workpackages">

@@ -2456,6 +2456,66 @@ export type Database = {
           },
         ]
       }
+      construction_report_log: {
+        Row: {
+          delivered_count: number
+          failed_count: number
+          generated_at: string
+          id: string
+          organization_id: string
+          period_end: string
+          period_start: string
+          project_id: string
+          recipients_count: number
+          report_kind: string
+          status: string
+          summary: Json
+        }
+        Insert: {
+          delivered_count?: number
+          failed_count?: number
+          generated_at?: string
+          id?: string
+          organization_id: string
+          period_end: string
+          period_start: string
+          project_id: string
+          recipients_count?: number
+          report_kind?: string
+          status?: string
+          summary?: Json
+        }
+        Update: {
+          delivered_count?: number
+          failed_count?: number
+          generated_at?: string
+          id?: string
+          organization_id?: string
+          period_end?: string
+          period_start?: string
+          project_id?: string
+          recipients_count?: number
+          report_kind?: string
+          status?: string
+          summary?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "construction_report_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "construction_report_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       csat_responses: {
         Row: {
           comment: string | null
@@ -6416,6 +6476,129 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_lifecycle_phases: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          phase: string
+          project_id: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          organization_id: string
+          phase: string
+          project_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          phase?: string
+          project_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_lifecycle_phases_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_lifecycle_phases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_report_recipients: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          day_of_week: number
+          display_name: string | null
+          email: string
+          frequency: string
+          id: string
+          is_active: boolean
+          last_sent_at: string | null
+          organization_id: string
+          project_id: string
+          report_kind: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          day_of_week?: number
+          display_name?: string | null
+          email: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          organization_id: string
+          project_id: string
+          report_kind?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          day_of_week?: number
+          display_name?: string | null
+          email?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_sent_at?: string | null
+          organization_id?: string
+          project_id?: string
+          report_kind?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_report_recipients_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_report_recipients_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
