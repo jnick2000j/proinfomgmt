@@ -67,6 +67,10 @@ interface Project {
   programme_id: string | null;
   manager_id: string | null;
   created_at: string;
+  source_opportunity_id?: string | null;
+  source_rfp_id?: string | null;
+  source_bid_id?: string | null;
+  source_award_id?: string | null;
 }
 
 interface WorkPackage {
